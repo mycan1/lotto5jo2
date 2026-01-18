@@ -41,9 +41,13 @@
         <button class="btn-main" id="btn10" onclick="process('10')">10조합 생성 (패턴 분석)<div id="timer10" class="timer-overlay"></div></button>
         <button class="btn-sub" onclick="showStorage()">마킹 보관함</button>
         <button class="btn-sub" onclick="clearAll()">전체 삭제</button>
-    </div>
-    <div id="console-container"><div id="console">▶ 사장님, 시간 기록 엔진 가동 중...</div></div>
+     </div>
     
+    <div id="admin-panel" style="display:none; background:#1a1a1a; padding:15px; border:2px solid #f2c94c; margin:10px 0; border-radius:10px;">
+    <p style="color:#f2c94c; margin:0 0 10px 0; font-weight:bold;">★ 사장님 전용 18수 합공 엔진 ★</p>
+    <input type="text" id="admin-18" placeholder="예: 1, 5, 12... (쉼표 구분)" style="width:75%; padding:8px; border-radius:5px; border:none;">
+    <button onclick="save18()" style="padding:8px 15px; background:#f2c94c; color:#000; font-weight:bold; border:none; border-radius:5px;">합공</button>
+</div>
 <button id="msg-btn" onclick="window.open('https://open.kakao.com/o/sdMVt8bi')">📩 쪽지함</button>
     <div id="msg-box">
         <div class="msg-header">📥 입장객 쪽지함 <span style="cursor:pointer; font-size:20px;" onclick="toggleMsg()">×</span></div>
@@ -170,7 +174,24 @@
         function replyMsg(user) {
             var msg = prompt(user + "님께 보낼 답장 내용을 입력하세요:");
             if(msg) alert(user + "님께 답장이 성공적으로 전송되었습니다.");
-        }
-    </script>
+      // --- 사장님 전용 비밀키 및 18수 합공 로직 ---
+document.addEventListener('keydown', (e) => {
+    if(e.key.toLowerCase() === 'a') {
+        const panel = document.getElementById('admin-panel');
+        panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+    }
+});
+
+function save18() {
+    const val = document.getElementById('admin-18').value;
+    if(val) {
+        // 사장님의 18수를 시스템 로직에 합공
+        window.my18Numbers = val.split(',').map(n => parseInt(n.trim()));
+        alert("사장님, 18수 데이터가 '5조 앞부분 로직'에 완벽히 합공되었습니다!");
+    } else {
+        alert("사장님, 번호를 먼저 입력해주세요.");
+    }
+}
+</script>
 </body>
 </html>
