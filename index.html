@@ -3,50 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>신의 손 - 1211회차 최종 병기</title>
+    <title>신의 손 - 1211회 통합 엔진</title>
     <style>
-        /* 사장님 스타일: 블랙 & 골드 디자인 */
         body { background-color: #0c0c0c; color: #f2c94c; font-family: 'Malgun Gothic', sans-serif; text-align: center; padding: 20px; margin: 0; }
-        h1 { color: #f2c94c; font-size: 2.5rem; margin-top: 20px; font-weight: bold; letter-spacing: -1px; cursor: pointer; text-shadow: 0 0 15px rgba(242, 201, 76, 0.5); }
-        .target-box { color: #FFF; font-size: 1.1rem; margin-bottom: 25px; background: #1a1a1a; padding: 12px 20px; border-radius: 10px; border: 2px solid #f2c94c; display: inline-block; font-weight: bold; }
+        h1 { color: #f2c94c; font-size: 2.8rem; margin-top: 30px; margin-bottom: 25px; font-weight: bold; letter-spacing: -1px; cursor: pointer; }
+        .target-box { color: #FFF; font-size: 1.2rem; margin-bottom: 25px; background: #1a1a1a; padding: 12px 20px; border-radius: 10px; display: inline-block; border: 2px solid #f2c94c; font-weight: bold; }
         
-        /* 버튼 디자인 */
+        /* 버튼 컨테이너 및 디자인 */
         .btn-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; max-width: 400px; margin: 0 auto 15px auto; }
-        button { border: none; border-radius: 8px; cursor: pointer; font-size: 18px; font-weight: bold; transition: 0.2s; position: relative; box-shadow: 0 4px 0 #8a6d10; }
-        button:active { transform: translateY(3px); box-shadow: none; }
-        .btn-main { width: 100%; height: 65px; background-color: #d4a017; color: black; border: 1px solid #f2c94c; }
+        button { border: none; border-radius: 8px; cursor: pointer; font-size: 17px; font-weight: bold; transition: 0.2s; position: relative; display: flex; align-items: center; justify-content: center; }
+        .btn-main { width: 100%; height: 60px; background-color: #d4a017; color: black; margin-bottom: 5px; }
+        .btn-sub { width: 48.5%; height: 55px; background-color: #262626; color: white; border: 1px solid #333; }
         
-        /* 분석 결과 출력창 */
-        #console { width: 100%; max-width: 420px; height: 520px; margin: 0 auto; background-color: #1a1a1a; border-radius: 15px; border: 3px solid #333; padding: 20px; text-align: left; overflow-y: auto; color: #f2c94c; font-size: 15px; line-height: 1.8; white-space: pre-wrap; box-sizing: border-box; font-family: 'Consolas', monospace; border-left: 6px solid #f2c94c; }
+        /* 결과 출력 콘솔창 */
+        #console-container { width: 100%; max-width: 400px; margin: 15px auto; background-color: #1a1a1a; border-radius: 12px; border: 2px solid #333; overflow: hidden; }
+        #console { width: 100%; height: 400px; padding: 20px; text-align: left; overflow-y: auto; color: #f2c94c; box-sizing: border-box; font-size: 16px; line-height: 1.7; white-space: pre-wrap; font-family: monospace; border-left: 5px solid #f2c94c; }
         
-        /* 전략별 태그 디자인 */
-        .tag { font-size: 11px; padding: 2px 6px; border-radius: 4px; margin-left: 8px; vertical-align: middle; font-weight: normal; }
-        .tag-s1 { background: #3e2723; color: #d4a017; border: 1px solid #d4a017; } /* 중간수 */
-        .tag-s2 { background: #1b5e20; color: #81c784; border: 1px solid #81c784; } /* 12수 */
-        .tag-s3 { background: #b71c1c; color: #ef5350; border: 1px solid #ef5350; } /* 미출현 */
-        
-        .timer-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: none; align-items: center; justify-content: center; color: #ff4d4d; border-radius: 8px; font-size: 20px; }
+        .timer-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: none; align-items: center; justify-content: center; border-radius: 8px; color: #ff4d4d; }
     </style>
 </head>
 <body>
     <h1 onclick="location.reload()">신의 손</h1>
-    <div class="target-box">🎯 1211회 분석 (최근 45회 무중략 데이터 탑재)</div>
+    <div class="target-box">🎯 1211회차: 45회 보너스 & 8-10번 미출현 전략</div>
 
     <div class="btn-container">
-        <button class="btn-main" id="btn10" onclick="process()">운명의 10조합 추출 시작<div id="timer10" class="timer-overlay"></div></button>
+        <button class="btn-main" id="btn5" onclick="process('5')">신의 손 5조합 생성<div id="timer5" class="timer-overlay"></div></button>
+        <button class="btn-main" id="btn10" onclick="process('10')">신의 손 10조합 생성<div id="timer10" class="timer-overlay"></div></button>
+        <button class="btn-sub" onclick="showStorage()">마킹 보관함</button>
+        <button class="btn-sub" onclick="clearAll()">전체 삭제</button>
     </div>
 
-    <div id="console">▶ 시스템 준비 완료.
-사장님의 전략(1-10번 구간별 로직)이 세팅되었습니다.</div>
+    <div id="console-container">
+        <div id="console">▶ 시스템 준비 완료. 데이터를 분석 중입니다...</div>
+    </div>
 
     <script>
-        // [중략 없음] 사장님이 지시하신 최근 45회차 데이터 전체 수동 입력
+        // 최근 45회차 데이터 (중략 없음)
         const RAW_DATA = [
             [1210,1,7,9,17,27,38,31],[1209,2,17,20,35,37,39,24],[1208,6,27,30,36,38,42,25],[1207,10,22,24,27,38,45,11],
             [1206,1,3,17,26,27,42,23],[1205,1,4,16,23,31,41,2],[1204,8,16,28,30,31,44,27],[1203,3,6,18,29,35,39,24],
             [1202,5,12,21,33,37,40,7],[1201,7,9,24,27,35,36,37],[1200,1,2,4,16,20,32,45,11],[1199,16,24,25,30,31,32,7],
-            [1198,26,30,33,38,39,41,21],[1197,1,5,7,26,28,43,30],[1196,8,12,15,29,40,45,14],[1195,11,14,15,19,38,10,10],
-            [1194,1,2,3,4,5,6,7],[1193,6,9,16,19,24,28,17],[1192,10,16,23,36,39,40,11],[1191,1,4,11,12,20,41,2],
+            [1198,26,30,33,38,39,41,21],[1197,1,5,7,26,28,43,30],[1196,8,12,15,29,40,45,14],[1195,3,15,27,33,34,36,37],
+            [1194,3,13,15,24,33,37,2],[1193,6,9,16,19,24,28,17],[1192,10,16,23,36,39,40,11],[1191,1,4,11,12,20,41,2],
             [1190,7,9,19,23,26,45,33],[1189,9,19,29,35,37,38,31],[1188,3,4,12,19,22,27,9],[1187,5,13,26,29,37,40,42],
             [1186,2,8,13,16,23,28,35],[1185,6,17,22,28,29,32,38],[1184,14,16,23,25,31,37,42],[1183,4,15,17,23,27,36,31],
             [1182,1,13,21,25,28,31,22],[1181,8,10,14,20,33,41,28],[1180,6,12,18,37,40,41,3],[1179,3,16,18,24,40,44,21],
@@ -57,9 +55,10 @@
         ];
 
         let top12 = [], midRank = [], zeroOut = [], bonusHot = [];
+        let storageData = JSON.parse(localStorage.getItem('kingStorage')) || { '5': [], '10': [] };
 
-        function initSystem() {
-            // 1. 보너스 가중치 분석 (45회 기준)
+        function init() {
+            // 45회 분석
             let bStats = {};
             for(let i=1; i<=45; i++) bStats[i] = { c:0, s:0 };
             RAW_DATA.forEach((d, i) => { 
@@ -67,15 +66,17 @@
                 if(b) { bStats[b].c++; bStats[b].s += (45-i); } 
             });
             top12 = Object.keys(bStats).map(Number).sort((a,b) => bStats[b].s - bStats[a].s).slice(0,12);
-            midRank = top12.slice(4, 8); // 중간 (5-8위)
-            bonusHot = top12.slice(0, 5); // 상위 (1-5위)
+            midRank = top12.slice(4, 8); 
+            bonusHot = top12.slice(0, 5); 
 
-            // 2. 미출현수 분석 (최근 30회 기준)
+            // 30회 미출현 분석
             let r30 = RAW_DATA.slice(0, 30);
             let appeared = new Set();
             r30.forEach(d => { for(let i=1; i<=6; i++) appeared.add(d[i]); });
             for(let i=1; i<=45; i++) { if(!appeared.has(i)) zeroOut.push(i); }
-            if(zeroOut.length === 0) r30.forEach(d => zeroOut.push(d[7])); // 미출 없으면 보너스 대체
+            if(zeroOut.length === 0) r30.forEach(d => zeroOut.push(d[7]));
+
+            document.getElementById('console').innerHTML = "✅ 분석 완료! 버튼을 눌러주세요.\n" + "📊 핵심 12수: " + top12.join(", ");
         }
 
         function getAC(arr) {
@@ -84,71 +85,90 @@
             return d.size - 5;
         }
 
-        function process() {
+        function process(mode) {
             const box = document.getElementById('console');
-            box.innerHTML = "▶ 1211회차 분석 엔진 가동...\n--------------------------------\n";
+            box.innerHTML = "▶ [" + mode + "조합] 전략 분석 중...\n";
             let gen = 0, safety = 0;
+            let timeStr = new Date().getHours() + ":" + (new Date().getMinutes()<10?'0':'') + new Date().getMinutes();
 
-            while(gen < 10 && safety < 30000) {
+            while(gen < parseInt(mode) && safety < 30000) {
                 safety++;
-                let res = [], cur = gen + 1, tagStr = "";
+                let res = [], cur = gen + 1;
 
-                if(cur <= 2) { // [전략1] 중간수 1개 고정 + 12수
+                if(cur <= 2) { 
                     res.push(midRank[Math.floor(Math.random()*midRank.length)]);
                     let p = top12.filter(n => !res.includes(n));
                     while(res.length < 6) res.push(p.splice(Math.floor(Math.random()*p.length),1)[0]);
-                    tagStr = "<span class='tag tag-s1'>중간수고정</span>";
                 } 
-                else if(cur <= 7) { // [전략2] 12수 완전 랜덤
+                else if(cur <= 7) { 
                     let p = [...top12];
                     while(res.length < 6) res.push(p.splice(Math.floor(Math.random()*p.length),1)[0]);
-                    tagStr = "<span class='tag tag-s2'>12수집중</span>";
                 }
-                else if(cur === 8) { // [전략3-1] 미출현 1개 + 12수
+                else if(cur === 8) { 
                     res.push(zeroOut[Math.floor(Math.random()*zeroOut.length)]);
                     let p = top12.filter(n => !res.includes(n));
                     while(res.length < 6) res.push(p.splice(Math.floor(Math.random()*p.length),1)[0]);
-                    tagStr = "<span class='tag tag-s3'>미출현1개</span>";
                 }
-                else if(cur === 9) { // [전략3-2] 미출현 2개 + 12수
+                else if(cur === 9) { 
                     let zp = [...zeroOut];
                     for(let i=0; i<2; i++) res.push(zp.splice(Math.floor(Math.random()*zp.length),1)[0]);
                     let p = top12.filter(n => !res.includes(n));
                     while(res.length < 6) res.push(p.splice(Math.floor(Math.random()*p.length),1)[0]);
-                    tagStr = "<span class='tag tag-s3'>미출현2개</span>";
                 }
-                else if(cur === 10) { // [전략3-3] 보너스핫 2개 + 미출현 1개
+                else if(cur === 10) { 
                     let bh = [...bonusHot];
                     for(let i=0; i<2; i++) res.push(bh.splice(Math.floor(Math.random()*bh.length),1)[0]);
                     res.push(zeroOut[Math.floor(Math.random()*zeroOut.length)]);
                     let p = top12.filter(n => !res.includes(n));
                     while(res.length < 6) res.push(p.splice(Math.floor(Math.random()*p.length),1)[0]);
-                    tagStr = "<span class='tag tag-s1'>필살기믹스</span>";
+                } else {
+                    let p = [...top12];
+                    while(res.length < 6) res.push(p.splice(Math.floor(Math.random()*p.length),1)[0]);
                 }
 
                 res.sort((a,b) => a-b);
                 let sum = res.reduce((a,b)=>a+b, 0), ac = getAC(res);
 
-                // 사장님 커스텀 필터 (합계 100~175, AC 7이상)
                 if(sum >= 100 && sum <= 175 && ac >= 7) {
                     gen++;
-                    box.innerHTML += "(" + gen + ") " + res.map(n => n<10?'0'+n:n).join("  ") + tagStr + "\n";
+                    let s = res.map(n => n<10?'0'+n:n).join("  ");
+                    box.innerHTML += "(" + gen + ") " + s + "\n";
+                    storageData[mode].push({time: timeStr, num: s + " (AC:"+ac+")"});
                 }
             }
-            startTimer();
+            localStorage.setItem('kingStorage', JSON.stringify(storageData));
+            startTimer(mode);
         }
 
-        function startTimer() {
-            let b = document.getElementById('btn10'), o = document.getElementById('timer10');
+        function startTimer(m) {
+            let b = document.getElementById('btn'+m), o = document.getElementById('timer'+m);
             b.disabled = true; o.style.display = 'flex';
             let s = 30;
             let t = setInterval(() => {
-                o.innerText = s + "초 후 다시 추출 가능";
+                o.innerText = s + "초";
                 if(s-- <= 0) { clearInterval(t); b.disabled = false; o.style.display = 'none'; }
             }, 1000);
         }
 
-        window.onload = initSystem;
+        function showStorage() {
+            const box = document.getElementById('console');
+            box.innerHTML = "📂 [마킹 보관함]\n";
+            ['5','10'].forEach(m => {
+                storageData[m].slice(-20).forEach(d => {
+                    box.innerHTML += `[${m}] ${d.time} | ${d.num}\n`;
+                });
+            });
+            box.scrollTop = 0;
+        }
+
+        function clearAll() {
+            if(confirm("보관함의 모든 마킹 기록을 삭제하시겠습니까?")) {
+                localStorage.removeItem('kingStorage');
+                location.reload();
+            }
+        }
+
+        window.onload = init;
     </script>
 </body>
 </html>
