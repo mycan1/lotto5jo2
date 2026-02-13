@@ -3,28 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>신의 손 - 1211회 통합 엔진</title>
+    <title>신의 손 - 1211회 보너스 이력제</title>
     <style>
         body { background-color: #0c0c0c; color: #f2c94c; font-family: 'Malgun Gothic', sans-serif; text-align: center; padding: 20px; margin: 0; }
         h1 { color: #f2c94c; font-size: 2.8rem; margin-top: 30px; margin-bottom: 25px; font-weight: bold; letter-spacing: -1px; cursor: pointer; }
-        .target-box { color: #FFF; font-size: 1.2rem; margin-bottom: 25px; background: #1a1a1a; padding: 12px 20px; border-radius: 10px; display: inline-block; border: 2px solid #f2c94c; font-weight: bold; }
+        .target-box { color: #FFF; font-size: 1.1rem; margin-bottom: 25px; background: #1a1a1a; padding: 15px; border-radius: 10px; display: inline-block; border: 2px solid #f2c94c; font-weight: bold; line-height: 1.5; }
         
-        /* 버튼 컨테이너 및 디자인 */
         .btn-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; max-width: 400px; margin: 0 auto 15px auto; }
-        button { border: none; border-radius: 8px; cursor: pointer; font-size: 17px; font-weight: bold; transition: 0.2s; position: relative; display: flex; align-items: center; justify-content: center; }
-        .btn-main { width: 100%; height: 60px; background-color: #d4a017; color: black; margin-bottom: 5px; }
+        button { border: none; border-radius: 8px; cursor: pointer; font-size: 17px; font-weight: bold; transition: 0.2s; position: relative; }
+        .btn-main { width: 100%; height: 60px; background-color: #d4a017; color: black; margin-bottom: 5px; box-shadow: 0 4px 0 #8a6d10; }
         .btn-sub { width: 48.5%; height: 55px; background-color: #262626; color: white; border: 1px solid #333; }
         
-        /* 결과 출력 콘솔창 */
         #console-container { width: 100%; max-width: 400px; margin: 15px auto; background-color: #1a1a1a; border-radius: 12px; border: 2px solid #333; overflow: hidden; }
-        #console { width: 100%; height: 400px; padding: 20px; text-align: left; overflow-y: auto; color: #f2c94c; box-sizing: border-box; font-size: 16px; line-height: 1.7; white-space: pre-wrap; font-family: monospace; border-left: 5px solid #f2c94c; }
+        #console { width: 100%; height: 450px; padding: 20px; text-align: left; overflow-y: auto; color: #f2c94c; box-sizing: border-box; font-size: 15px; line-height: 1.8; white-space: pre-wrap; font-family: monospace; border-left: 6px solid #f2c94c; }
         
-        .timer-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: none; align-items: center; justify-content: center; border-radius: 8px; color: #ff4d4d; }
+        .timer-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: none; align-items: center; justify-content: center; border-radius: 8px; color: #ff4d4d; }
     </style>
 </head>
 <body>
     <h1 onclick="location.reload()">신의 손</h1>
-    <div class="target-box">🎯 1211회차: 45회 보너스 & 8-10번 미출현 전략</div>
+    <div class="target-box">🎯 1211회차 필승 엔진<br>보너스 번호 이력제 & 30회 미출현 적용</div>
 
     <div class="btn-container">
         <button class="btn-main" id="btn5" onclick="process('5')">신의 손 5조합 생성<div id="timer5" class="timer-overlay"></div></button>
@@ -34,12 +32,12 @@
     </div>
 
     <div id="console-container">
-        <div id="console">▶ 시스템 준비 완료. 데이터를 분석 중입니다...</div>
+        <div id="console">▶ 보너스 이력 분석 시스템 가동 중...</div>
     </div>
 
     <script>
-        // 최근 45회차 데이터 (중략 없음)
-        const RAW_DATA = [
+        // 최근 45회차 데이터 (최신순)
+        const DATA = [
             [1210,1,7,9,17,27,38,31],[1209,2,17,20,35,37,39,24],[1208,6,27,30,36,38,42,25],[1207,10,22,24,27,38,45,11],
             [1206,1,3,17,26,27,42,23],[1205,1,4,16,23,31,41,2],[1204,8,16,28,30,31,44,27],[1203,3,6,18,29,35,39,24],
             [1202,5,12,21,33,37,40,7],[1201,7,9,24,27,35,36,37],[1200,1,2,4,16,20,32,45,11],[1199,16,24,25,30,31,32,7],
@@ -58,25 +56,31 @@
         let storageData = JSON.parse(localStorage.getItem('kingStorage')) || { '5': [], '10': [] };
 
         function init() {
-            // 45회 분석
-            let bStats = {};
-            for(let i=1; i<=45; i++) bStats[i] = { c:0, s:0 };
-            RAW_DATA.forEach((d, i) => { 
-                let b = d[7]; 
-                if(b) { bStats[b].c++; bStats[b].s += (45-i); } 
+            // 1. 보너스 번호 이력제 기반 가중치 (45회 전체)
+            let stats = {};
+            for(let i=1; i<=45; i++) stats[i] = 0;
+            DATA.forEach((d, idx) => {
+                let b = d[7];
+                if(b) stats[b] += (45 - idx); // 최근에 보너스로 나올수록 고득점
             });
-            top12 = Object.keys(bStats).map(Number).sort((a,b) => bStats[b].s - bStats[a].s).slice(0,12);
+            top12 = Object.keys(stats).map(Number).sort((a,b) => stats[b] - stats[a]).slice(0, 12);
             midRank = top12.slice(4, 8); 
-            bonusHot = top12.slice(0, 5); 
+            bonusHot = top12.slice(0, 5); // 보너스 이력이 가장 화려한 5수
 
-            // 30회 미출현 분석
-            let r30 = RAW_DATA.slice(0, 30);
+            // 2. 30회 내 본번호 미출현수 (1210~1181)
             let appeared = new Set();
-            r30.forEach(d => { for(let i=1; i<=6; i++) appeared.add(d[i]); });
-            for(let i=1; i<=45; i++) { if(!appeared.has(i)) zeroOut.push(i); }
-            if(zeroOut.length === 0) r30.forEach(d => zeroOut.push(d[7]));
+            DATA.slice(0, 30).forEach(d => {
+                for(let i=1; i<=6; i++) appeared.add(d[i]);
+            });
+            zeroOut = [];
+            for(let i=1; i<=45; i++) {
+                if(!appeared.has(i)) zeroOut.push(i);
+            }
 
-            document.getElementById('console').innerHTML = "✅ 분석 완료! 버튼을 눌러주세요.\n" + "📊 핵심 12수: " + top12.join(", ");
+            document.getElementById('console').innerHTML = "✅ 보너스 이력 분석 완료\n" + 
+                "📊 보너스 핫넘버: " + bonusHot.join(",") + "\n" +
+                "🚫 30회 본번호 미출현: " + (zeroOut.length > 0 ? zeroOut.join(",") : "없음") + "\n" +
+                "--------------------------------\n";
         }
 
         function getAC(arr) {
@@ -87,7 +91,7 @@
 
         function process(mode) {
             const box = document.getElementById('console');
-            box.innerHTML = "▶ [" + mode + "조합] 전략 분석 중...\n";
+            box.innerHTML = "▶ [" + mode + "조합] 보너스 이력제 가동 중...\n";
             let gen = 0, safety = 0;
             let timeStr = new Date().getHours() + ":" + (new Date().getMinutes()<10?'0':'') + new Date().getMinutes();
 
@@ -95,35 +99,25 @@
                 safety++;
                 let res = [], cur = gen + 1;
 
-                if(cur <= 2) { 
-                    res.push(midRank[Math.floor(Math.random()*midRank.length)]);
-                    let p = top12.filter(n => !res.includes(n));
-                    while(res.length < 6) res.push(p.splice(Math.floor(Math.random()*p.length),1)[0]);
-                } 
-                else if(cur <= 7) { 
-                    let p = [...top12];
-                    while(res.length < 6) res.push(p.splice(Math.floor(Math.random()*p.length),1)[0]);
+                if(mode === '10') {
+                    if(cur <= 2) { 
+                        res.push(midRank[Math.floor(Math.random()*midRank.length)]);
+                    } else if(cur === 8 && zeroOut.length > 0) { 
+                        res.push(zeroOut[Math.floor(Math.random()*zeroOut.length)]);
+                    } else if(cur === 9 && zeroOut.length >= 2) { 
+                        let tempZero = [...zeroOut];
+                        for(let i=0; i<2; i++) res.push(tempZero.splice(Math.floor(Math.random()*tempZero.length), 1)[0]);
+                    } else if(cur === 10) { 
+                        // 보너스 이력 최상위 2개 + 미출현 1개
+                        let tempHot = [...bonusHot];
+                        for(let i=0; i<2; i++) res.push(tempHot.splice(Math.floor(Math.random()*tempHot.length), 1)[0]);
+                        if(zeroOut.length > 0) res.push(zeroOut[Math.floor(Math.random()*zeroOut.length)]);
+                    }
                 }
-                else if(cur === 8) { 
-                    res.push(zeroOut[Math.floor(Math.random()*zeroOut.length)]);
-                    let p = top12.filter(n => !res.includes(n));
-                    while(res.length < 6) res.push(p.splice(Math.floor(Math.random()*p.length),1)[0]);
-                }
-                else if(cur === 9) { 
-                    let zp = [...zeroOut];
-                    for(let i=0; i<2; i++) res.push(zp.splice(Math.floor(Math.random()*zp.length),1)[0]);
-                    let p = top12.filter(n => !res.includes(n));
-                    while(res.length < 6) res.push(p.splice(Math.floor(Math.random()*p.length),1)[0]);
-                }
-                else if(cur === 10) { 
-                    let bh = [...bonusHot];
-                    for(let i=0; i<2; i++) res.push(bh.splice(Math.floor(Math.random()*bh.length),1)[0]);
-                    res.push(zeroOut[Math.floor(Math.random()*zeroOut.length)]);
-                    let p = top12.filter(n => !res.includes(n));
-                    while(res.length < 6) res.push(p.splice(Math.floor(Math.random()*p.length),1)[0]);
-                } else {
-                    let p = [...top12];
-                    while(res.length < 6) res.push(p.splice(Math.floor(Math.random()*p.length),1)[0]);
+
+                let pool = top12.filter(n => !res.includes(n));
+                while(res.length < 6 && pool.length > 0) {
+                    res.push(pool.splice(Math.floor(Math.random()*pool.length), 1)[0]);
                 }
 
                 res.sort((a,b) => a-b);
@@ -132,8 +126,8 @@
                 if(sum >= 100 && sum <= 175 && ac >= 7) {
                     gen++;
                     let s = res.map(n => n<10?'0'+n:n).join("  ");
-                    box.innerHTML += "(" + gen + ") " + s + "\n";
-                    storageData[mode].push({time: timeStr, num: s + " (AC:"+ac+")"});
+                    box.innerHTML += "(" + gen + ") " + s + " (AC:" + ac + ")\n";
+                    storageData[mode].push({time: timeStr, num: s});
                 }
             }
             localStorage.setItem('kingStorage', JSON.stringify(storageData));
@@ -145,7 +139,7 @@
             b.disabled = true; o.style.display = 'flex';
             let s = 30;
             let t = setInterval(() => {
-                o.innerText = s + "초";
+                o.innerText = s + "초 대기";
                 if(s-- <= 0) { clearInterval(t); b.disabled = false; o.style.display = 'none'; }
             }, 1000);
         }
@@ -153,16 +147,14 @@
         function showStorage() {
             const box = document.getElementById('console');
             box.innerHTML = "📂 [마킹 보관함]\n";
-            ['5','10'].forEach(m => {
-                storageData[m].slice(-20).forEach(d => {
-                    box.innerHTML += `[${m}] ${d.time} | ${d.num}\n`;
-                });
+            let combined = [...storageData['5'], ...storageData['10']];
+            combined.slice(-20).reverse().forEach(d => {
+                box.innerHTML += `[기록] ${d.time} | ${d.num}\n`;
             });
-            box.scrollTop = 0;
         }
 
         function clearAll() {
-            if(confirm("보관함의 모든 마킹 기록을 삭제하시겠습니까?")) {
+            if(confirm("기록을 삭제할까요?")) {
                 localStorage.removeItem('kingStorage');
                 location.reload();
             }
