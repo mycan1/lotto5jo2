@@ -3,56 +3,70 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>신의 손 - 1211회 미출현 타격</title>
+    <title>신의 손 - 1211회 집중 엔진</title>
     <style>
         body { background-color: #0c0c0c; color: #f2c94c; font-family: 'Malgun Gothic', sans-serif; text-align: center; padding: 20px; margin: 0; }
-        h1 { color: #f2c94c; font-size: 2.8rem; margin-top: 20px; font-weight: bold; cursor: pointer; }
-        .target-box { color: #FFF; font-size: 1.1rem; margin-bottom: 20px; background: #1a1a1a; padding: 15px; border-radius: 10px; display: inline-block; border: 2px solid #f2c94c; font-weight: bold; }
+        h1 { color: #f2c94c; font-size: 2.8rem; margin-top: 30px; margin-bottom: 25px; font-weight: bold; letter-spacing: -1px; cursor: pointer; }
+        .target-box { color: #FFF; font-size: 1.2rem; margin-bottom: 25px; background: #1a1a1a; padding: 12px 20px; border-radius: 10px; display: inline-block; border: 2px solid #f2c94c; font-weight: bold; }
         .btn-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; max-width: 400px; margin: 0 auto 15px auto; }
-        button { border: none; border-radius: 8px; cursor: pointer; font-size: 17px; font-weight: bold; transition: 0.2s; position: relative; }
-        .btn-main { width: 100%; height: 60px; background-color: #d4a017; color: black; margin-bottom: 5px; box-shadow: 0 4px 0 #8a6d10; }
+        button { border: none; border-radius: 8px; cursor: pointer; font-size: 17px; font-weight: bold; transition: 0.2s; position: relative; display: flex; align-items: center; justify-content: center; }
+        .btn-main { width: 100%; height: 60px; background-color: #d4a017; color: black; margin-bottom: 5px; }
         .btn-sub { width: 48.5%; height: 55px; background-color: #262626; color: white; border: 1px solid #333; }
-        #console { width: 100%; max-width: 400px; height: 480px; margin: 0 auto; background-color: #1a1a1a; border-radius: 12px; border: 2px solid #333; padding: 20px; text-align: left; overflow-y: auto; color: #f2c94c; font-size: 15px; line-height: 1.8; white-space: pre-wrap; font-family: monospace; border-left: 6px solid #f2c94c; box-sizing: border-box; }
-        .timer-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: none; align-items: center; justify-content: center; border-radius: 8px; color: #ff4d4d; }
+        #console-container { width: 100%; max-width: 400px; margin: 15px auto; background-color: #1a1a1a; border-radius: 12px; border: 2px solid #333; overflow: hidden; }
+        #console { width: 100%; height: 400px; padding: 20px; text-align: left; overflow-y: auto; color: #f2c94c; box-sizing: border-box; font-size: 16px; line-height: 1.7; white-space: pre-wrap; font-family: monospace; border-left: 5px solid #f2c94c; }
+        .timer-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: none; align-items: center; justify-content: center; border-radius: 8px; color: #ff4d4d; }
     </style>
 </head>
 <body>
     <h1 onclick="location.reload()">신의 손</h1>
-    <div class="target-box">🎯 1211회 필승 엔진<br>미출현수(18,19,22,29,33,34,40,43) 집중 배치</div>
+    <div class="target-box">🎯 1211회차: 9번(13) / 10번(43) 분산 저격</div>
 
     <div class="btn-container">
-        <button class="btn-main" id="btn5" onclick="process('5')">5조합 생성<div id="timer5" class="timer-overlay"></div></button>
-        <button class="btn-main" id="btn10" onclick="process('10')">10조합 생성<div id="timer10" class="timer-overlay"></div></button>
+        <button class="btn-main" id="btn5" onclick="process('5')">신의 손 5조합 생성<div id="timer5" class="timer-overlay"></div></button>
+        <button class="btn-main" id="btn10" onclick="process('10')">신의 손 10조합 생성<div id="timer10" class="timer-overlay"></div></button>
         <button class="btn-sub" onclick="showStorage()">마킹 보관함</button>
         <button class="btn-sub" onclick="clearAll()">전체 삭제</button>
     </div>
 
-    <div id="console">▶ 시스템 정밀 분석 완료. 미출현수 대기 중...</div>
+    <div id="console-container">
+        <div id="console">▶ 시스템 준비 완료. 30회차 분석 대기 중...</div>
+    </div>
 
     <script>
-        const DATA = [
+        // 최근 45회차 원본 데이터
+        const RAW_DATA = [
             [1210,1,7,9,17,27,38,31],[1209,2,17,20,35,37,39,24],[1208,6,27,30,36,38,42,25],[1207,10,22,24,27,38,45,11],
             [1206,1,3,17,26,27,42,23],[1205,1,4,16,23,31,41,2],[1204,8,16,28,30,31,44,27],[1203,3,6,18,29,35,39,24],
             [1202,5,12,21,33,37,40,7],[1201,7,9,24,27,35,36,37],[1200,1,2,4,16,20,32,45,11],[1199,16,24,25,30,31,32,7],
-            [1198,26,30,33,38,39,41,21],[1197,1,5,7,26,28,43,30],[1196,8,12,15,29,40,45,14],[1195,11,14,15,19,38,10],
+            [1198,26,30,33,38,39,41,21],[1197,1,5,7,26,28,43,30],[1196,8,12,15,29,40,45,14],[1195,3,15,27,33,34,36,37],
             [1194,3,13,15,24,33,37,2],[1193,6,9,16,19,24,28,17],[1192,10,16,23,36,39,40,11],[1191,1,4,11,12,20,41,2],
             [1190,7,9,19,23,26,45,33],[1189,9,19,29,35,37,38,31],[1188,3,4,12,19,22,27,9],[1187,5,13,26,29,37,40,42],
             [1186,2,8,13,16,23,28,35],[1185,6,17,22,28,29,32,38],[1184,14,16,23,25,31,37,42],[1183,4,15,17,23,27,36,31],
-            [1182,1,13,21,25,28,31,22],[1181,8,10,14,20,33,41,28]
+            [1182,1,13,21,25,28,31,22],[1181,8,10,14,20,33,41,28],[1180,6,12,18,37,40,41,3],[1179,3,16,18,24,40,44,21],
+            [1178,5,6,11,27,43,44,17],[1177,3,7,15,16,19,43,21],[1176,7,9,11,21,30,35,29],[1175,3,4,6,8,32,42,31],
+            [1174,8,11,14,17,36,39,22],[1173,1,5,18,20,30,35,3],[1172,7,9,24,40,42,44,45],[1171,3,6,7,11,12,17,19],
+            [1170,3,13,28,34,38,42,25],[1169,5,12,24,26,39,42,20],[1168,9,21,24,30,33,37,29],[1167,8,23,31,35,39,40,24],
+            [1166,14,23,25,27,29,42,16]
         ];
 
-        let top12 = [], zeroOut = [18, 19, 22, 29, 33, 34, 40, 43], bonusHot = [];
-        let storageData = JSON.parse(localStorage.getItem('kingStorage')) || { '5': [], '10': [] };
+        let top12 = [], storageData = JSON.parse(localStorage.getItem('kingStorage')) || { '5': [], '10': [] };
 
         function init() {
-            let stats = {};
-            for(let i=1; i<=45; i++) stats[i] = 0;
-            DATA.forEach((d, idx) => { if(d[7]) stats[d[7]] += (45 - idx); });
-            top12 = Object.keys(stats).map(Number).sort((a,b) => stats[b] - stats[a]).slice(0, 12);
-            bonusHot = top12.slice(0, 5);
-            document.getElementById('console').innerHTML = "✅ 미출현수 정밀 타격 준비 완료\n" + 
-                "🚫 미출현수: " + zeroOut.join(",") + "\n" +
-                "🔥 보너스 핫넘버: " + bonusHot.join(",") + "\n--------------------------------\n";
+            // ★ 분석 범위를 최근 30회차로 압축 (사용자 요청)
+            let r30 = RAW_DATA.slice(0, 30);
+            let bStats = {};
+            for(let i=1; i<=45; i++) bStats[i] = { c:0, s:0 };
+            
+            r30.forEach((d, i) => { 
+                let b = d[7]; // 보너스 번호 위치
+                if(b) { bStats[b].c++; bStats[b].s += (30 - i); } // 보너스 가중치 점수제
+            });
+            
+            // 점수 높은 순으로 12수 추출
+            top12 = Object.keys(bStats).map(Number).sort((a,b) => bStats[b].s - bStats[a].s).slice(0,12);
+
+            document.getElementById('console').innerHTML = "✅ 30회차 분석 완료! 핫넘버 12수 장착.\n" + 
+                "🚀 9번(13), 10번(43) 분산 배치 모드 가동.";
         }
 
         function getAC(arr) {
@@ -63,38 +77,36 @@
 
         function process(mode) {
             const box = document.getElementById('console');
-            box.innerHTML = "▶ [" + mode + "조합] 생성 중...\n";
+            box.innerHTML = "▶ [" + mode + "조합] 전략 분석 중...\n";
             let gen = 0, safety = 0;
-            let timeStr = new Date().toLocaleTimeString('ko-KR', { hour12: false, hour: '2-digit', minute: '2-digit' });
+            let timeStr = new Date().getHours() + ":" + (new Date().getMinutes()<10?'0':'') + new Date().getMinutes();
 
-            while(gen < parseInt(mode) && safety < 30000) {
+            while(gen < parseInt(mode) && safety < 40000) {
                 safety++;
                 let res = [], cur = gen + 1;
 
+                // ★ 13, 43을 섞지 않고 9번과 10번에 각각 하나씩만 배치
                 if(mode === '10') {
-                    if(cur === 8) res.push(zeroOut[Math.floor(Math.random()*zeroOut.length)]);
-                    else if(cur === 9) {
-                        let tz = [...zeroOut];
-                        for(let i=0; i<2; i++) res.push(tz.splice(Math.floor(Math.random()*tz.length), 1)[0]);
-                    }
-                    else if(cur === 10) {
-                        let th = [...bonusHot];
-                        for(let i=0; i<2; i++) res.push(th.splice(Math.floor(Math.random()*th.length), 1)[0]);
-                        res.push(zeroOut[Math.floor(Math.random()*zeroOut.length)]);
-                    }
+                    if(cur === 9) res.push(13);  // 9번 조합: 13번만 고정
+                    else if(cur === 10) res.push(43); // 10번 조합: 43번만 고정
                 }
 
-                let pool = top12.filter(n => !res.includes(n));
-                while(res.length < 6) res.push(pool.splice(Math.floor(Math.random()*pool.length), 1)[0]);
+                // 나머지 자리는 30회차 핫넘버(top12)에서 채움
+                let p = [...top12];
+                while(res.length < 6) {
+                    let pick = p.splice(Math.floor(Math.random()*p.length), 1)[0];
+                    if(!res.includes(pick)) res.push(pick);
+                }
 
                 res.sort((a,b) => a-b);
                 let sum = res.reduce((a,b)=>a+b, 0), ac = getAC(res);
 
+                // 필터: 합계 100~180, AC 7 이상
                 if(sum >= 100 && sum <= 180 && ac >= 7) {
                     gen++;
                     let s = res.map(n => n<10?'0'+n:n).join("  ");
-                    box.innerHTML += "(" + gen + ") " + s + " (AC:" + ac + ")\n";
-                    storageData[mode].push({time: timeStr, num: s});
+                    box.innerHTML += "(" + gen + ") " + s + "\n";
+                    storageData[mode].push({time: timeStr, num: s + " (AC:"+ac+")"});
                 }
             }
             localStorage.setItem('kingStorage', JSON.stringify(storageData));
@@ -104,7 +116,7 @@
         function startTimer(m) {
             let b = document.getElementById('btn'+m), o = document.getElementById('timer'+m);
             b.disabled = true; o.style.display = 'flex';
-            let s = 10;
+            let s = 30;
             let t = setInterval(() => {
                 o.innerText = s + "초";
                 if(s-- <= 0) { clearInterval(t); b.disabled = false; o.style.display = 'none'; }
@@ -114,11 +126,21 @@
         function showStorage() {
             const box = document.getElementById('console');
             box.innerHTML = "📂 [마킹 보관함]\n";
-            let combined = [...storageData['5'], ...storageData['10']];
-            combined.slice(-20).reverse().forEach(d => { box.innerHTML += `[${d.time}] ${d.num}\n`; });
+            ['5','10'].forEach(m => {
+                storageData[m].slice(-15).forEach(d => {
+                    box.innerHTML += `[${m}] ${d.time} | ${d.num}\n`;
+                });
+            });
+            box.scrollTop = 0;
         }
 
-        function clearAll() { if(confirm("삭제할까요?")) { localStorage.removeItem('kingStorage'); location.reload(); } }
+        function clearAll() {
+            if(confirm("기록을 삭제하시겠습니까?")) {
+                localStorage.removeItem('kingStorage');
+                location.reload();
+            }
+        }
+
         window.onload = init;
     </script>
 </body>
