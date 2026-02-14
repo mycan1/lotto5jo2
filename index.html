@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>신의 손 - 1211회 집중 엔진</title>
+    <title>신의 손 - 1211회 통합 엔진</title>
     <style>
         body { background-color: #0c0c0c; color: #f2c94c; font-family: 'Malgun Gothic', sans-serif; text-align: center; padding: 20px; margin: 0; }
         h1 { color: #f2c94c; font-size: 2.8rem; margin-top: 30px; margin-bottom: 25px; font-weight: bold; letter-spacing: -1px; cursor: pointer; }
@@ -19,7 +19,7 @@
 </head>
 <body>
     <h1 onclick="location.reload()">신의 손</h1>
-    <div class="target-box">🎯 1211회차: 9번(13) / 10번(43) 분산 저격</div>
+    <div class="target-box">🎯 1211회: 보너스 승격(1~3) & 미출현 저격(9,10)</div>
 
     <div class="btn-container">
         <button class="btn-main" id="btn5" onclick="process('5')">신의 손 5조합 생성<div id="timer5" class="timer-overlay"></div></button>
@@ -29,11 +29,10 @@
     </div>
 
     <div id="console-container">
-        <div id="console">▶ 시스템 준비 완료. 30회차 분석 대기 중...</div>
+        <div id="console">▶ 시스템 준비 완료. 30회차 정밀 분석 중...</div>
     </div>
 
     <script>
-        // 최근 45회차 원본 데이터
         const RAW_DATA = [
             [1210,1,7,9,17,27,38,31],[1209,2,17,20,35,37,39,24],[1208,6,27,30,36,38,42,25],[1207,10,22,24,27,38,45,11],
             [1206,1,3,17,26,27,42,23],[1205,1,4,16,23,31,41,2],[1204,8,16,28,30,31,44,27],[1203,3,6,18,29,35,39,24],
@@ -49,24 +48,31 @@
             [1166,14,23,25,27,29,42,16]
         ];
 
-        let top12 = [], storageData = JSON.parse(localStorage.getItem('kingStorage')) || { '5': [], '10': [] };
+        let top12 = [], bonusOnlyHot = [], storageData = JSON.parse(localStorage.getItem('kingStorage')) || { '5': [], '10': [] };
 
         function init() {
-            // ★ 분석 범위를 최근 30회차로 압축 (사용자 요청)
             let r30 = RAW_DATA.slice(0, 30);
-            let bStats = {};
-            for(let i=1; i<=45; i++) bStats[i] = { c:0, s:0 };
-            
-            r30.forEach((d, i) => { 
-                let b = d[7]; // 보너스 번호 위치
-                if(b) { bStats[b].c++; bStats[b].s += (30 - i); } // 보너스 가중치 점수제
-            });
-            
-            // 점수 높은 순으로 12수 추출
-            top12 = Object.keys(bStats).map(Number).sort((a,b) => bStats[b].s - bStats[a].s).slice(0,12);
+            let stats = {}, bOnly = {};
+            for(let i=1; i<=45; i++) { stats[i] = 0; bOnly[i] = 0; }
 
-            document.getElementById('console').innerHTML = "✅ 30회차 분석 완료! 핫넘버 12수 장착.\n" + 
-                "🚀 9번(13), 10번(43) 분산 배치 모드 가동.";
+            // 1. 당첨번호(1~6번) 기반 12수 분석
+            r30.forEach((d, idx) => {
+                for(let i=1; i<=6; i++) { stats[d[i]] += (30 - idx); }
+            });
+            top12 = Object.keys(stats).map(Number).sort((a,b) => stats[b] - stats[a]).slice(0, 12);
+
+            // 2. 보너스로만 나온 번호 가중치 분석 (본번호 출현 0회인 경우만)
+            r30.forEach((d, idx) => {
+                let b = d[7];
+                let isMainAppeared = false;
+                r30.forEach(row => { if(row.slice(1,7).includes(b)) isMainAppeared = true; });
+                if(!isMainAppeared && b) { bOnly[b] += (30 - idx); }
+            });
+            bonusOnlyHot = Object.keys(bOnly).filter(n => bOnly[n] > 0).sort((a,b) => bOnly[b] - bOnly[a]);
+
+            document.getElementById('console').innerHTML = "✅ 분석 완료 (30회차 당첨수 기반)\n" + 
+                "📊 12수: " + top12.slice(0,6).join(", ") + "...\n" +
+                "⭐ 승격후보: " + bonusOnlyHot.slice(0,3).join(", ");
         }
 
         function getAC(arr) {
@@ -77,21 +83,26 @@
 
         function process(mode) {
             const box = document.getElementById('console');
-            box.innerHTML = "▶ [" + mode + "조합] 전략 분석 중...\n";
+            box.innerHTML = "▶ [" + mode + "조합] 전략 배치 중...\n";
             let gen = 0, safety = 0;
             let timeStr = new Date().getHours() + ":" + (new Date().getMinutes()<10?'0':'') + new Date().getMinutes();
 
-            while(gen < parseInt(mode) && safety < 40000) {
+            while(gen < parseInt(mode) && safety < 50000) {
                 safety++;
                 let res = [], cur = gen + 1;
 
-                // ★ 13, 43을 섞지 않고 9번과 10번에 각각 하나씩만 배치
-                if(mode === '10') {
-                    if(cur === 9) res.push(13);  // 9번 조합: 13번만 고정
-                    else if(cur === 10) res.push(43); // 10번 조합: 43번만 고정
+                // [전략 1] 1~3번 조합: 보너스에서만 나온 점수 좋은 놈 1개씩 고정 배치
+                if(cur <= 3 && bonusOnlyHot.length >= cur) {
+                    res.push(parseInt(bonusOnlyHot[cur-1]));
                 }
 
-                // 나머지 자리는 30회차 핫넘버(top12)에서 채움
+                // [전략 2] 9, 10번 조합: 13, 43 분산 저격 배치
+                if(mode === '10') {
+                    if(cur === 9) res.push(13);
+                    if(cur === 10) res.push(43);
+                }
+
+                // 공통: 나머지 자리는 30회차 당첨수 기반 top12로 채움
                 let p = [...top12];
                 while(res.length < 6) {
                     let pick = p.splice(Math.floor(Math.random()*p.length), 1)[0];
@@ -101,7 +112,6 @@
                 res.sort((a,b) => a-b);
                 let sum = res.reduce((a,b)=>a+b, 0), ac = getAC(res);
 
-                // 필터: 합계 100~180, AC 7 이상
                 if(sum >= 100 && sum <= 180 && ac >= 7) {
                     gen++;
                     let s = res.map(n => n<10?'0'+n:n).join("  ");
