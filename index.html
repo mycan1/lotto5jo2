@@ -9,25 +9,18 @@
         .outer-border { border: 4px solid #ffd700; border-radius: 40px; padding: 10px; max-width: 420px; margin: 0 auto; box-shadow: 0 0 30px rgba(255, 215, 0, 0.4); }
         .inner-container { border: 2px solid #ffd700; border-radius: 32px; padding: 25px 15px; background: #0c0c0c; }
         h1 { font-size: 45px; font-weight: 900; margin: 0; letter-spacing: 8px; cursor: pointer; color: #ffd700; text-decoration: none; }
-        
         .target-box { color: #ff4500; font-size: 18px; font-weight: 900; margin: 20px 0; background: #1a1a1a; padding: 12px; border-radius: 12px; border: 2px solid #ff4500; }
-        
         .btn-main { width: 100%; height: 65px; background: linear-gradient(to bottom, #fdf24d, #b8a000); border: none; border-radius: 15px; font-size: 20px; font-weight: 900; cursor: pointer; margin-bottom: 12px; color: #000; box-shadow: 0 4px 0 #8a7800; }
         .btn-main:active { transform: translateY(3px); box-shadow: none; }
-        
         .btn-sub-group { display: flex; gap: 10px; margin-bottom: 15px; }
         .btn-sub { flex: 1; height: 50px; background: #222; border: 1px solid #444; border-radius: 12px; color: #fff; font-weight: bold; cursor: pointer; }
-
         #console { background-color: #050505; border: 2px solid #333; border-radius: 20px; height: 450px; padding: 15px; text-align: left; overflow-y: auto; color: #ffd700; font-size: 14px; line-height: 1.8; }
-        
         .report-section { background: #111; border: 1px dashed #444; padding: 10px; border-radius: 10px; margin-bottom: 15px; font-size: 13px; }
         .report-title { color: #ff4500; font-weight: bold; display: block; margin-bottom: 3px; }
-
         .ball { display: inline-block; width: 28px; height: 28px; background: #ffd700; color: #000; border-radius: 50%; text-align: center; line-height: 28px; font-weight: bold; margin-right: 4px; font-size: 13px; box-shadow: inset -2px -2px 4px rgba(0,0,0,0.3); }
         .tag { font-size: 11px; padding: 2px 6px; border-radius: 4px; background: #333; color: #fff; margin-right: 5px; }
         .tag-cold { background: #ff4500 !important; }
         .result-line { border-bottom: 1px solid #222; padding: 8px 0; display: flex; align-items: center; }
-
         #modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 1000; justify-content: center; align-items: center; }
         .modal-content { background: #111; border: 2px solid #ffd700; border-radius: 25px; width: 90%; max-width: 380px; padding: 20px; color: #ffd700; }
         .close-btn { margin-top: 15px; width: 100%; height: 45px; background: #ffd700; color: #000; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; }
@@ -61,27 +54,25 @@
 
     let coldNumbers = [], top12 = [], bonusOnlyHot = [], totalSaved = [];
 
-    // [핵심] 사장님 말씀대로 집합(Set)을 사용하여 미출수 즉시 추출
     function init() {
         let seen = new Set();
         let stats = {};
         for(let i=1; i<=45; i++) stats[i] = 0;
 
-        // 최근 30회차 전수 조사
+        // 최근 30회차 당첨번호(정번호)를 집합에 넣어버림
         RAW_DATA.slice(0, 30).forEach((d, idx) => {
             for(let i=1; i<=6; i++) {
-                seen.add(d[i]); 
+                seen.add(d[i]);
                 stats[d[i]] += (30 - idx);
             }
         });
 
-        // 미출수: 1~45 중 한 번도 안 나온 수
+        // 1~45 중 집합에 없는 번호만 미출수로 추출
         coldNumbers = [];
         for(let i=1; i<=45; i++) {
             if(!seen.has(i)) coldNumbers.push(i);
         }
 
-        // 빈출 상위 12개
         top12 = Object.keys(stats).map(Number).sort((a,b) => stats[b] - stats[a]).slice(0, 12);
         
         let bOnly = {};
@@ -99,7 +90,7 @@
 
     function process(count, targetAC) {
         const box = document.getElementById('console');
-        init(); // 실행 시 즉시 분석
+        init(); 
 
         let reportHtml = `
             <div class="report-section">
@@ -115,13 +106,12 @@
         while(gen < count && safety < 50000) {
             safety++;
             let res = [];
-            // 미출수 포함 전략
+            // 미출수 저격 포함
             if(gen % 3 === 0 && coldNumbers.length > 0) res.push(coldNumbers[Math.floor(Math.random()*coldNumbers.length)]);
 
-            let pool = [...top12];
             while(res.length < 6) {
-                let pick = (Math.random() < 0.7) ? pool[Math.floor(Math.random()*pool.length)] : Math.floor(Math.random()*45)+1;
-                if(!res.includes(pick)) res.push(pick);
+                let n = Math.floor(Math.random()*45)+1;
+                if(!res.includes(n)) res.push(n);
             }
             res.sort((a,b) => a-b);
             
