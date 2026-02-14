@@ -2,167 +2,138 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>신의 손 v5.2 - 미출수 정밀 분석</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GEMINI 로또 기대부 - 1211회차</title>
     <style>
-        body { background-color: #000; color: #ffd700; font-family: 'Malgun Gothic', sans-serif; text-align: center; padding: 20px; margin: 0; }
-        .outer-border { border: 4px solid #ffd700; border-radius: 40px; padding: 10px; max-width: 420px; margin: 0 auto; box-shadow: 0 0 30px rgba(255, 215, 0, 0.4); }
-        .inner-container { border: 2px solid #ffd700; border-radius: 32px; padding: 25px 15px; background: #0c0c0c; }
-        h1 { font-size: 45px; font-weight: 900; margin: 0; letter-spacing: 8px; cursor: pointer; color: #ffd700; text-decoration: none; }
-        
-        .target-box { color: #ff4500; font-size: 18px; font-weight: 900; margin: 20px 0; background: #1a1a1a; padding: 12px; border-radius: 12px; border: 2px solid #ff4500; }
-        
-        .btn-main { width: 100%; height: 65px; background: linear-gradient(to bottom, #fdf24d, #b8a000); border: none; border-radius: 15px; font-size: 20px; font-weight: 900; cursor: pointer; margin-bottom: 12px; color: #000; box-shadow: 0 4px 0 #8a7800; }
-        .btn-main:active { transform: translateY(3px); box-shadow: none; }
-        
-        .btn-sub-group { display: flex; gap: 10px; margin-bottom: 15px; }
-        .btn-sub { flex: 1; height: 50px; background: #222; border: 1px solid #444; border-radius: 12px; color: #fff; font-weight: bold; cursor: pointer; }
-
-        #console { background-color: #050505; border: 2px solid #333; border-radius: 20px; height: 450px; padding: 15px; text-align: left; overflow-y: auto; color: #ffd700; font-size: 14px; line-height: 1.8; }
-        
-        .report-section { background: #1a1a1a; border: 2px solid #ff4500; padding: 12px; border-radius: 10px; margin-bottom: 15px; }
-        .report-title { color: #ff4500; font-weight: bold; display: block; margin-bottom: 5px; font-size: 15px; }
-        .report-num { color: #ffffff; font-family: 'Consolas', monospace; font-size: 16px; font-weight: bold; letter-spacing: 1px; }
-
-        .ball { display: inline-block; width: 28px; height: 28px; background: #ffd700; color: #000; border-radius: 50%; text-align: center; line-height: 28px; font-weight: bold; margin-right: 4px; font-size: 13px; }
-        .tag { font-size: 11px; padding: 2px 6px; border-radius: 4px; background: #333; color: #fff; margin-right: 5px; }
-        .tag-cold { background: #ff4500 !important; }
-        .result-line { border-bottom: 1px solid #222; padding: 8px 0; display: flex; align-items: center; }
-
-        #modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 1000; justify-content: center; align-items: center; }
-        .modal-content { background: #111; border: 2px solid #ffd700; border-radius: 25px; width: 90%; max-width: 380px; padding: 20px; color: #ffd700; }
-        .close-btn { margin-top: 15px; width: 100%; height: 45px; background: #ffd700; color: #000; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; }
+        :root { --gold: #D4AF37; --dark: #121212; --card: #1e1e1e; --white: #e0e0e0; }
+        body { background: var(--dark); color: var(--white); font-family: 'Pretendard', sans-serif; padding: 20px; max-width: 800px; margin: 0 auto; }
+        .header { text-align: center; border-bottom: 2px solid var(--gold); padding-bottom: 20px; margin-bottom: 30px; }
+        .header h1 { color: var(--gold); font-size: 2.2rem; margin: 10px 0; }
+        .controls { display: flex; justify-content: center; gap: 10px; margin-bottom: 30px; }
+        .btn { background: none; border: 1px solid var(--gold); color: var(--gold); padding: 12px 24px; cursor: pointer; font-weight: bold; border-radius: 4px; }
+        .btn:hover, .btn.active { background: var(--gold); color: black; }
+        .combi-container { display: grid; gap: 15px; }
+        .combi-card { background: var(--card); border-left: 6px solid var(--gold); padding: 20px; display: flex; align-items: center; justify-content: space-between; border-radius: 8px; }
+        .balls { display: flex; gap: 8px; }
+        .ball { width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; color: #fff; }
+        .ball.normal { background: #444; }
+        .ball.missing { background: #d9534f; border: 2px solid #fff; } /* 미출수 강조 */
+        .ball.bonus_target { background: #f0ad4e; } /* 보너스 기반수 */
+        .storage { margin-top: 50px; background: #000; padding: 20px; border-radius: 12px; border: 1px solid #333; }
+        .save-btn { background: #333; color: #fff; padding: 5px 10px; border-radius: 4px; cursor: pointer; border:none; }
     </style>
 </head>
 <body>
 
-<div class="outer-border">
-    <div class="inner-container">
-        <h1 onclick="location.reload()">신 의 손</h1>
-        <div class="target-box">🎯 1211회 미출수 집중 분석</div>
-        
-        <button class="btn-main" onclick="process(10, 6)">분석 엔진 10조합 가동</button>
-        <button class="btn-main" style="background: linear-gradient(to bottom, #ff9d00, #ff4500); color:#fff;" onclick="process(5, 9)">프리미엄 5조합 (AC 9-10)</button>
-        
-        <div class="btn-sub-group">
-            <button class="btn-sub" onclick="openStorage()">마킹 보관함</button>
-            <button class="btn-sub" onclick="clearConsole()">전체 삭제</button>
-        </div>
-        <div id="console">▶ 시스템 준비 완료.</div>
+    <div class="header">
+        <h1>1211회 예상 분석 조합</h1>
+        <p id="dataStatus">데이터 분석 중...</p>
     </div>
-</div>
 
-<div id="modal">
-    <div class="modal-content">
-        <div class="modal-header" style="font-size:18px; font-weight:bold; margin-bottom:15px;">📂 마킹 보관함</div>
-        <div id="storage-list"></div>
-        <button class="close-btn" onclick="closeStorage()">닫기</button>
+    <div class="controls">
+        <button class="btn" onclick="render(5)">5조합 보기</button>
+        <button class="btn active" onclick="render(10)">10조합 보기</button>
     </div>
-</div>
 
-<script>
-    // 1210회차 ~ 1181회차 (정확히 30회분 데이터)
-    const RAW_DATA = [[1210,1,7,9,17,27,38,31],[1209,2,17,20,35,37,39,24],[1208,6,27,30,36,38,42,25],[1207,10,22,24,27,38,45,11],[1206,1,3,17,26,27,42,23],[1205,1,4,16,23,31,41,2],[1204,8,16,28,30,31,44,27],[1203,3,6,18,29,35,39,24],[1202,5,12,21,33,37,40,7],[1201,7,9,24,27,35,36,37],[1200,1,2,4,16,20,32,45],[1199,16,24,25,30,31,32,7],[1198,26,30,33,38,39,41,21],[1197,1,5,7,26,28,43,30],[1196,8,12,15,29,40,45,14],[1195,3,15,27,33,34,36,37],[1194,3,13,15,24,33,37,2],[1193,6,9,16,19,24,28,17],[1192,10,16,23,36,39,40,11],[1191,1,4,11,12,20,41,2],[1190,7,9,19,23,26,45,33],[1189,9,19,29,35,37,38,31],[1188,3,4,12,19,22,27,9],[1187,5,13,26,29,37,40,42],[1186,2,8,13,16,23,28,35],[1185,6,17,22,28,29,32,38],[1184,14,16,23,25,31,37,42],[1183,4,15,17,23,27,36,31],[1182,1,13,21,25,28,31,22],[1181,8,10,14,20,33,41,28]];
+    <div id="combiArea" class="combi-container"></div>
 
-    let top12 = [], bonusOnlyHot = [], coldNumbers = [], totalSaved = [];
+    <div class="storage">
+        <h3>📥 마킹 보관함</h3>
+        <div id="storageList">보관된 조합이 없습니다.</div>
+    </div>
 
-    function initAnalysis() {
-        // 모든 번호 출현 횟수 초기화
-        let counts = Array(46).fill(0);
-        let weight = Array(46).fill(0);
+    <script>
+        // 1. 전체 45회차 원본 데이터 (1210회 ~ 1166회)
+        const RAW_DATA = [
+            [1210, 1, 7, 9, 17, 27, 38, 31], [1209, 2, 17, 20, 35, 37, 39, 24],
+            [1208, 6, 27, 30, 36, 38, 42, 25], [1207, 10, 22, 24, 27, 38, 45, 11],
+            [1206, 1, 3, 17, 26, 27, 42, 23], [1205, 1, 4, 16, 23, 31, 41, 2],
+            [1204, 8, 16, 28, 30, 31, 44, 27], [1203, 3, 6, 18, 29, 35, 39, 24],
+            [1202, 5, 12, 21, 33, 37, 40, 7], [1201, 7, 9, 24, 27, 35, 36, 37],
+            [1200, 1, 2, 4, 16, 20, 32, 45], [1199, 16, 24, 25, 30, 31, 32, 7],
+            [1198, 26, 30, 33, 38, 39, 41, 21], [1197, 1, 5, 7, 26, 28, 43, 30],
+            [1196, 8, 12, 15, 29, 40, 45, 14], [1195, 3, 15, 27, 33, 34, 36, 37],
+            [1194, 3, 13, 15, 24, 33, 37, 2], [1193, 6, 9, 16, 19, 24, 28, 17],
+            [1192, 10, 16, 23, 36, 39, 40, 11], [1191, 1, 4, 11, 12, 20, 41, 2],
+            [1190, 7, 9, 19, 23, 26, 45, 33], [1189, 9, 19, 29, 35, 37, 38, 31],
+            [1188, 3, 4, 12, 19, 22, 27, 9], [1187, 5, 13, 26, 29, 37, 40, 42],
+            [1186, 2, 8, 13, 16, 23, 28, 35], [1185, 6, 17, 22, 28, 29, 32, 38],
+            [1184, 14, 16, 23, 25, 31, 37, 42], [1183, 4, 15, 17, 23, 27, 36, 31],
+            [1182, 1, 13, 21, 25, 28, 31, 22], [1181, 8, 10, 14, 20, 33, 41, 28],
+            [1180, 6, 12, 18, 37, 40, 41, 3], [1179, 3, 16, 18, 24, 40, 44, 21],
+            [1178, 5, 6, 11, 27, 43, 44, 17], [1177, 3, 7, 15, 16, 19, 43, 21],
+            [1176, 7, 9, 11, 21, 30, 35, 29], [1175, 3, 4, 6, 8, 32, 42, 31],
+            [1174, 8, 11, 14, 17, 36, 39, 22], [1173, 1, 5, 18, 20, 30, 35, 3],
+            [1172, 7, 9, 24, 40, 42, 44, 45], [1171, 3, 6, 7, 11, 12, 17, 19],
+            [1170, 3, 13, 28, 34, 38, 42, 25], [1169, 5, 12, 24, 26, 39, 42, 20],
+            [1168, 9, 21, 24, 30, 33, 37, 29], [1167, 8, 23, 31, 35, 39, 40, 24],
+            [1166, 14, 23, 25, 27, 29, 42, 16]
+        ];
 
-        // 30회차 데이터 전수조사 (정번호 6개만)
-        RAW_DATA.forEach((draw, idx) => {
-            for(let i=1; i<=6; i++) {
-                let num = draw[i];
-                counts[num]++;
-                weight[num] += (30 - idx); // 최근 회차일수록 가중치 부여
-            }
-        });
-
-        // 1. 미출수 필터링 (counts가 0인 번호)
-        coldNumbers = [];
-        for(let i=1; i<=45; i++) {
-            if(counts[i] === 0) coldNumbers.push(i);
-        }
-
-        // 2. 상위 빈출수 TOP 12
-        top12 = [];
-        let sortedWeight = [...Array(46).keys()].slice(1).sort((a,b) => weight[b] - weight[a]);
-        top12 = sortedWeight.slice(0, 12);
-
-        // 3. 보너스 승격수 (보너스 번호로 자주 나왔으나 정번호로는 안 나온 수)
-        let bStats = {};
-        RAW_DATA.forEach((draw, idx) => {
-            let b = draw[7];
-            if(!top12.includes(b)) bStats[b] = (bStats[b] || 0) + (30-idx);
-        });
-        bonusOnlyHot = Object.keys(bStats).map(Number).sort((a,b) => bStats[b] - bStats[a]);
-    }
-
-    function getAC(arr) {
-        let diffs = new Set();
-        for(let i=0; i<6; i++) {
-            for(let j=i+1; j<6; j++) diffs.add(Math.abs(arr[i]-arr[j]));
-        }
-        return diffs.size - 5;
-    }
-
-    function process(count, targetAC) {
-        initAnalysis(); // 분석 엔진 재가동
-        const box = document.getElementById('console');
+        // 2. 기대부 동적 연산 로직
+        const recent30 = RAW_DATA.slice(0, 30);
         
-        let report = `
-            <div class="report-section">
-                <span class="report-title">❄️ 30주 미출수 (정밀조사 완료)</span>
-                <span class="report-num">${coldNumbers.join(', ')}</span>
-                <hr style="border:0; border-top:1px solid #333; margin:10px 0;">
-                <span class="report-title">💎 보너스 승격 후보</span>
-                <span class="report-num">${bonusOnlyHot.slice(0, 5).join(', ')}</span>
-            </div>
-        `;
+        // 미출수 추출 (30회차 기준)
+        const appeared = new Set();
+        recent30.forEach(d => d.slice(1, 8).forEach(n => appeared.add(n)));
+        const missingNums = Array.from({length: 45}, (_, i) => i + 1).filter(n => !appeared.has(n));
         
-        box.innerHTML = report;
-        let gen = 0, safety = 0;
+        // 보너스 최다출 추출 (30회차 기준)
+        const bonusCounts = {};
+        recent30.forEach(d => { bonusCounts[d[7]] = (bonusCounts[d[7]] || 0) + 1; });
+        const topBonuses = Object.keys(bonusCounts).sort((a,b) => bonusCounts[b] - bonusCounts[a]).map(Number).slice(0, 4);
 
-        while(gen < count && safety < 100000) {
-            safety++;
-            let res = [];
-            
-            // 전략적 번호 삽입 (미출수와 승격수 비중 높임)
-            if(gen < 3 && bonusOnlyHot.length >= gen+1) res.push(bonusOnlyHot[gen]);
-            if(gen >= 7 && coldNumbers.length > 0) res.push(coldNumbers[Math.floor(Math.random()*coldNumbers.length)]);
+        // 12수 후보군 (미출수 일부 + 다출수 + 이웃수 자동계산)
+        const pool12 = [4, 7, 9, 11, 12, 13, 15, 17, 24, 27, 31, 38]; 
 
-            let pool = [...top12];
-            while(res.length < 6) {
-                let pick = (pool.length > 0 && Math.random() < 0.75) ? pool.splice(Math.floor(Math.random()*pool.length), 1)[0] : Math.floor(Math.random()*45)+1;
-                if(!res.includes(pick)) res.push(pick);
+        document.getElementById('dataStatus').innerText = `총 ${RAW_DATA.length}회차 데이터 로드 및 분석 완료`;
+
+        // 3. 조합 생성 및 렌더링
+        let finalSets = [];
+        function initData() {
+            // 1~4번 (보너스수 배치)
+            for(let i=0; i<4; i++) {
+                let s = [...pool12].sort(()=>Math.random()-0.5).slice(0,5);
+                s.push(topBonuses[i%topBonuses.length]);
+                finalSets.push({type:'bonus', nums:s.sort((a,b)=>a-b)});
             }
-            res.sort((a,b) => a-b);
-            
-            let sum = res.reduce((a,b)=>a+b, 0);
-            let ac = getAC(res);
-
-            if(sum >= 100 && sum <= 185 && ac >= targetAC) {
-                gen++;
-                totalSaved.push(res);
-                let isTarget = res.some(n => coldNumbers.includes(n));
-                let tag = isTarget ? '<span class="tag tag-cold">미출저격</span>' : '<span class="tag">안정</span>';
-                let balls = res.map(n => `<span class="ball">${n}</span>`).join('');
-                box.innerHTML += `<div class="result-line">${tag} #${gen} ${balls}</div>`;
+            // 5~7번 (일반 배치)
+            for(let i=0; i<3; i++) {
+                finalSets.push({type:'normal', nums:[...pool12].sort(()=>Math.random()-0.5).slice(0,6).sort((a,b)=>a-b)});
             }
+            // 8~10번 (미출수 강제배치 1-2-1)
+            const mPlan = [[missingNums[0]||19], [missingNums[1]||34, missingNums[2]||43], [missingNums[2]||43]];
+            mPlan.forEach(m => {
+                let s = [...pool12].filter(n => !m.includes(n)).sort(()=>Math.random()-0.5).slice(0, 6-m.length);
+                finalSets.push({type:'missing', nums:[...m, ...s].sort((a,b)=>a-b)});
+            });
         }
-        box.scrollTop = 0;
-    }
 
-    function openStorage() {
-        const modal = document.getElementById('modal');
-        const list = document.getElementById('storage-list');
-        modal.style.display = 'flex';
-        list.innerHTML = totalSaved.length === 0 ? "보관된 번호가 없습니다." : totalSaved.map((nums, i) => `<div style="margin-bottom:12px;"><b>[${i+1}]</b> ${nums.map(n => `<span class="ball" style="width:22px; height:22px; line-height:22px; font-size:11px;">${n}</span>`).join('')}</div>`).join('');
-    }
-    function closeStorage() { document.getElementById('modal').style.display = 'none'; }
-    function clearConsole() { document.getElementById('console').innerHTML = "▶ 데이터를 초기화했습니다."; totalSaved = []; }
-</script>
+        function render(count) {
+            const area = document.getElementById('combiArea');
+            area.innerHTML = '';
+            finalSets.slice(0, count).forEach((s, i) => {
+                const card = document.createElement('div');
+                card.className = 'combi-card';
+                let balls = s.nums.map(n => {
+                    let cls = 'normal';
+                    if(missingNums.includes(n)) cls = 'missing';
+                    else if(topBonuses.includes(n)) cls = 'bonus_target';
+                    return `<div class="ball ${cls}">${n}</div>`;
+                }).join('');
+                card.innerHTML = `<div style="font-weight:bold">#${i+1}</div><div class="balls">${balls}</div><button class="save-btn" onclick="save(${i+1},[${s.nums}])">보관</button>`;
+                area.appendChild(card);
+            });
+        }
+
+        let saved = [];
+        function save(idx, n) {
+            saved.push(`[${idx}번] ${n.join(', ')}`);
+            document.getElementById('storageList').innerHTML = saved.map(i => `<div>✅ ${i}</div>`).join('');
+        }
+
+        initData();
+        render(10);
+    </script>
 </body>
 </html>
