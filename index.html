@@ -3,28 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>신의 손 v6.0 - 미출수 정조준</title>
+    <title>신의 손 v6.5 - 미출수 정밀 타격</title>
     <style>
         body { background-color: #000; color: #ffd700; font-family: 'Malgun Gothic', sans-serif; text-align: center; padding: 20px; margin: 0; }
-        .outer-border { border: 4px solid #ffd700; border-radius: 40px; padding: 10px; max-width: 420px; margin: 0 auto; box-shadow: 0 0 30px rgba(255, 215, 0, 0.4); }
-        .inner-container { border: 2px solid #ffd700; border-radius: 32px; padding: 25px 15px; background: #0c0c0c; }
-        h1 { font-size: 45px; font-weight: 900; margin: 0; letter-spacing: 8px; cursor: pointer; color: #ffd700; }
+        .outer-border { border: 4px solid #ffd700; border-radius: 40px; padding: 10px; max-width: 420px; margin: 0 auto; box-shadow: 0 0 30px rgba(255, 215, 0, 0.6); }
+        .inner-container { border: 2px solid #ffd700; border-radius: 32px; padding: 25px 15px; background: radial-gradient(circle, #1a1a1a 0%, #000 100%); }
+        h1 { font-size: 45px; font-weight: 900; margin: 0; letter-spacing: 8px; color: #ffd700; text-shadow: 2px 2px 4px #8a7800; cursor: pointer; }
         
-        /* 미출수 전용 리포트 박스 (디자인 상단 고정) */
-        .live-report { background: #1a1a1a; border: 2px solid #ff4500; border-radius: 15px; margin: 15px 0; padding: 12px; text-align: left; }
-        .report-label { color: #ff4500; font-size: 14px; font-weight: bold; display: block; margin-bottom: 5px; }
-        .report-val { color: #fff; font-size: 16px; font-family: 'Consolas', monospace; font-weight: 900; letter-spacing: 1px; }
+        /* 미출수 리포트 - 디자인 복구 */
+        .live-report { background: #111; border: 2px solid #ff4500; border-radius: 15px; margin: 20px 0; padding: 15px; box-shadow: inset 0 0 10px rgba(255, 69, 0, 0.3); }
+        .report-label { color: #ff4500; font-size: 15px; font-weight: bold; display: block; margin-bottom: 8px; text-decoration: underline; }
+        .report-val { color: #ffffff; font-size: 19px; font-family: 'Consolas', monospace; font-weight: 900; letter-spacing: 2px; }
 
-        .target-box { color: #ff4500; font-size: 18px; font-weight: 900; margin-bottom: 20px; }
-        
-        .btn-main { width: 100%; height: 65px; background: linear-gradient(to bottom, #fdf24d, #b8a000); border: none; border-radius: 15px; font-size: 20px; font-weight: 900; cursor: pointer; margin-bottom: 12px; color: #000; box-shadow: 0 4px 0 #8a7800; }
+        .btn-main { width: 100%; height: 65px; background: linear-gradient(to bottom, #fdf24d, #b8a000); border: none; border-radius: 15px; font-size: 22px; font-weight: 900; cursor: pointer; margin-bottom: 15px; color: #000; box-shadow: 0 5px 0 #8a7800; transition: 0.1s; }
         .btn-main:active { transform: translateY(3px); box-shadow: none; }
         
-        #console { background-color: #050505; border: 2px solid #333; border-radius: 20px; height: 350px; padding: 15px; text-align: left; overflow-y: auto; color: #ffd700; font-size: 14px; line-height: 1.8; }
+        #console { background-color: #050505; border: 2px solid #333; border-radius: 20px; height: 380px; padding: 15px; text-align: left; overflow-y: auto; color: #ffd700; box-shadow: inset 0 0 15px rgba(0,0,0,1); }
         
-        .ball { display: inline-block; width: 26px; height: 26px; background: #ffd700; color: #000; border-radius: 50%; text-align: center; line-height: 26px; font-weight: bold; margin-right: 4px; font-size: 12px; }
-        .tag-cold { background: #ff4500 !important; font-size: 11px; padding: 2px 5px; border-radius: 4px; color: #fff; margin-right: 5px; }
-        .result-line { border-bottom: 1px solid #222; padding: 8px 0; display: flex; align-items: center; }
+        /* 마킹 구슬 디자인 복구 */
+        .ball { display: inline-block; width: 30px; height: 30px; background: radial-gradient(circle at 30% 30%, #ffd700, #b8a000); color: #000; border-radius: 50%; text-align: center; line-height: 30px; font-weight: bold; margin-right: 5px; font-size: 14px; box-shadow: 2px 2px 4px rgba(0,0,0,0.5); }
+        .tag-cold { background: #ff4500; color: #fff; font-size: 11px; padding: 3px 7px; border-radius: 5px; margin-right: 10px; font-weight: bold; box-shadow: 0 0 5px #ff4500; }
+        .result-line { border-bottom: 1px solid #222; padding: 12px 0; display: flex; align-items: center; }
     </style>
 </head>
 <body>
@@ -34,95 +33,63 @@
         <h1 onclick="location.reload()">신 의 손</h1>
         
         <div class="live-report">
-            <span class="report-label">❄️ 실시간 30주 미출수</span>
-            <span id="cold-numbers-display" class="report-val">분석 중...</span>
-            <hr style="border:0; border-top:1px solid #333; margin:8px 0;">
-            <span class="report-label">💎 보너스 승격 후보</span>
-            <span id="bonus-numbers-display" class="report-val">분석 중...</span>
+            <span class="report-label">🔥 최근 30주간 미출수 집합</span>
+            <span id="cold-display" class="report-val">데이터 분석 중...</span>
         </div>
 
-        <div class="target-box" id="target-title">🎯 분석 대기 중</div>
+        <button class="btn-main" onclick="process(10)">분석 엔진 10조합 가동</button>
         
-        <button class="btn-main" onclick="process(10, 6)">10조합 가동</button>
-        <button class="btn-main" style="background: linear-gradient(to bottom, #ff9d00, #ff4500); color:#fff;" onclick="process(5, 9)">프리미엄 5조합</button>
-        
-        <div id="console">▶ 시스템 준비 완료.</div>
+        <div id="console">▶ 사장님, 시스템 가동 준비 완료되었습니다.</div>
     </div>
 </div>
 
 <script>
-    // 1210회 ~ 1181회 (사장님 데이터 30회분)
+    // 1210회 ~ 1181회 (최근 30개 데이터)
     const RAW_DATA = [[1210,1,7,9,17,27,38,31],[1209,2,17,20,35,37,39,24],[1208,6,27,30,36,38,42,25],[1207,10,22,24,27,38,45,11],[1206,1,3,17,26,27,42,23],[1205,1,4,16,23,31,41,2],[1204,8,16,28,30,31,44,27],[1203,3,6,18,29,35,39,24],[1202,5,12,21,33,37,40,7],[1201,7,9,24,27,35,36,37],[1200,1,2,4,16,20,32,45],[1199,16,24,25,30,31,32,7],[1198,26,30,33,38,39,41,21],[1197,1,5,7,26,28,43,30],[1196,8,12,15,29,40,45,14],[1195,3,15,27,33,34,36,37],[1194,3,13,15,24,33,37,2],[1193,6,9,16,19,24,28,17],[1192,10,16,23,36,39,40,11],[1191,1,4,11,12,20,41,2],[1190,7,9,19,23,26,45,33],[1189,9,19,29,35,37,38,31],[1188,3,4,12,19,22,27,9],[1187,5,13,26,29,37,40,42],[1186,2,8,13,16,23,28,35],[1185,6,17,22,28,29,32,38],[1184,14,16,23,25,31,37,42],[1183,4,15,17,23,27,36,31],[1182,1,13,21,25,28,31,22],[1181,8,10,14,20,33,41,28]];
 
-    let coldNumbers = [], top12 = [], bonusOnlyHot = [];
+    let coldNumbers = [];
 
-    // [중요] 페이지 로드되자마자 즉시 실행해서 디자인에 값 박기
+    // 페이지 열자마자 디자인에 미출수 바로 박기
     window.onload = function() {
-        initAnalysis();
-        updateDesign();
+        analyze();
     };
 
-    function initAnalysis() {
-        let counts = Array(46).fill(0);
-        let weight = Array(46).fill(0);
-
-        // 정확히 최근 30회차 당첨번호 전수조사
-        RAW_DATA.slice(0, 30).forEach((draw, idx) => {
-            for(let i=1; i<=6; i++) {
-                counts[draw[i]]++;
-                weight[draw[i]] += (30 - idx);
-            }
+    function analyze() {
+        let seen = new Set();
+        // 딱 30개만 훑어서 정번호 싹 수집
+        RAW_DATA.slice(0, 30).forEach(row => {
+            for(let i=1; i<=6; i++) seen.add(row[i]);
         });
 
-        // 미출수 추출 (당첨번호로 0번 나온 수)
+        // 1~45 중 안 나온 놈들 색출
         coldNumbers = [];
         for(let i=1; i<=45; i++) {
-            if(counts[i] === 0) coldNumbers.push(i);
+            if(!seen.has(i)) coldNumbers.push(i);
         }
 
-        // 빈출수 TOP 12
-        top12 = [...Array(46).keys()].slice(1).sort((a,b) => weight[b] - weight[a]).slice(0, 12);
-
-        // 보너스 승격수
-        let bStats = {};
-        RAW_DATA.slice(0, 30).forEach((draw, idx) => {
-            let b = draw[7];
-            if(!top12.includes(b)) bStats[b] = (bStats[b] || 0) + (30-idx);
-        });
-        bonusOnlyHot = Object.keys(bStats).map(Number).sort((a,b) => bStats[b] - bStats[a]).slice(0, 5);
+        // 디자인 박스에 즉시 업데이트
+        document.getElementById('cold-display').innerText = coldNumbers.length > 0 ? coldNumbers.join(', ') : "전체 번호 출현";
     }
 
-    // 디자인 텍스트에 미출수 강제 주입
-    function updateDesign() {
-        document.getElementById('cold-numbers-display').innerText = coldNumbers.length > 0 ? coldNumbers.join(', ') : "30주내 미출수 없음";
-        document.getElementById('bonus-numbers-display').innerText = bonusOnlyHot.join(', ');
-        document.getElementById('target-title').innerText = `🎯 ${RAW_DATA[0][0] + 1}회 정밀 분석 가동`;
-    }
-
-    function process(count, acLimit) {
+    function process(count) {
         const box = document.getElementById('console');
-        box.innerHTML = "▶ 조합 생성 중...<br><hr style='border-color:#222'>";
+        box.innerHTML = "";
         
-        let gen = 0, safety = 0;
-        while(gen < count && safety < 50000) {
-            safety++;
+        for(let g=1; g<=count; g++) {
             let res = [];
-            // 미출수 포함 전략
-            if(gen % 2 === 0 && coldNumbers.length > 0) res.push(coldNumbers[Math.floor(Math.random()*coldNumbers.length)]);
-            
+            // 미출수 저격: 1개는 무조건 미출수 집합에서 뽑음
+            if(coldNumbers.length > 0) {
+                res.push(coldNumbers[Math.floor(Math.random() * coldNumbers.length)]);
+            }
+
             while(res.length < 6) {
-                let p = (Math.random() < 0.7) ? top12[Math.floor(Math.random()*top12.length)] : Math.floor(Math.random()*45)+1;
-                if(!res.includes(p)) res.push(p);
+                let n = Math.floor(Math.random() * 45) + 1;
+                if(!res.includes(n)) res.push(n);
             }
             res.sort((a,b) => a-b);
             
-            let sum = res.reduce((a,b)=>a+b, 0);
-            if(sum >= 100 && sum <= 180) {
-                gen++;
-                let balls = res.map(n => `<span class="ball">${n}</span>`).join('');
-                let tag = res.some(n => coldNumbers.includes(n)) ? '<span class="tag-cold">미출저격</span>' : '';
-                box.innerHTML += `<div class="result-line">#${gen} ${tag} ${balls}</div>`;
-            }
+            let balls = res.map(n => `<span class="ball">${n}</span>`).join('');
+            box.innerHTML += `<div class="result-line"><span class="tag-cold">미출저격</span> #${g} ${balls}</div>`;
         }
     }
 </script>
