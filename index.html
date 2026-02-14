@@ -3,176 +3,116 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>신의 손 v4.5 - 1211회 (AC 최적화)</title>
+    <title>신의 손 v5.2 - 미출수 집중 저격</title>
     <style>
-        /* 기본 디자인 (요청하신 다크 & 골드 테마) */
-        body { background-color: #0c0c0c; color: #f2c94c; font-family: 'Malgun Gothic', sans-serif; text-align: center; padding: 20px; margin: 0; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
-        h1 { color: #f2c94c; font-size: 2.5rem; margin-top: 20px; margin-bottom: 20px; font-weight: bold; letter-spacing: -1px; text-shadow: 0 0 10px rgba(242, 201, 76, 0.3); }
+        body { background-color: #000; color: #ffd700; font-family: 'Malgun Gothic', sans-serif; text-align: center; padding: 20px; margin: 0; }
+        .outer-border { border: 4px solid #ffd700; border-radius: 40px; padding: 10px; max-width: 420px; margin: 0 auto; box-shadow: 0 0 30px rgba(255, 215, 0, 0.4); }
+        .inner-container { border: 2px solid #ffd700; border-radius: 32px; padding: 25px 15px; background: #0c0c0c; }
+        h1 { font-size: 45px; font-weight: 900; margin: 0; letter-spacing: 8px; cursor: pointer; color: #ffd700; text-decoration: none; }
         
-        /* 타겟 박스 스타일 */
-        .target-box { color: #FFF; font-size: 1.2rem; margin-bottom: 25px; background: #1a1a1a; padding: 12px 30px; border-radius: 15px; display: inline-block; border: 2px solid #f2c94c; font-weight: bold; box-shadow: 0 0 15px rgba(242, 201, 76, 0.2); }
+        .target-box { color: #ff4500; font-size: 18px; font-weight: 900; margin: 15px 0; background: #1a1a1a; padding: 10px; border-radius: 10px; border: 2px solid #ff4500; }
         
-        /* 버튼 컨테이너 */
-        .btn-container { width: 100%; max-width: 420px; margin: 0 auto 20px auto; }
+        /* 버튼 스타일 */
+        .btn-main { width: 100%; height: 65px; background: linear-gradient(to bottom, #fdf24d, #b8a000); border: none; border-radius: 15px; font-size: 20px; font-weight: 900; cursor: pointer; margin-bottom: 12px; color: #000; box-shadow: 0 4px 0 #8a7800; }
+        .btn-main:active { transform: translateY(3px); box-shadow: none; }
         
-        /* 메인 버튼 스타일 */
-        .btn-main { width: 100%; height: 70px; background: linear-gradient(to bottom, #f2c94c, #d4a017); color: #000; border: none; border-radius: 12px; cursor: pointer; font-size: 20px; font-weight: 900; transition: 0.2s; box-shadow: 0 5px 15px rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; }
-        .btn-main:active { transform: scale(0.98); box-shadow: 0 2px 5px rgba(0,0,0,0.5); }
+        .btn-sub-group { display: flex; gap: 10px; margin-bottom: 15px; }
+        .btn-sub { flex: 1; height: 50px; background: #222; border: 1px solid #444; border-radius: 12px; color: #fff; font-weight: bold; cursor: pointer; }
+
+        #console { background-color: #050505; border: 2px solid #333; border-radius: 20px; height: 400px; padding: 15px; text-align: left; overflow-y: auto; color: #ffd700; font-size: 14px; line-height: 2; }
         
-        /* 콘솔창 스타일 */
-        #console-container { width: 100%; max-width: 420px; margin: 10px auto; background-color: #050505; border-radius: 15px; border: 2px solid #333; overflow: hidden; box-shadow: inset 0 0 20px rgba(0,0,0,0.8); }
-        #console { width: 100%; height: 400px; padding: 20px; text-align: left; overflow-y: auto; box-sizing: border-box; }
-        
-        /* 결과물(공) 스타일 - 디자인에 맞춰 커스텀 */
-        .log-entry { margin-bottom: 15px; border-bottom: 1px solid #222; padding-bottom: 10px; }
-        .tag { display: inline-block; font-size: 12px; padding: 3px 8px; border-radius: 4px; background: #333; color: #f2c94c; margin-right: 8px; font-weight: bold; vertical-align: middle; }
-        .ball { display: inline-block; width: 32px; height: 32px; background: radial-gradient(circle at 30% 30%, #f2c94c, #b8860b); color: #000; border-radius: 50%; text-align: center; line-height: 32px; font-weight: 900; margin-right: 5px; font-size: 15px; box-shadow: 2px 2px 5px rgba(0,0,0,0.5); vertical-align: middle; }
-        
-        /* 스크롤바 커스텀 */
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: #1a1a1a; }
-        ::-webkit-scrollbar-thumb { background: #555; border-radius: 3px; }
+        .ball { display: inline-block; width: 28px; height: 28px; background: #ffd700; color: #000; border-radius: 50%; text-align: center; line-height: 28px; font-weight: bold; margin-right: 4px; font-size: 13px; }
+        .tag { font-size: 11px; padding: 2px 6px; border-radius: 4px; background: #333; color: #fff; margin-right: 5px; }
+        .tag-cold { background: #ff4500 !important; }
+        .result-line { border-bottom: 1px solid #222; padding: 5px 0; display: flex; align-items: center; justify-content: space-between; }
     </style>
 </head>
 <body>
-    <h1 onclick="location.reload()">신의 손</h1>
-    <div class="target-box">🎯 1211회차 분석 (AC 6~9)</div>
 
-    <div class="btn-container">
-        <button class="btn-main" id="genBtn" onclick="generate()">
-            분석 엔진 10조합 가동
-        </button>
-    </div>
-
-    <div id="console-container">
-        <div id="console">
-            <div style="color:#777; text-align:center; padding-top:150px;">
-                데이터 로드 완료.<br>버튼을 눌러 분석을 시작하세요.
-            </div>
+<div class="outer-border">
+    <div class="inner-container">
+        <h1 onclick="location.reload()">신 의 손</h1>
+        
+        <div class="target-box">🎯 1211회 미출수 타겟 모드<br>(30주 미출수 집중 분석 가동)</div>
+        
+        <button class="btn-main" onclick="process(10, 6)">분석 엔진 10조합 가동</button>
+        <button class="btn-main" style="background: linear-gradient(to bottom, #ff9d00, #ff4500); color:#fff;" onclick="process(5, 9)">프리미엄 5조합 (AC 9-10)</button>
+        
+        <div class="btn-sub-group">
+            <button class="btn-sub" onclick="showStorage()">마킹 보관함</button>
+            <button class="btn-sub" onclick="clearConsole()">전체 삭제</button>
         </div>
+
+        <div id="console">▶ 시스템 준비 완료.</div>
     </div>
+</div>
 
 <script>
-    // 1211회차 대비 데이터 (기존 로직 그대로 유지)
-    const rawData = [[1210,1,7,9,17,27,38,31],[1209,2,17,20,35,37,39,24],[1208,6,27,30,36,38,42,25],[1207,10,22,24,27,38,45,11],[1206,1,3,17,26,27,42,23],[1205,1,4,16,23,31,41,2],[1204,8,16,28,30,31,44,27],[1203,3,6,18,29,35,39,24],[1202,5,12,21,33,37,40,7],[1201,7,9,24,27,35,36,37],[1200,1,2,4,16,20,32,45],[1199,16,24,25,30,31,32,7],[1198,26,30,33,38,39,41,21],[1197,1,5,7,26,28,43,30],[1196,8,12,15,29,40,45,14],[1195,8,14,24,28,32,37,42],[1194,10,14,23,35,41,43,4],[1193,5,10,21,25,37,41,29],[1192,7,16,22,23,24,31,33],[1191,1,6,12,19,35,43,30],[1190,1,10,13,22,31,44,15],[1189,1,10,28,42,43,45,39],[1188,1,11,14,15,19,38,10],[1187,1,10,13,22,31,44,15],[1186,1,10,28,42,43,45,39],[1185,1,11,14,15,19,38,10],[1184,1,10,13,22,31,44,15],[1183,1,7,11,16,41,45,4],[1182,1,10,13,22,31,44,15],[1181,1,10,28,42,43,45,39],[1180,1,11,14,15,19,38,10],[1179,1,10,13,22,31,44,15],[1178,1,10,28,42,43,45,39],[1177,1,11,14,15,19,38,10],[1176,1,10,13,22,31,44,15]];
+    const RAW_DATA = [[1210,1,7,9,17,27,38,31],[1209,2,17,20,35,37,39,24],[1208,6,27,30,36,38,42,25],[1207,10,22,24,27,38,45,11],[1206,1,3,17,26,27,42,23],[1205,1,4,16,23,31,41,2],[1204,8,16,28,30,31,44,27],[1203,3,6,18,29,35,39,24],[1202,5,12,21,33,37,40,7],[1201,7,9,24,27,35,36,37],[1200,1,2,4,16,20,32,45],[1199,16,24,25,30,31,32,7],[1198,26,30,33,38,39,41,21],[1197,1,5,7,26,28,43,30],[1196,8,12,15,29,40,45,14],[1195,3,15,27,33,34,36,37],[1194,3,13,15,24,33,37,2],[1193,6,9,16,19,24,28,17],[1192,10,16,23,36,39,40,11],[1191,1,4,11,12,20,41,2],[1190,7,9,19,23,26,45,33],[1189,9,19,29,35,37,38,31],[1188,3,4,12,19,22,27,9],[1187,5,13,26,29,37,40,42],[1186,2,8,13,16,23,28,35],[1185,6,17,22,28,29,32,38],[1184,14,16,23,25,31,37,42],[1183,4,15,17,23,27,36,31],[1182,1,13,21,25,28,31,22],[1181,8,10,14,20,33,41,28]];
 
-    function calculateAC(comb) {
-        let diffs = new Set();
-        for (let i = 0; i < 6; i++) {
-            for (let j = i + 1; j < 6; j++) diffs.add(Math.abs(comb[i] - comb[j]));
-        }
-        return diffs.size - 5;
+    let top12 = [], bonusOnlyHot = [], coldNumbers = [], savedNumbers = [];
+
+    function init() {
+        let r30 = RAW_DATA.slice(0, 30);
+        let stats = {}, appearCount = {};
+        for(let i=1; i<=45; i++) { stats[i] = 0; appearCount[i] = 0; }
+        r30.forEach((d, idx) => { for(let i=1; i<=6; i++) { stats[d[i]] += (30-idx); appearCount[d[i]]++; } });
+        top12 = Object.keys(stats).map(Number).sort((a,b) => stats[b] - stats[a]).slice(0, 12);
+        coldNumbers = Object.keys(appearCount).filter(key => appearCount[key] === 0).map(Number);
+        let bOnly = {};
+        r30.forEach((d, idx) => { let b = d[7]; if(!top12.includes(b)) bOnly[b] = (bOnly[b] || 0) + (30-idx); });
+        bonusOnlyHot = Object.keys(bOnly).map(Number).sort((a,b) => bOnly[b] - bOnly[a]);
     }
 
-    function checkConsecutive(comb) {
-        let sorted = [...comb].sort((a, b) => a - b);
-        for (let i = 0; i < 4; i++) {
-            if (sorted[i] + 1 === sorted[i+1] && sorted[i+1] + 1 === sorted[i+2]) return false;
-        }
-        return true;
+    function getAC(arr) {
+        let d = new Set();
+        for(let i=0; i<6; i++) { for(let j=i+1; j<6; j++) d.add(Math.abs(arr[i]-arr[j])); }
+        return d.size - 5;
     }
 
-    function generate() {
-        const consoleBox = document.getElementById('console');
-        consoleBox.innerHTML = '<div style="color:#f2c94c; padding:10px;">▶ 분석 엔진 가동 중...<br>AC 지수 6~9 필터링 적용</div>';
-        
-        // 데이터 분석
-        const recent35 = rawData.slice(0, 35);
-        let counts = {};
-        recent35.forEach(r => r.slice(1,7).forEach(n => counts[n] = (counts[n]||0) + 1));
-        const base12 = Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,12).map(v=>Number(v[0]));
-        const coreNums = new Set(base12.slice(0, 5));
+    function process(count, targetAC) {
+        const box = document.getElementById('console');
+        box.innerHTML = `▶ ${count}조합 분석 시작... (미출수: ${coldNumbers.length}수)<br><hr>`;
+        let gen = 0, safety = 0;
+        savedNumbers = []; 
 
-        let bnCounts = {};
-        recent35.forEach(r => bnCounts[r[7]] = (bnCounts[r[7]]||0) + 1);
-        const eligible = Object.entries(bnCounts).filter(([n, c]) => c * 0.5 > 1.5).sort((a,b) => b[1] - a[1]).map(v => Number(v[0]));
-        const bn5 = eligible[0] || 31;
-        const bn6 = eligible[1] || bn5;
-        const bn7 = eligible[2] || bn5;
+        while(gen < count && safety < 100000) {
+            safety++;
+            let res = [], cur = gen + 1;
+            let tempCold = [...coldNumbers];
 
-        // 미출수 분석
-        const recent30Nums = new Set();
-        rawData.slice(0, 30).forEach(r => r.slice(1, 8).forEach(n => recent30Nums.add(n)));
-        const missingSet = new Set(Array.from({length:45},(_,i)=>i+1).filter(n => !recent30Nums.has(n)));
+            if(cur <= 3 && bonusOnlyHot.length >= cur) res.push(bonusOnlyHot[cur-1]);
+            else if(cur >= 8 && tempCold.length > 0) res.push(tempCold[Math.floor(Math.random()*tempCold.length)]);
 
-        const pool = Array.from(new Set([...base12, ...eligible.slice(0, 3), ...Array.from(missingSet)])).sort((a,b)=>a-b);
-
-        let finalResults = new Array(11).fill(null);
-        let attempts = 0;
-
-        // 수정된 로직 (9번 스킵 방지 포함)
-        while(!finalResults.slice(1).every(r => r !== null) && attempts < 200000) {
-            attempts++;
-            let comb = [];
-            let tempPool = [...pool];
-            
-            for(let i=0; i<6; i++) {
-                if(tempPool.length === 0) break;
-                let rIdx = Math.floor(Math.random() * tempPool.length);
-                comb.push(tempPool.splice(rIdx, 1)[0]);
+            let pool = [...top12];
+            while(res.length < 6) {
+                let pick = (pool.length > 0 && Math.random() < 0.7) ? pool.splice(Math.floor(Math.random()*pool.length), 1)[0] : Math.floor(Math.random()*45)+1;
+                if(!res.includes(pick)) res.push(pick);
             }
-            if(comb.length < 6) continue;
-            comb.sort((a, b) => a - b);
+            res.sort((a,b) => a-b);
+            const sum = res.reduce((a,b)=>a+b, 0);
+            const ac = getAC(res);
 
-            if (!checkConsecutive(comb)) continue;
-            const sum = comb.reduce((a, b) => a + b, 0);
-            if (sum < 100 || sum > 170) continue;
-            
-            const ac = calculateAC(comb);
-            if (ac < 6 || ac > 9) continue;
-
-            const odds = comb.filter(n => n % 2 !== 0).length;
-            if (odds === 0 || odds === 6) continue;
-            
-            const mCount = comb.filter(n => missingSet.has(n)).length;
-
-            for (let i = 1; i <= 10; i++) {
-                if (finalResults[i] !== null) continue;
-
-                // 1~7번: 안정형
-                if (i <= 7) {
-                    if (mCount !== 0) continue;
-                    if (i === 5 && !comb.includes(bn5)) continue;
-                    if (i === 6 && !comb.includes(bn6)) continue;
-                    if (i === 7 && !comb.includes(bn7)) continue;
-                    if (i <= 2 && comb.filter(n => coreNums.has(n)).length < 2) continue;
-                    finalResults[i] = comb; break;
-                } 
-                // 8~10번: 전략형 (조건 완화로 채움 보장)
-                else {
-                    if (i === 8) {
-                        if (mCount >= 1 || comb.includes(bn5)) { finalResults[i] = comb; break; }
-                    }
-                    if (i === 9) {
-                        if (mCount >= 1) { finalResults[i] = comb; break; } // 조건 완화
-                    }
-                    if (i === 10) {
-                        if (comb.filter(n => coreNums.has(n)).length >= 3 || mCount >= 1) { finalResults[i] = comb; break; } // 조건 완화
-                    }
-                }
+            if(sum >= 100 && sum <= 180 && ac >= targetAC) {
+                gen++;
+                savedNumbers.push(res);
+                let tag = (res.some(n => coldNumbers.includes(n))) ? '<span class="tag tag-cold">저격</span>' : '<span class="tag">안정</span>';
+                const balls = res.map(n => `<span class="ball">${n}</span>`).join('');
+                box.innerHTML += `<div class="result-line">${tag} #${gen} ${balls}</div>`;
             }
         }
-
-        // 결과 출력 (디자인 적용)
-        setTimeout(() => {
-            consoleBox.innerHTML = '';
-            for (let i = 1; i <= 10; i++) {
-                if (finalResults[i]) {
-                    const balls = finalResults[i].map(n => `<span class="ball">${n}</span>`).join('');
-                    const acVal = calculateAC(finalResults[i]);
-                    const typeTag = i <= 7 ? '<span class="tag" style="background:#228B22">안정</span>' : '<span class="tag" style="background:#B22222">전략</span>';
-                    
-                    consoleBox.innerHTML += `
-                        <div class="log-entry">
-                            ${typeTag} <span style="color:#888; font-size:12px;">SET #${i}</span>
-                            <div style="margin-top:8px;">${balls}</div>
-                            <div style="text-align:right; font-size:11px; color:#555; margin-top:4px;">AC지수: ${acVal} / 합계: ${finalResults[i].reduce((a,b)=>a+b,0)}</div>
-                        </div>`;
-                }
-            }
-            consoleBox.scrollTop = 0;
-        }, 300); // 찰나의 딜레이로 연산 느낌 주기
     }
+
+    function showStorage() {
+        alert("현재 생성된 " + savedNumbers.length + "개의 조합이 임시 보관되었습니다.");
+    }
+
+    function clearConsole() {
+        document.getElementById('console').innerHTML = "▶ 데이터를 초기화했습니다.";
+        savedNumbers = [];
+    }
+
+    window.onload = init;
 </script>
 </body>
 </html>
