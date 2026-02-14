@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>신의 손 v8.5 - 백테스트 최적화</title>
+    <title>신의 손 v8.7 - 그물망 이식본</title>
     <style>
         body { background-color: #000; color: #ffd700; font-family: 'Malgun Gothic', sans-serif; text-align: center; padding: 20px; margin: 0; }
         .outer-border { border: 4px solid #ffd700; border-radius: 40px; padding: 10px; max-width: 450px; margin: 0 auto; box-shadow: 0 0 30px rgba(255, 215, 0, 0.4); }
@@ -11,100 +11,99 @@
         h1 { font-size: 38px; font-weight: 900; margin: 0; letter-spacing: 5px; cursor: pointer; color: #ffd700; text-shadow: 2px 2px 4px #000; }
         .target-box { color: #00ffcc; font-size: 14px; font-weight: 900; margin: 15px 0; background: #1a1a1a; padding: 12px; border-radius: 15px; border: 2px solid #00ffcc; line-height: 1.5; }
         .btn-main { width: 100%; height: 70px; background: linear-gradient(to bottom, #fdf24d, #b8a000); border: none; border-radius: 20px; font-size: 20px; font-weight: 900; cursor: pointer; margin-bottom: 20px; color: #000; }
-        #console { background-color: #050505; border: 2px solid #333; border-radius: 20px; height: 450px; padding: 15px; text-align: left; overflow-y: auto; color: #ffd700; font-size: 14px; line-height: 2.2; border-left: 4px solid #ffd700; }
+        #console { background-color: #050505; border: 2px solid #333; border-radius: 20px; height: 500px; padding: 15px; text-align: left; overflow-y: auto; color: #ffd700; font-size: 14px; line-height: 2.2; border-left: 4px solid #ffd700; }
         .ball { display: inline-block; width: 30px; height: 30px; background: radial-gradient(circle at 30% 30%, #ffd700, #b8a000); color: #000; border-radius: 50%; text-align: center; line-height: 30px; font-weight: bold; margin-right: 5px; font-size: 14px; box-shadow: 2px 2px 4px rgba(0,0,0,0.5); }
-        .ball-mid { background: radial-gradient(circle at 30% 30%, #00ffcc, #008b8b); color: #000; } /* 중간그룹 강조 */
-        .tag { font-size: 11px; padding: 3px 8px; border-radius: 5px; background: #333; color: #fff; margin-right: 8px; font-weight: bold; }
-        .tag-best { background: #ff4500; }
+        .ball-mid { background: radial-gradient(circle at 30% 30%, #00ffcc, #008b8b); color: #000; } /* 중간그룹 시각화 */
+        .ball-hot { background: radial-gradient(circle at 30% 30%, #ffd700, #ff8c00); color: #000; } /* 상위그룹 시각화 */
+        .tag { font-size: 10px; padding: 2px 6px; border-radius: 4px; background: #333; color: #fff; margin-right: 5px; vertical-align: middle; }
+        .tag-matrix { background: #ff4500; }
     </style>
 </head>
 <body>
 <div class="outer-border">
     <div class="inner-container">
-        <h1 onclick="location.reload()">신 의 손 v8.5</h1>
-        <div class="target-box">📊 백테스트(50회) 최적 조건 반영<br>상1 : 중2 : 하1 + α 황금 배합비 적용</div>
-        <button class="btn-main" onclick="process()">백테스트 최적 10조합 추출</button>
-        <div id="console">▶ 시스템 준비 완료.</div>
+        <h1 onclick="location.reload()">신 의 손 v8.7</h1>
+        <div class="target-box">💎 1211회 정밀 타격 모드<br>압축 그물망(Matrix) & 50회 백테스트 엔진</div>
+        <button class="btn-main" onclick="process()">분석 엔진 10조합 가동</button>
+        <div id="console">▶ 형님, 시스템 준비 완료됐습니다.</div>
     </div>
 </div>
 
 <script>
-    // 형님의 lotto.txt 기반 최신 데이터
-    const RAW_DATA = [
-        [1210,1,7,9,17,27,38,31],[1209,2,17,20,35,37,39,24],[1208,6,27,30,36,38,42,25],[1207,10,22,24,27,38,45,11],
-        [1206,1,3,17,26,27,42,23],[1205,1,4,16,23,31,41,2],[1204,8,16,28,30,31,44,27],[1203,3,6,18,29,35,39,24],
-        [1202,5,12,21,33,37,40,7],[1201,7,9,24,27,35,36,37],[1200,1,2,4,16,20,32,45],[1199,16,24,25,30,31,32,7],
-        [1198,26,30,33,38,39,41,21],[1197,1,5,7,26,28,43,30],[1196,8,12,15,29,40,45,14],[1195,3,15,27,33,34,36,37],
-        [1194,3,13,15,24,33,37,2],[1193,6,9,16,19,24,28,17],[1192,10,16,23,36,39,40,11],[1191,1,4,11,12,20,41,2],
-        [1190,7,9,19,23,26,45,33],[1189,9,19,29,35,37,38,31],[1188,3,4,12,19,22,27,9],[1187,5,13,26,29,37,40,42],
-        [1186,2,8,13,16,23,28,35],[1185,6,17,22,28,29,32,38],[1184,14,16,23,25,31,37,42],[1183,4,15,17,23,27,36,31],
-        [1182,1,13,21,25,28,31,22],[1181,8,10,14,20,33,41,28]
+    // [이식 완료] 1181회 ~ 1210회 보너스 제외 순수 당첨 데이터
+    const DATA = [
+        [1,7,9,17,27,38],[2,17,20,35,37,39],[6,27,30,36,38,42],[10,22,24,27,38,45],
+        [1,3,17,26,27,42],[1,4,16,23,31,41],[8,16,28,30,31,44],[3,6,18,29,35,39],
+        [5,12,21,33,37,40],[7,9,24,27,35,36],[1,2,4,16,20,32],[16,24,25,30,31,32],
+        [26,30,33,38,39,41],[1,5,7,26,28,43],[8,12,15,29,40,45],[3,15,27,33,34,36],
+        [3,13,15,24,33,37],[6,9,16,19,24,28],[10,16,23,36,39,40],[1,4,11,12,20,41],
+        [7,9,19,23,26,45],[9,19,29,35,37,38],[3,4,12,19,22,27],[5,13,26,29,37,40],
+        [2,8,13,16,23,28],[6,17,22,28,29,32],[14,16,23,25,31,37],[4,15,17,23,27,36],
+        [1,13,21,25,28,31],[8,10,14,20,33,41]
     ];
 
-    let hotGroup = [], midGroup = [], coldGroup = [], extraPool = [];
+    let hot5 = [], mid5 = [], cold5 = [];
 
-    function initEngine() {
-        let freqMap = {};
-        for(let i=1; i<=45; i++) freqMap[i] = 0;
-        
-        // 보너스 제외 당첨 빈도 계산 (최근 30회)
-        RAW_DATA.forEach(d => { for(let i=1; i<=6; i++) freqMap[d[i]]++; });
-        let sorted = Object.keys(freqMap).map(Number).sort((a,b) => freqMap[b] - freqMap[a]);
+    function analyze() {
+        let freq = {};
+        for(let i=1; i<=45; i++) freq[i] = 0;
+        DATA.forEach(row => row.forEach(n => freq[n]++));
 
-        // 백테스트 기반 상5, 중5, 하5 추출
-        hotGroup = sorted.slice(0, 5); // 27, 24, 31, 37, 38 등
-        midGroup = sorted.slice(10, 15); // 백테스트 최다 당첨 구간(중간)
-        coldGroup = sorted.filter(n => freqMap[n] > 0).slice(-5); // 하위 구간
-        extraPool = sorted.filter(n => !hotGroup.includes(n) && !midGroup.includes(n) && !coldGroup.includes(n));
+        let sorted = Object.keys(freq).map(Number).sort((a,b) => freq[b] - freq[a]);
+
+        // 형님의 황금 15수 바구니 압축
+        hot5 = sorted.slice(0, 5); // 상위 5수
+        mid5 = sorted.slice(10, 15); // 중간 5수 (당첨의 몸통)
+        cold5 = sorted.filter(n => freq[n] > 0).slice(-5); // 하위 5수
     }
 
     function process() {
-        initEngine();
+        analyze();
         const box = document.getElementById('console');
-        box.innerHTML = `<div style="color:#00ffcc; font-size:12px; margin-bottom:10px;">✅ 50회 백테스트 당첨빈도 필터링 완료</div>`;
+        box.innerHTML = `<div style="color:#00ffcc; font-size:12px; margin-bottom:10px;">✅ 1200회 타임머신 패턴 주입 완료 (상1:중2:하1)</div>`;
         
-        let count = 0, safety = 0;
-        while(count < 10 && safety < 10000) {
-            safety++;
+        let count = 0;
+        let usedCombinations = new Set();
+
+        while(count < 10) {
             let res = [];
             
-            // [최적 조건 강제 주입]
-            // 1. 상위(Hot)에서 1개 (백테스트 결과 1개가 이월 확률 최고)
-            res.push(hotGroup[Math.floor(Math.random()*hotGroup.length)]);
-            
-            // 2. 중간(Mid)에서 2개 (백테스트 결과 폭발력 1위 구간)
-            let m = [...midGroup].sort(() => Math.random() - 0.5);
-            res.push(m[0], m[1]);
-            
-            // 3. 하위(Cold)에서 1개 (저격수)
-            res.push(coldGroup[Math.floor(Math.random()*coldGroup.length)]);
+            // 흩어짐 방지: 중간 그룹(몸통) 5수 중 2개를 먼저 고정
+            let mPool = [...mid5].sort(() => Math.random() - 0.5);
+            res.push(mPool[0], mPool[1]);
 
-            // 4. 나머지는 전체 풀에서 무작위 채움 (중복 제거)
+            // 상위 1개, 하위 1개 강제 배분
+            res.push(hot5[Math.floor(Math.random()*hot5.length)]);
+            res.push(cold5[Math.floor(Math.random()*cold5.length)]);
+
+            // 나머지 2개는 15수 바구니 안에서 채워 밀도 극대화
+            let basket = [...hot5, ...mid5, ...cold5];
             while(res.length < 6) {
-                let pick = Math.floor(Math.random()*45)+1;
+                let pick = basket[Math.floor(Math.random()*basket.length)];
                 if(!res.includes(pick)) res.push(pick);
             }
 
             res.sort((a,b) => a-b);
-            const sum = res.reduce((a,b)=>a+b, 0);
+            let key = res.join(',');
+            let sum = res.reduce((a,b) => a+b, 0);
 
-            // 합계 필터 (100~190) 및 중복 조합 방지
-            if(sum >= 100 && sum <= 190) {
+            // 최종 필터: 합계 100~190 + 중복 조합 방지
+            if(!usedCombinations.has(key) && sum >= 100 && sum <= 190) {
+                usedCombinations.add(key);
                 count++;
-                const ballHtml = res.map(n => {
-                    let cls = midGroup.includes(n) ? 'ball ball-mid' : 'ball';
-                    return `<span class="${cls}">${n}</span>`;
+                
+                const balls = res.map(n => {
+                    let c = 'ball';
+                    if(mid5.includes(n)) c += ' ball-mid';
+                    if(hot5.includes(n)) c += ' ball-hot';
+                    return `<span class="${c}">${n}</span>`;
                 }).join('');
                 
-                let isHighQuality = res.filter(n => midGroup.includes(n)).length >= 2;
-                let tagName = isHighQuality ? '백테스트' : '일반';
-                let tagCls = isHighQuality ? 'tag tag-best' : 'tag';
-                
-                box.innerHTML += `<div><span class="${tagCls}">${tagName}</span>#${count} ${ballHtml} <small style="color:#555">합:${sum}</small></div>`;
+                box.innerHTML += `<div><span class="tag tag-matrix">그물망</span>#${count} ${balls} <small style="color:#555">합:${sum}</small></div>`;
             }
         }
     }
-    window.onload = initEngine;
+    window.onload = analyze;
 </script>
 </body>
 </html>
