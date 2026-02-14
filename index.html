@@ -3,40 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>신의 손 v5.2 - 미출수 정밀 타격</title>
+    <title>신의 손 v5.2 - 미출수 집중 분석</title>
     <style>
         body { background-color: #000; color: #ffd700; font-family: 'Malgun Gothic', sans-serif; text-align: center; padding: 20px; margin: 0; }
         .outer-border { border: 4px solid #ffd700; border-radius: 40px; padding: 10px; max-width: 420px; margin: 0 auto; box-shadow: 0 0 30px rgba(255, 215, 0, 0.4); }
         .inner-container { border: 2px solid #ffd700; border-radius: 32px; padding: 25px 15px; background: #0c0c0c; }
         h1 { font-size: 45px; font-weight: 900; margin: 0; letter-spacing: 8px; cursor: pointer; color: #ffd700; text-decoration: none; }
         
-        /* 정보 패널 디자인 */
-        .info-panel { background: #111; border: 1px dashed #ffd700; border-radius: 15px; margin: 15px 0; padding: 12px; font-size: 14px; text-align: left; }
-        .info-title { color: #ff4500; font-weight: bold; margin-bottom: 5px; display: block; border-left: 3px solid #ff4500; padding-left: 7px; }
-        .num-list { color: #fff; word-break: break-all; line-height: 1.6; font-family: 'Consolas', monospace; font-size: 15px; letter-spacing: 1px; }
-
-        .target-box { color: #ff4500; font-size: 18px; font-weight: 900; margin: 10px 0; background: #1a1a1a; padding: 10px; border-radius: 10px; border: 2px solid #ff4500; }
+        .target-box { color: #ff4500; font-size: 18px; font-weight: 900; margin: 20px 0; background: #1a1a1a; padding: 12px; border-radius: 12px; border: 2px solid #ff4500; }
         
-        .btn-main { width: 100%; height: 60px; background: linear-gradient(to bottom, #fdf24d, #b8a000); border: none; border-radius: 15px; font-size: 20px; font-weight: 900; cursor: pointer; margin-bottom: 12px; color: #000; box-shadow: 0 4px 0 #8a7800; }
+        .btn-main { width: 100%; height: 65px; background: linear-gradient(to bottom, #fdf24d, #b8a000); border: none; border-radius: 15px; font-size: 20px; font-weight: 900; cursor: pointer; margin-bottom: 12px; color: #000; box-shadow: 0 4px 0 #8a7800; }
         .btn-main:active { transform: translateY(3px); box-shadow: none; }
         
         .btn-sub-group { display: flex; gap: 10px; margin-bottom: 15px; }
         .btn-sub { flex: 1; height: 50px; background: #222; border: 1px solid #444; border-radius: 12px; color: #fff; font-weight: bold; cursor: pointer; }
 
-        #console { background-color: #050505; border: 2px solid #333; border-radius: 20px; height: 350px; padding: 15px; text-align: left; overflow-y: auto; color: #ffd700; font-size: 14px; line-height: 2; }
+        /* 결과창 스타일 - 높이를 충분히 확보 */
+        #console { background-color: #050505; border: 2px solid #333; border-radius: 20px; height: 450px; padding: 15px; text-align: left; overflow-y: auto; color: #ffd700; font-size: 14px; line-height: 1.8; }
         
-        /* 공 스타일 */
-        .ball { display: inline-block; width: 28px; height: 28px; background: #ffd700; color: #000; border-radius: 50%; text-align: center; line-height: 28px; font-weight: bold; margin-right: 4px; font-size: 13px; box-shadow: inset -2px -2px 4px rgba(0,0,0,0.4); }
+        /* 리포트 텍스트 스타일 */
+        .report-section { background: #111; border: 1px dashed #444; padding: 10px; border-radius: 10px; margin-bottom: 15px; font-size: 13px; }
+        .report-title { color: #ff4500; font-weight: bold; display: block; margin-bottom: 3px; }
+
+        .ball { display: inline-block; width: 28px; height: 28px; background: #ffd700; color: #000; border-radius: 50%; text-align: center; line-height: 28px; font-weight: bold; margin-right: 4px; font-size: 13px; box-shadow: inset -2px -2px 4px rgba(0,0,0,0.3); }
         .tag { font-size: 11px; padding: 2px 6px; border-radius: 4px; background: #333; color: #fff; margin-right: 5px; }
         .tag-cold { background: #ff4500 !important; }
         .result-line { border-bottom: 1px solid #222; padding: 8px 0; display: flex; align-items: center; }
 
-        /* 모달 스타일 */
-        #modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 1000; justify-content: center; align-items: center; }
+        #modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 1000; justify-content: center; align-items: center; }
         .modal-content { background: #111; border: 2px solid #ffd700; border-radius: 25px; width: 90%; max-width: 380px; padding: 20px; color: #ffd700; }
-        .modal-header { font-size: 20px; font-weight: bold; margin-bottom: 15px; border-bottom: 1px solid #333; padding-bottom: 10px; }
-        #storage-list { max-height: 350px; overflow-y: auto; text-align: left; }
-        .close-btn { margin-top: 15px; width: 100%; height: 50px; background: #ffd700; color: #000; border: none; border-radius: 12px; font-weight: bold; font-size: 16px; cursor: pointer; }
+        .close-btn { margin-top: 15px; width: 100%; height: 45px; background: #ffd700; color: #000; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -45,18 +41,7 @@
     <div class="inner-container">
         <h1 onclick="location.reload()">신 의 손</h1>
         
-        <div class="info-panel">
-            <div>
-                <span class="info-title">❄️ 30주 미출수 (타겟)</span>
-                <div class="num-list" id="display-cold">분석 중...</div>
-            </div>
-            <div style="margin-top:10px;">
-                <span class="info-title">💎 보너스 승격수</span>
-                <div class="num-list" id="display-bonus">분석 중...</div>
-            </div>
-        </div>
-
-        <div class="target-box">🎯 1211회 정밀 분석 모드</div>
+        <div class="target-box">🎯 1211회 정밀 분석 가동</div>
         
         <button class="btn-main" onclick="process(10, 6)">분석 엔진 10조합 가동</button>
         <button class="btn-main" style="background: linear-gradient(to bottom, #ff9d00, #ff4500); color:#fff;" onclick="process(5, 9)">프리미엄 5조합 (AC 9-10)</button>
@@ -65,57 +50,37 @@
             <button class="btn-sub" onclick="openStorage()">마킹 보관함</button>
             <button class="btn-sub" onclick="clearConsole()">전체 삭제</button>
         </div>
-        <div id="console">▶ 시스템 준비 완료.</div>
+
+        <div id="console">▶ 시스템 준비 완료. 버튼을 눌러 분석을 시작하십시오.</div>
     </div>
 </div>
 
 <div id="modal">
     <div class="modal-content">
-        <div class="modal-header">📂 마킹 보관함</div>
-        <div id="storage-list">보관된 번호가 없습니다.</div>
+        <div class="modal-header" style="font-size:20px; font-weight:bold; margin-bottom:15px;">📂 마킹 보관함</div>
+        <div id="storage-list" style="max-height:300px; overflow-y:auto;">보관된 번호가 없습니다.</div>
         <button class="close-btn" onclick="closeStorage()">닫기</button>
     </div>
 </div>
 
 <script>
-    // 1210회차까지의 데이터
     const RAW_DATA = [[1210,1,7,9,17,27,38,31],[1209,2,17,20,35,37,39,24],[1208,6,27,30,36,38,42,25],[1207,10,22,24,27,38,45,11],[1206,1,3,17,26,27,42,23],[1205,1,4,16,23,31,41,2],[1204,8,16,28,30,31,44,27],[1203,3,6,18,29,35,39,24],[1202,5,12,21,33,37,40,7],[1201,7,9,24,27,35,36,37],[1200,1,2,4,16,20,32,45],[1199,16,24,25,30,31,32,7],[1198,26,30,33,38,39,41,21],[1197,1,5,7,26,28,43,30],[1196,8,12,15,29,40,45,14],[1195,3,15,27,33,34,36,37],[1194,3,13,15,24,33,37,2],[1193,6,9,16,19,24,28,17],[1192,10,16,23,36,39,40,11],[1191,1,4,11,12,20,41,2],[1190,7,9,19,23,26,45,33],[1189,9,19,29,35,37,38,31],[1188,3,4,12,19,22,27,9],[1187,5,13,26,29,37,40,42],[1186,2,8,13,16,23,28,35],[1185,6,17,22,28,29,32,38],[1184,14,16,23,25,31,37,42],[1183,4,15,17,23,27,36,31],[1182,1,13,21,25,28,31,22],[1181,8,10,14,20,33,41,28]];
 
     let top12 = [], bonusOnlyHot = [], coldNumbers = [], totalSaved = [];
 
-    // [핵심] 미출수 계산 로직 보완
     function init() {
-        let r30 = RAW_DATA.slice(0, 30);
-        let appearCount = {};
-        let stats = {};
-        
-        for(let i=1; i<=45; i++) { 
-            appearCount[i] = 0; 
-            stats[i] = 0;
-        }
-
-        r30.forEach((d, idx) => {
-            for(let i=1; i<=6; i++) { // 정번호 6개 체크
-                appearCount[d[i]]++;
-                stats[d[i]] += (30 - idx);
-            }
+        let appearCount = {}; let stats = {};
+        for(let i=1; i<=45; i++) { appearCount[i] = 0; stats[i] = 0; }
+        RAW_DATA.forEach((d, idx) => {
+            for(let i=1; i<=6; i++) { appearCount[d[i]]++; stats[d[i]] += (30-idx); }
         });
-
-        // 30회 미출수 추출 (정확히 0회 출현)
-        coldNumbers = Object.keys(appearCount).filter(key => appearCount[key] === 0).map(Number);
-        
-        // 보너스 승격수 추출
+        coldNumbers = Object.keys(appearCount).filter(k => appearCount[k] === 0).map(Number).sort((a,b)=>a-b);
         top12 = Object.keys(stats).map(Number).sort((a,b) => stats[b] - stats[a]).slice(0, 12);
         let bOnly = {};
-        r30.forEach((d, idx) => {
-            let b = d[7];
-            if(!top12.includes(b)) bOnly[b] = (bOnly[b] || 0) + (30-idx);
+        RAW_DATA.forEach((d, idx) => {
+            let b = d[7]; if(!top12.includes(b)) bOnly[b] = (bOnly[b] || 0) + (30-idx);
         });
         bonusOnlyHot = Object.keys(bOnly).map(Number).sort((a,b) => bOnly[b] - bOnly[a]);
-
-        // [수정 포인트] 화면에 즉시 갱신
-        document.getElementById('display-cold').innerHTML = coldNumbers.length > 0 ? coldNumbers.join(', ') : "미출수 없음";
-        document.getElementById('display-bonus').innerHTML = bonusOnlyHot.slice(0, 5).join(', ');
     }
 
     function getAC(arr) {
@@ -126,7 +91,19 @@
 
     function process(count, targetAC) {
         const box = document.getElementById('console');
-        box.innerHTML = `▶ 분석 완료 (AC ${targetAC}↑)<br><hr>`;
+        init(); // 최신 데이터 기반 재분석
+
+        // 결과창 최상단에 미출수 리포트 작성
+        let reportHtml = `
+            <div class="report-section">
+                <span class="report-title">❄️ 30주 미출수: ${coldNumbers.join(', ')}</span>
+                <span class="report-title">💎 승격 후보: ${bonusOnlyHot.slice(0, 5).join(', ')}</span>
+                <div style="font-size:11px; color:#888; margin-top:5px;">* 위 번호를 우선 순위로 조합을 생성했습니다.</div>
+            </div>
+            <hr style="border:0; border-top:1px solid #333;">
+        `;
+
+        box.innerHTML = reportHtml;
         let gen = 0, safety = 0;
 
         while(gen < count && safety < 100000) {
@@ -154,24 +131,17 @@
                 box.innerHTML += `<div class="result-line">${tag} #${gen} ${balls}</div>`;
             }
         }
+        box.scrollTop = 0; // 결과 생성 후 리포트가 보이도록 상단으로 스크롤
     }
 
     function openStorage() {
         const modal = document.getElementById('modal');
         const list = document.getElementById('storage-list');
         modal.style.display = 'flex';
-        if(totalSaved.length === 0) { list.innerHTML = "보관된 번호가 없습니다."; } 
-        else {
-            list.innerHTML = totalSaved.map((nums, i) => {
-                return `<div style="margin-bottom:12px;"><b>[${i+1}]</b> ${nums.map(n => `<span class="ball" style="width:24px; height:24px; line-height:24px; font-size:12px;">${n}</span>`).join('')}</div>`;
-            }).join('');
-        }
+        list.innerHTML = totalSaved.length === 0 ? "보관된 번호가 없습니다." : totalSaved.map((nums, i) => `<div style="margin-bottom:12px;"><b>[${i+1}]</b> ${nums.map(n => `<span class="ball" style="width:22px; height:22px; line-height:22px; font-size:11px;">${n}</span>`).join('')}</div>`).join('');
     }
     function closeStorage() { document.getElementById('modal').style.display = 'none'; }
     function clearConsole() { document.getElementById('console').innerHTML = "▶ 데이터를 초기화했습니다."; totalSaved = []; }
-
-    // 페이지 로드 시 즉시 실행
-    window.onload = init;
 </script>
 </body>
 </html>
