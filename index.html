@@ -1,106 +1,36 @@
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GEMINI 로또 데이터 분석기</title>
-    <style>
-        :root { --gold: #fbc02d; --bg: #121212; --card: #1e1e1e; --white: #eceff1; }
-        body { background: var(--bg); color: var(--white); font-family: 'Pretendard', sans-serif; margin: 0; padding: 15px; }
-        .container { max-width: 500px; margin: 0 auto; }
-        .header { text-align: center; padding: 10px 0; border-bottom: 2px solid var(--gold); margin-bottom: 15px; }
-        .header h1 { color: var(--gold); margin: 0; font-size: 1.3rem; }
-        .control-panel { text-align: center; margin-bottom: 15px; }
-        .refresh-btn { 
-            background: linear-gradient(135deg, #fbc02d, #f9a825); color: #000; border: none; 
-            width: 100%; padding: 15px; border-radius: 8px; font-weight: bold; font-size: 1.1rem; cursor: pointer;
-        }
-        table { width: 100%; border-collapse: collapse; background: var(--card); border-radius: 10px; overflow: hidden; margin-bottom: 20px; }
-        th { background: #333; color: var(--gold); padding: 10px 5px; font-size: 0.85rem; }
-        td { border-bottom: 1px solid #333; padding: 12px 5px; text-align: center; }
-        .ball-row { display: flex; justify-content: center; gap: 4px; }
-        .ball { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; font-weight: bold; background: #444; color: white; }
-        .ball.missing { background: #e53935; box-shadow: 0 0 10px rgba(225, 0, 0, 0.7); } 
-        .ball.hot { background: #1e88e5; }
-        .save-btn { background: var(--gold); border: none; padding: 6px 10px; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 0.8rem; }
-        .storage { background: #000; padding: 15px; border-radius: 8px; border: 1px solid #444; }
-        #storageList { font-size: 0.85rem; color: #bbb; line-height: 1.6; }
-    </style>
-</head>
-<body>
-<div class="container">
-    <div class="header"><h1>1211회차 예상 조합</h1></div>
-    <div class="control-panel"><button class="refresh-btn" onclick="generate()">♻️ 기존 조합 지우고 새로 분석</button></div>
-    <table>
-        <thead><tr><th width="15%">순번</th><th>예상 번호 조합</th><th width="15%">저장</th></tr></thead>
-        <tbody id="combiBody"></tbody>
-    </table>
-    <div class="storage"><h3>📥 보관함</h3><div id="storageList"></div></div>
-</div>
-
-<script>
-    const DATA = [
-        [1210,1,7,9,17,27,38,31],[1209,2,17,20,35,37,39,24],[1208,6,27,30,36,38,42,25],
-        [1207,10,22,24,27,38,45,11],[1206,1,3,17,26,27,42,23],[1205,1,4,16,23,31,41,2],
-        [1204,8,16,28,30,31,44,27],[1203,3,6,18,29,35,39,24],[1202,5,12,21,33,37,40,7],
-        [1201,7,9,24,27,35,36,37],[1200,1,2,4,16,20,32,45],[1199,16,24,25,30,31,32,7],
-        [1198,26,30,33,38,39,41,21],[1197,1,5,7,26,28,43,30],[1196,8,12,15,29,40,45,14],
-        [1195,3,15,27,33,34,36,37],[1194,3,13,15,24,33,37,2],[1193,6,9,16,19,24,28,17],
-        [1192,10,16,23,36,39,40,11],[1191,1,4,11,12,20,41,2],[1190,7,9,19,23,26,45,33],
-        [1189,9,19,29,35,37,38,31],[1188,3,4,12,19,22,27,9],[1187,5,13,26,29,37,40,42],
-        [1186,2,8,13,16,23,28,35],[1185,6,17,22,28,29,32,38],[1184,14,16,23,25,31,37,42],
-        [1183,4,15,17,23,27,36,31],[1182,1,13,21,25,28,31,22],[1181,8,10,14,20,33,41,28]
-    ];
-
-    const counts = {};
-    const appeared = new Set();
-    DATA.forEach(row => {
-        row.slice(1, 7).forEach(n => {
-            counts[n] = (counts[n] || 0) + 1;
-            appeared.add(n);
-        });
-    });
-
-    const missingNums = Array.from({length: 45}, (_, i) => i + 1).filter(n => !appeared.has(n));
-    // 상위 15수 압축
-    const hotNums = Object.keys(counts).sort((a,b) => counts[b] - counts[a]).slice(0, 15).map(Number);
-
-    function getAC(nums) {
-        const diffs = new Set();
-        for (let i = 0; i < nums.length; i++) {
-            for (let j = i + 1; j < nums.length; j++) { diffs.add(Math.abs(nums[i] - nums[j])); }
-        }
-        return diffs.size - 5;
-    }
-
     function generate() {
         const body = document.getElementById('combiBody');
         body.innerHTML = '';
         let validCount = 1;
 
-        // [중요] 조합 풀을 '미출수 + 압축 15수'로만 한정
+        // [수정] 전체 풀을 낮은 수(Low)와 높은 수(High)로 분리
         const pool = [...new Set([...missingNums, ...hotNums])];
+        const lowPool = pool.filter(n => n <= 22);
+        const highPool = pool.filter(n => n > 22);
 
         while (validCount <= 10) {
             let res = new Set();
             
-            // 6개 번호를 pool(미출수+15수) 내에서만 추출
+            // [핵심] 합계 분산을 위해 저번호 3개 + 고번호 3개를 각각 추출
+            // 만약 특정 풀의 숫자가 부족할 경우를 대비해 유연하게 설계
+            while(res.size < 3 && lowPool.length >= 3) {
+                res.add(lowPool[Math.floor(Math.random() * lowPool.length)]);
+            }
             while(res.size < 6) {
-                const pick = pool[Math.floor(Math.random() * pool.length)];
-                res.add(pick);
+                res.add(highPool[Math.floor(Math.random() * highPool.length)]);
             }
 
             const sorted = Array.from(res).sort((a,b) => a-b);
             
-            // 필터 1: 합계 (120 ~ 200)
+            // 필터 1: 합계 범위를 100 ~ 190으로 유연하게 조정 (쏠림 방지)
             const sum = sorted.reduce((a, b) => a + b, 0);
-            if (sum < 120 || sum > 200) continue;
+            if (sum < 100 || sum > 190) continue;
 
-            // 필터 2: 홀짝 (전멸 방지)
+            // 필터 2: 홀짝 균형 (1:5 ~ 5:1 비율)
             const odds = sorted.filter(n => n % 2 !== 0).length;
             if (odds === 0 || odds === 6) continue;
 
-            // 필터 3: AC 값 및 연번 필터
+            // 필터 3: AC 값 및 3연번 금지
             if (getAC(sorted) < 6) continue;
             let triple = false;
             for(let k=0; k<=3; k++) if(sorted[k]+1===sorted[k+1] && sorted[k+1]+1===sorted[k+2]) triple=true;
@@ -117,15 +47,3 @@
             validCount++;
         }
     }
-
-    let saved = [];
-    function save(nums) {
-        if(saved.length >= 10) saved.shift();
-        saved.push(nums);
-        document.getElementById('storageList').innerHTML = saved.map((s, i) => `<div>✅ ${s}</div>`).reverse().join('');
-    }
-
-    generate();
-</script>
-</body>
-</html>
