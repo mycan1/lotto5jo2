@@ -1,49 +1,134 @@
-    function generate() {
-        const body = document.getElementById('combiBody');
-        body.innerHTML = '';
-        let validCount = 1;
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>신의 손 v8.2 - 15수 빈도 압축본</title>
+    <style>
+        body { background-color: #000; color: #ffd700; font-family: 'Malgun Gothic', sans-serif; text-align: center; padding: 20px; margin: 0; }
+        .outer-border { border: 4px solid #ffd700; border-radius: 40px; padding: 10px; max-width: 450px; margin: 0 auto; box-shadow: 0 0 30px rgba(255, 215, 0, 0.4); }
+        .inner-container { border: 2px solid #ffd700; border-radius: 32px; padding: 30px 20px; background: #0c0c0c; }
+        h1 { font-size: 38px; font-weight: 900; margin: 0; letter-spacing: 5px; cursor: pointer; color: #ffd700; text-shadow: 2px 2px 4px #000; }
+        .target-box { color: #00ffcc; font-size: 15px; font-weight: 900; margin: 20px 0; background: #1a1a1a; padding: 15px; border-radius: 15px; border: 2px solid #00ffcc; line-height: 1.6; }
+        .btn-main { width: 100%; height: 70px; background: linear-gradient(to bottom, #fdf24d, #b8a000); border: none; border-radius: 20px; font-size: 20px; font-weight: 900; cursor: pointer; margin-bottom: 20px; color: #000; }
+        #console { background-color: #050505; border: 2px solid #333; border-radius: 20px; height: 500px; padding: 15px; text-align: left; overflow-y: auto; color: #ffd700; font-size: 14px; line-height: 2.2; border-left: 4px solid #ffd700; }
+        .ball { display: inline-block; width: 30px; height: 30px; background: radial-gradient(circle at 30% 30%, #ffd700, #b8a000); color: #000; border-radius: 50%; text-align: center; line-height: 30px; font-weight: bold; margin-right: 5px; font-size: 14px; box-shadow: 2px 2px 4px rgba(0,0,0,0.5); }
+        .ball-cold { border: 2px solid #ff4500; background: radial-gradient(circle at 30% 30%, #ff6347, #ff4500); color: #fff; }
+        .tag { font-size: 11px; padding: 3px 8px; border-radius: 5px; background: #333; color: #fff; margin-right: 8px; font-weight: bold; }
+        .tag-win { background: #b8a000; }
+        .tag-cold { background: #ff4500; }
+        .tag-special { background: #00ffcc; color: #000; }
+    </style>
+</head>
+<body>
+<div class="outer-border">
+    <div class="inner-container">
+        <h1 onclick="location.reload()">신 의 손 v8.2</h1>
+        <div class="target-box">💎 빈도 압축 전략: 상5·중5·하5 (총 15수)<br>30회차 데이터 기반 입체 정밀 분석</div>
+        <button class="btn-main" onclick="process()">분석 엔진 10조합 가동</button>
+        <div id="console">▶ 시스템 준비 완료.</div>
+    </div>
+</div>
 
-        // [수정] 전체 풀을 낮은 수(Low)와 높은 수(High)로 분리
-        const pool = [...new Set([...missingNums, ...hotNums])];
-        const lowPool = pool.filter(n => n <= 22);
-        const highPool = pool.filter(n => n > 22);
+<script>
+    const RAW_DATA = [
+        [1210,1,7,9,17,27,38,31],[1209,2,17,20,35,37,39,24],[1208,6,27,30,36,38,42,25],[1207,10,22,24,27,38,45,11],
+        [1206,1,3,17,26,27,42,23],[1205,1,4,16,23,31,41,2],[1204,8,16,28,30,31,44,27],[1203,3,6,18,29,35,39,24],
+        [1202,5,12,21,33,37,40,7],[1201,7,9,24,27,35,36,37],[1200,1,2,4,16,20,32,45],[1199,16,24,25,30,31,32,7],
+        [1198,26,30,33,38,39,41,21],[1197,1,5,7,26,28,43,30],[1196,8,12,15,29,40,45,14],[1195,3,15,27,33,34,36,37],
+        [1194,3,13,15,24,33,37,2],[1193,6,9,16,19,24,28,17],[1192,10,16,23,36,39,40,11],[1191,1,4,11,12,20,41,2],
+        [1190,7,9,19,23,26,45,33],[1189,9,19,29,35,37,38,31],[1188,3,4,12,19,22,27,9],[1187,5,13,26,29,37,40,42],
+        [1186,2,8,13,16,23,28,35],[1185,6,17,22,28,29,32,38],[1184,14,16,23,25,31,37,42],[1183,4,15,17,23,27,36,31],
+        [1182,1,13,21,25,28,31,22],[1181,8,10,14,20,33,41,28]
+    ];
 
-        while (validCount <= 10) {
-            let res = new Set();
-            
-            // [핵심] 합계 분산을 위해 저번호 3개 + 고번호 3개를 각각 추출
-            // 만약 특정 풀의 숫자가 부족할 경우를 대비해 유연하게 설계
-            while(res.size < 3 && lowPool.length >= 3) {
-                res.add(lowPool[Math.floor(Math.random() * lowPool.length)]);
+    let top15 = [], basket2 = [], finalBonusOnly = [], freqMap = {};
+
+    function init() {
+        freqMap = {};
+        for(let i=1; i<=45; i++) freqMap[i] = 0;
+
+        let bStats = {};
+        // 30회차 통계 계산
+        RAW_DATA.forEach(d => {
+            for(let i=1; i<=6; i++) freqMap[d[i]]++;
+            bStats[d[7]] = (bStats[d[7]] || 0) + 1;
+        });
+
+        // 빈도순 정렬
+        let sorted = Object.keys(freqMap).map(Number).sort((a,b) => freqMap[b] - freqMap[a]);
+        
+        // 형님의 핵심 로직: 상위5, 중간5, 하위5 추출
+        let hot5 = sorted.slice(0, 5);
+        let mid5 = sorted.slice(Math.floor(sorted.length/2) - 2, Math.floor(sorted.length/2) + 3);
+        let cold5 = sorted.filter(n => freqMap[n] > 0).slice(-5); // 0회 제외 최저빈도 5개
+
+        top15 = [...new Set([...hot5, ...mid5, ...cold5])];
+
+        // 30회차 동안 단 한 번도 안 나온 번호 (완전 미출수)
+        let totalUnion = new Set();
+        RAW_DATA.forEach(d => { for(let i=1; i<=7; i++) totalUnion.add(d[i]); });
+        basket2 = Array.from({length:45}, (_,i)=>i+1).filter(n => !totalUnion.has(n));
+
+        // 보너스 번호 기반 (top15에 없는 것 중 빈도 높은 순)
+        finalBonusOnly = Object.keys(bStats).map(Number)
+            .filter(n => !top15.includes(n))
+            .sort((a,b) => bStats[b] - bStats[a]);
+    }
+
+    function process() {
+        init();
+        const box = document.getElementById('console');
+        box.innerHTML = `<div style="color:#888; font-size:12px; margin-bottom:10px;">📊 빈도 압축(상·중·하 15수) 완료</div>`;
+        box.innerHTML += `<div style="color:#ffd700; font-size:11px; margin-bottom:10px;">분석수: ${top15.join(', ')}</div>`;
+        
+        let count = 0, safety = 0;
+        while(count < 10 && safety < 10000) {
+            safety++;
+            let res = [];
+            let idx = count + 1;
+
+            if(idx === 10) {
+                // 10번 조합: 극단적 배합 로직 유지
+                let sortedByFreq = Object.keys(freqMap).map(Number).sort((a,b) => freqMap[b] - freqMap[a]);
+                let best = sortedByFreq[0];
+                let worst = sortedByFreq.filter(n => freqMap[n] > 0).reverse()[0];
+                res.push(best, worst);
+
+                if(basket2.length > 0) res.push(basket2[Math.floor(Math.random()*basket2.length)]);
+                if(finalBonusOnly.length > 0) res.push(finalBonusOnly[0]);
+            } else {
+                // 일반 조합: 보너스/미출수 배치 전략 유지
+                if(idx <= 3 && finalBonusOnly[idx-1]) res.push(finalBonusOnly[idx-1]);
+                else if(idx === 8 && basket2.length > 0) res.push(basket2[Math.floor(Math.random()*basket2.length)]);
+                else if(idx === 9 && basket2.length > 1) {
+                    let bt = [...basket2].sort(() => Math.random() - 0.5);
+                    res.push(bt[0], bt[1]);
+                }
             }
-            while(res.size < 6) {
-                res.add(highPool[Math.floor(Math.random() * highPool.length)]);
+
+            // 부족한 자리는 15수 정예 풀(Pool)에서 채움
+            let pool = [...top15].sort(() => Math.random() - 0.5);
+            while(res.length < 6) {
+                let pick = (pool.length > 0) ? pool.pop() : Math.floor(Math.random()*45)+1;
+                if(!res.includes(pick)) res.push(pick);
             }
 
-            const sorted = Array.from(res).sort((a,b) => a-b);
+            res.sort((a,b) => a-b);
+            const sum = res.reduce((a,b)=>a+b, 0);
             
-            // 필터 1: 합계 범위를 100 ~ 190으로 유연하게 조정 (쏠림 방지)
-            const sum = sorted.reduce((a, b) => a + b, 0);
-            if (sum < 100 || sum > 190) continue;
-
-            // 필터 2: 홀짝 균형 (1:5 ~ 5:1 비율)
-            const odds = sorted.filter(n => n % 2 !== 0).length;
-            if (odds === 0 || odds === 6) continue;
-
-            // 필터 3: AC 값 및 3연번 금지
-            if (getAC(sorted) < 6) continue;
-            let triple = false;
-            for(let k=0; k<=3; k++) if(sorted[k]+1===sorted[k+1] && sorted[k+1]+1===sorted[k+2]) triple=true;
-            if(triple) continue;
-
-            const tr = document.createElement('tr');
-            const ballsHtml = sorted.map(n => {
-                let cls = missingNums.includes(n) ? 'missing' : (hotNums.includes(n) ? 'hot' : '');
-                return `<div class="ball ${cls}">${n}</div>`;
-            }).join('');
-
-            tr.innerHTML = `<td>${validCount}</td><td><div class="ball-row">${ballsHtml}</div><div style="font-size:10px; color:#666; margin-top:2px;">합계: ${sum}</div></td><td><button class="save-btn" onclick="save('${sorted.join(', ')}')">저장</button></td>`;
-            body.appendChild(tr);
-            validCount++;
+            // 합계 밸런스 필터 (100~195)
+            if(sum >= 100 && sum <= 195) {
+                count++;
+                let isCold = res.some(n => basket2.includes(n));
+                const ballHtml = res.map(n => `<span class="${basket2.includes(n) ? 'ball ball-cold' : 'ball'}">${n}</span>`).join('');
+                let tagClass = idx === 10 ? 'tag tag-special' : (isCold ? 'tag tag-cold' : 'tag tag-win');
+                let tagName = idx === 10 ? '특수' : (isCold ? '저격' : '안정');
+                box.innerHTML += `<div><span class="${tagClass}">${tagName}</span>#${count} ${ballHtml} <small style="color:#555">합:${sum}</small></div>`;
+            }
         }
     }
+    window.onload = init;
+</script>
+</body>
+</html>
