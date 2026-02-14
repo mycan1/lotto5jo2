@@ -62,7 +62,7 @@
     });
 
     const missingNums = Array.from({length: 45}, (_, i) => i + 1).filter(n => !appeared.has(n));
-    // 상위 15수 압축 추출
+    // 상위 15수 압축
     const hotNums = Object.keys(counts).sort((a,b) => counts[b] - counts[a]).slice(0, 15).map(Number);
 
     function getAC(nums) {
@@ -78,13 +78,13 @@
         body.innerHTML = '';
         let validCount = 1;
 
-        // [핵심] 미출수 + 압축 15수만 후보군으로 확정
+        // [중요] 조합 풀을 '미출수 + 압축 15수'로만 한정
         const pool = [...new Set([...missingNums, ...hotNums])];
 
         while (validCount <= 10) {
             let res = new Set();
             
-            // 6개 번호를 오직 pool(미출수+15수) 내에서만 무작위 추출
+            // 6개 번호를 pool(미출수+15수) 내에서만 추출
             while(res.size < 6) {
                 const pick = pool[Math.floor(Math.random() * pool.length)];
                 res.add(pick);
@@ -100,7 +100,7 @@
             const odds = sorted.filter(n => n % 2 !== 0).length;
             if (odds === 0 || odds === 6) continue;
 
-            // 필터 3: AC 지수 및 3연번 금지
+            // 필터 3: AC 값 및 연번 필터
             if (getAC(sorted) < 6) continue;
             let triple = false;
             for(let k=0; k<=3; k++) if(sorted[k]+1===sorted[k+1] && sorted[k+1]+1===sorted[k+2]) triple=true;
