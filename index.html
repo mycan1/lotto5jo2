@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>신의 손 v9.8 - 기계적 정밀 분석</title>
+    <title>신의 손 v9.8.1 - 1211회 정밀 분석</title>
     <style>
         body { background-color: #000; color: #ffd700; font-family: 'Malgun Gothic', sans-serif; text-align: center; padding: 20px; margin: 0; }
         .outer-border { border: 4px solid #ffd700; border-radius: 40px; padding: 10px; max-width: 450px; margin: 0 auto; box-shadow: 0 0 30px rgba(255, 215, 0, 0.4); }
@@ -22,10 +22,10 @@
 <body>
 <div class="outer-border">
     <div class="inner-container">
-        <h1 onclick="location.reload()">신 의 손 v9.8</h1>
-        <div class="target-box">💎 기계적 3대 고정수(빈도·연번·회귀) 추출<br>1~7조합 분산 투입 / 1~2조합 쌍연번 필터</div>
+        <h1 onclick="location.reload()">신 의 손 v9.8.1</h1>
+        <div class="target-box">💎 제 1211회 분석 대기 중...<br>기계적 3대 고정수(빈도·연번·회귀) 추출 가동</div>
         <button class="btn-main" onclick="process()">분석 엔진 10조합 가동</button>
-        <div id="console">▶ 형님, 기계적 데이터 분석 준비 완료!</div>
+        <div id="console">▶ 형님, 1211회차 기계 분석 준비가 끝났습니다!</div>
     </div>
 </div>
 
@@ -43,7 +43,7 @@
 
     let top15 = [];
     let zeroFreqNums = [];
-    let machineFixed = []; // 기계적 고정수 3개
+    let machineFixed = [];
 
     function analyze() {
         let freq = {};
@@ -55,7 +55,6 @@
             row.forEach((n, i) => {
                 freq[n]++;
                 if(lastSeen[n] === 99) lastSeen[n] = idx;
-                // 연번 유도력 계산
                 if(i < 5 && row[i+1] === n + 1) {
                     serialCount[n]++;
                     serialCount[n+1]++;
@@ -63,17 +62,11 @@
             });
         });
 
-        // 1. 빈도 대장 (가장 많이 나온 수)
         let f1 = Object.keys(freq).sort((a,b) => freq[b] - freq[a])[0];
-        // 2. 연번 대장 (연번으로 가장 많이 등장한 수)
         let f2 = Object.keys(serialCount).sort((a,b) => serialCount[b] - serialCount[a])[0];
-        // 3. 회귀 대장 (빈도는 높은데 최근 5회 이상 안 나온 수 중 최우선)
-        let f3 = Object.keys(freq)
-            .filter(n => lastSeen[n] >= 5)
-            .sort((a,b) => freq[b] - freq[a])[0];
+        let f3 = Object.keys(freq).filter(n => lastSeen[n] >= 5).sort((a,b) => freq[b] - freq[a])[0];
 
         machineFixed = [parseInt(f1), parseInt(f2), parseInt(f3)];
-
         zeroFreqNums = Object.keys(freq).filter(n => freq[n] === 0).map(Number);
         
         let weightedFreq = {};
@@ -87,8 +80,13 @@
 
     function process() {
         analyze();
+        
+        // 회차 표시 업데이트
+        const targetBox = document.querySelector('.target-box');
+        targetBox.innerHTML = `💎 제 1211회 기계적 분석 가동 중...<br>고정수 [${machineFixed.join(', ')}] 분산 배치 완료`;
+
         const box = document.getElementById('console');
-        box.innerHTML = `<div style="color:#00ffcc; font-size:12px; margin-bottom:10px;">📊 기계 분석 고정수: [${machineFixed.join(', ')}] 분산 배치 중...</div>`;
+        box.innerHTML = `<div style="color:#00ffcc; font-size:12px; margin-bottom:10px;">📊 30회차 데이터 기반 심층 분석 결과:</div>`;
         
         const bonusStrategy = [35, 10, 43]; 
         let count = 0;
@@ -98,12 +96,7 @@
         while(count < 10 && safetyBreak < 10000) {
             safetyBreak++;
             let res = [];
-            
-            // [핀셋 로직] 1~7조합 고정수 1개씩 순환 투입
-            if(count < 7) {
-                res.push(machineFixed[count % 3]);
-            }
-
+            if(count < 7) res.push(machineFixed[count % 3]);
             if(count >= 7) res.push(bonusStrategy[count - 7]);
             if(count === 9) {
                 let shuffledZero = [...zeroFreqNums].sort(() => Math.random() - 0.5);
@@ -111,22 +104,17 @@
                     if(!res.includes(shuffledZero[i])) res.push(shuffledZero[i]);
                 }
             }
-
             let basket = [...top15].sort(() => Math.random() - 0.5);
-            for(let num of basket) {
-                if(res.length < 6 && !res.includes(num)) res.push(num);
-            }
+            for(let num of basket) { if(res.length < 6 && !res.includes(num)) res.push(num); }
             while(res.length < 6) {
                 let n = Math.floor(Math.random() * 45) + 1;
                 if(!res.includes(n)) res.push(n);
             }
-
             res.sort((a,b) => a-b);
             let sum = res.reduce((a,b) => a+b, 0);
             let odds = res.filter(n => n % 2 !== 0).length;
             let unitSum = res.reduce((a,b) => a + (b % 10), 0);
             let maxConsecutive = 1, currentConsecutive = 1, pairCount = 0;
-
             for(let i=0; i < res.length - 1; i++) {
                 if(res[i+1] === res[i] + 1) {
                     currentConsecutive++;
@@ -137,7 +125,6 @@
                 }
             }
             maxConsecutive = Math.max(maxConsecutive, currentConsecutive);
-
             let isPass = (sum >= 100 && sum <= 175) && (odds >= 2 && odds <= 4) && (unitSum >= 15 && unitSum <= 35) && (maxConsecutive < 3);
             if(count < 2) { if(pairCount !== 1 || maxConsecutive !== 2) isPass = false; }
 
@@ -152,7 +139,7 @@
                     else if(top15.includes(n)) c += ' ball-mid';
                     return `<span class="${c}" style="${bonusStrategy.includes(n) ? "border: 2px solid #00ffcc;" : ""}">${n}</span>`;
                 }).join('');
-                box.innerHTML += `<div><span class="tag">#${count}</span> ${balls} <small style="color:#555">${count <= 2 ? "[쌍연번]" : "[일반]"} 합:${sum}</small></div>`;
+                box.innerHTML += `<div><span class="tag">#${count}</span> ${balls} <small style="color:#555">${count <= 2 ? "[연번]" : "[일반]"} 합:${sum}</small></div>`;
             }
         }
     }
