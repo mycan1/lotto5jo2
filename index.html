@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>신의 손 v9.8.9 - 분석의 정석</title>
+    <title>신의 손 v9.9.0 - 분석의 완성</title>
     <style>
         body { background-color: #000; color: #ffd700; font-family: 'Malgun Gothic', sans-serif; padding: 15px; margin: 0; }
         .outer-border { border: 2px solid #ffd700; border-radius: 20px; padding: 5px; max-width: 450px; margin: 0 auto; }
         .inner-container { padding: 20px 10px; background: #000; }
         h1 { font-size: 26px; font-weight: 900; margin: 0; color: #ffd700; letter-spacing: 2px; text-align: center; cursor: pointer; }
-        .target-box { color: #ff4500; font-size: 13px; margin: 15px 0; border: 1px solid #ff4500; padding: 10px; border-radius: 10px; font-weight: bold; text-align: center; }
+        .target-box { color: #00ffcc; font-size: 13px; margin: 15px 0; border: 1px solid #00ffcc; padding: 10px; border-radius: 10px; font-weight: bold; text-align: center; }
         .btn-main { width: 100%; height: 60px; background: #ffd700; border: none; border-radius: 10px; font-size: 18px; font-weight: 900; cursor: pointer; color: #000; margin-bottom: 20px; }
         .row-line { border-bottom: 1px solid #222; padding: 10px 0; font-size: 22px; display: flex; align-items: center; white-space: nowrap; }
         .row-idx { font-size: 14px; color: #555; width: 30px; }
@@ -23,8 +23,8 @@
 <body>
 <div class="outer-border">
     <div class="inner-container">
-        <h1 onclick="location.reload()">신 의 손 v9.8.9</h1>
-        <div class="target-box">⚠️ 제 1211회 [30회차 분석 바구니]<br>인위적 고정수 배제 / 데이터 흐름 중심 추출</div>
+        <h1 onclick="location.reload()">신 의 손 v9.9.0</h1>
+        <div class="target-box">💎 제 1211회 [30회차 전수 분석 모드]<br>분석 기반 유동적 바구니 / 40번대 자연스러운 배분</div>
         <button class="btn-main" onclick="process()">분석 엔진 10조합 가동</button>
         <div id="console"></div>
     </div>
@@ -45,16 +45,17 @@
             });
         });
 
-        // [핵심] 30회차 데이터 분석: 빈도와 연번 점수로 상위 18수를 정렬하여 바구니(basket) 구성
-        // 이렇게 하면 40번대 중 흐름이 좋은 번호들이 자연스럽게 바구니에 포함됩니다.
-        let scored = Object.keys(freq).map(Number).sort((a,b) => (freq[b]*2 + serial[b]*3) - (freq[a]*2 + serial[a]*3));
-        basket = scored.slice(0, 18); 
+        // [진짜 분석] 30회차 데이터를 빈도와 연번 패턴으로 점수화
+        let scored = Object.keys(freq).map(Number).sort((a,b) => {
+            let sA = freq[a] * 1.5 + (serial[a] || 0) * 2;
+            let sB = freq[b] * 1.5 + (serial[b] || 0) * 2;
+            return sB - sA;
+        });
+
+        // 상위 22수를 바구니로 넓게 잡아 쏠림 방지 (형님이 원하신 유동적 분석)
+        basket = scored.slice(0, 22); 
         
-        machineFixed = [
-            parseInt(Object.keys(freq).sort((a,b)=>freq[b]-freq[a])[0]),
-            parseInt(Object.keys(serial).sort((a,b)=>serial[b]-serial[a])[0]),
-            27
-        ];
+        machineFixed = [scored[0], scored[1], 27];
         zeroFreqNums = Object.keys(freq).filter(n => freq[n] === 0).map(Number);
     }
 
@@ -67,16 +68,17 @@
         while(count < 10 && safety < 5000) {
             safety++;
             let res = [];
-            if(count < 7) { res.push(machineFixed[count % 3]); } 
-            else {
+            if(count < 7) { 
+                res.push(machineFixed[count % 3]); 
+            } else {
                 res.push(bonus[count - 7]);
-                if(count === 9) {
+                if(count === 9) { // 10번은 형님의 미출수 정조준 로직
                     let shuffledZeros = [...zeroFreqNums].sort(() => Math.random() - 0.5);
                     for(let z of shuffledZeros) { if(res.length < 6) res.push(z); }
                 }
             }
             
-            // 분석된 정예 바구니에서 번호를 채워 조합을 구성
+            // 분석 바구니에서 무작위성 강화하여 쏠림 방지
             let tempBasket = [...basket].sort(() => Math.random() - 0.5);
             for(let n of tempBasket) { if(res.length < 6 && !res.includes(n)) res.push(n); }
             
@@ -87,7 +89,7 @@
 
             res.sort((a,b)=>a-b);
             let sum = res.reduce((a,b)=>a+b, 0);
-            let isPass = (count === 9) ? (sum >= 60 && sum <= 220) : (sum >= 90 && sum <= 190);
+            let isPass = (count === 9) ? (sum >= 70 && sum <= 220) : (sum >= 100 && sum <= 190);
 
             if(!used.has(res.join(',')) && isPass) {
                 used.add(res.join(','));
