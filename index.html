@@ -3,16 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SHIN-UI-SON v21.8 정밀파싱형</title>
+    <title>SHIN-UI-SON v22.0 - 다음회차 패턴분석형</title>
     <style>
         :root { --gold: #ffd700; --bg: #0b0b0b; --card: #1a1a1a; --accent: #00ffcc; --save: #ff00ff; --danger: #ff4444; }
         body { background-color: var(--bg); color: var(--gold); font-family: 'Malgun Gothic', sans-serif; padding: 10px; margin: 0; }
         .outer-border { border: 2px solid var(--gold); border-radius: 20px; padding: 15px; max-width: 480px; margin: 0 auto; }
         .header-box { text-align: center; margin-bottom: 10px; }
         .next-episode { font-size: 24px; font-weight: 900; color: #fff; text-shadow: 0 0 10px rgba(255,215,0,0.5); }
-        .status-info { font-size: 11px; color: var(--accent); line-height: 1.6; min-height: 110px; width: 100%; background: rgba(255,255,255,0.05); border-radius: 12px; padding: 10px; box-sizing: border-box; margin-top: 10px; text-align: left; border: 1px solid #333; }
+        .status-info { font-size: 11px; color: var(--accent); line-height: 1.6; min-height: 130px; width: 100%; background: rgba(255,255,255,0.05); border-radius: 12px; padding: 10px; box-sizing: border-box; margin-top: 10px; text-align: left; border: 1px solid #333; }
         .highlight-gold { color: var(--gold); font-weight: bold; }
         .highlight-red { color: var(--danger); font-weight: bold; }
+        .highlight-blue { color: #00ccff; font-weight: bold; }
         
         .btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 15px 0; }
         button { border-radius: 10px; font-weight: bold; cursor: pointer; border: none; height: 50px; transition: 0.2s; }
@@ -35,7 +36,7 @@
 
 <div class="outer-border">
     <div class="header-box">
-        <span class="next-episode">SHIN-UI-SON v21.8</span>
+        <span class="next-episode">SHIN-UI-SON v22.0</span>
         <div id="status" class="status-info">엔진 가동 준비 완료...</div>
     </div>
 
@@ -56,43 +57,58 @@
 
     let basket = [], zeroFreqNums = [], machineFixed = [];
     let savedNumbers = JSON.parse(localStorage.getItem('lottoSaveV21')) || [];
+    let dynamicAvgSum = 145; // 기본값
 
     function analyze() {
         let freq = {};
         for(let i=1; i<=45; i++) freq[i] = 0;
         
-        // 정확히 최근 23회차만 파싱 (인덱스 0 ~ 22)
         const targetRange = 23;
         const data23 = FULL_DATA.slice(0, targetRange);
         
         data23.forEach(row => { 
-            // 당첨번호(1~6) + 보너스(7) 모두 포함하여 빈도 계산
             for(let j=1; j<=7; j++) { if(row[j]) freq[row[j]]++; }
         });
 
-        // 23회 동안 보너스 포함 단 한번도 안나온 수
         zeroFreqNums = Object.keys(freq).filter(n => freq[n] === 0).map(Number).sort((a,b)=>a-b);
 
         let pScores = {};
-        for(let i=1; i<=45; i++) pScores[i] = (freq[i] || 0) * 2; // 가중치 조정
+        for(let i=1; i<=45; i++) pScores[i] = (freq[i] || 0) * 2;
         
         const lastWin = FULL_DATA[0].slice(1, 7);
+        let nextSums = [];  // ★ 유사회차 다음 회차 합계 저장
+
         for(let i=1; i < targetRange; i++) {
             let matches = FULL_DATA[i].slice(1, 7).filter(n => lastWin.includes(n)).length;
-            if(matches >= 2) { 
-                FULL_DATA[i-1].slice(1, 7).forEach(n => pScores[n] += 5); 
+            
+            // ★ 유사회차(2개 이상 일치)의 "다음 회차"에 가중치 +5
+            if(matches >= 2 && i+1 < FULL_DATA.length) { 
+                FULL_DATA[i+1].slice(1, 7).forEach(n => pScores[n] += 5);
+                
+                // 다음 회차 합계 기록
+                let nextNums = FULL_DATA[i+1].slice(1, 7);
+                let sum = nextNums.reduce((a,b)=>a+b, 0);
+                nextSums.push(sum);
             }
+        }
+
+        // ★ 유사회차 다음 회차들의 평균 합계 계산
+        if (nextSums.length > 0) {
+            dynamicAvgSum = Math.round(nextSums.reduce((a,b)=>a+b, 0) / nextSums.length);
+        } else {
+            dynamicAvgSum = 145; // 기본값
         }
 
         let scored = Object.keys(pScores).map(Number).sort((a,b) => pScores[b] - pScores[a]);
         basket = scored.slice(0, 15);
-        // 고정수 전략: 상위 점수 2개 + 27(또는 점수 3위)
         machineFixed = [scored[0], scored[1], scored[2]];
 
         document.getElementById('status').innerHTML = `
             <div><span class="highlight-gold">★ 최근 23회 파싱 결과</span></div>
             <div>압축 15수: ${basket.sort((a,b)=>a-b).join(', ')}</div>
-            <div><span class="highlight-red">완전 미출수(보너스 포함):</span> ${zeroFreqNums.join(', ')}</div>
+            <div><span class="highlight-red">완전 미출수:</span> ${zeroFreqNums.join(', ')}</div>
+            <div><span class="highlight-blue">📊 유사회차 다음 회차 평균 합계:</span> ${dynamicAvgSum} (자동 적용)</div>
+            <div><span class="highlight-blue">🎯 적용 필터:</span> ${dynamicAvgSum-25} ~ ${dynamicAvgSum+25}</div>
         `;
     }
 
@@ -102,12 +118,16 @@
         box.innerHTML = "";
         let count = 0, used = new Set(), safety = 0;
 
+        // ★ 동적으로 계산된 합계 범위
+        let minSum = dynamicAvgSum - 25;
+        let maxSum = dynamicAvgSum + 25;
+
         while(count < limit && safety < 5000) {
             safety++;
             let res = new Set();
             let currentIdx = count + 1;
 
-            // 10조합 추출 시 미출수(zeroFreqNums) 강제 배분 전략
+            // 10조합 추출 시 미출수 강제 배분 (8~10번째)
             if (limit === 10 && (currentIdx >= 8) && zeroFreqNums.length > 0) {
                 let zeroPool = [...zeroFreqNums].sort(() => Math.random() - 0.5);
                 res.add(zeroPool[0]);
@@ -131,12 +151,17 @@
             let sum = finalArr.reduce((a,b)=>a+b, 0);
             let key = finalArr.join(',');
 
-            // 합계 필터 (90~180) 및 중복 체크
-            if(!used.has(key) && sum >= 90 && sum <= 180) {
+            // ★ 동적 합계 필터 적용 (하드코딩된 90~180 대체)
+            if(!used.has(key) && sum >= minSum && sum <= maxSum) {
                 used.add(key);
                 count++;
                 renderRow(finalArr, box, key);
             }
+        }
+
+        // 만약 원하는 개수만큼 못 찾았으면 알림
+        if (count < limit) {
+            alert(`⚠️ 조건에 맞는 조합을 ${count}개만 찾았습니다. (목표: ${limit}개)`);
         }
     }
 
