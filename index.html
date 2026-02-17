@@ -3,27 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SHIN-UI-SON v21.9 - 보관함 복구본</title>
+    <title>SHIN-UI-SON v21.9</title>
     <style>
         :root { --gold: #ffd700; --bg: #0b0b0b; --card: #1a1a1a; --accent: #00ffcc; --save: #ff00ff; }
         body { background-color: var(--bg); color: var(--gold); font-family: 'Malgun Gothic', sans-serif; padding: 10px; margin: 0; }
         .outer-border { border: 2px solid var(--gold); border-radius: 20px; padding: 15px; max-width: 480px; margin: 0 auto; box-sizing: border-box; }
-        .header-box { text-align: center; margin-bottom: 10px; }
-        .next-episode { font-size: 24px; font-weight: 900; color: #fff; text-shadow: 0 0 10px rgba(255,215,0,0.5); }
-        .status-info { font-size: 13px; color: #fff; line-height: 1.6; width: 100%; background: rgba(255,255,255,0.07); border-radius: 12px; padding: 15px; box-sizing: border-box; margin-top: 10px; border: 1px solid #444; }
-        /* 미출수 전용 창 */
-        .zero-display-box { background: rgba(255, 0, 0, 0.15); border: 2px solid #ff4444; border-radius: 12px; padding: 12px; margin-top: 10px; text-align: center; }
-        .highlight-red { color: #fff !important; font-weight: 900; background: #ff0000 !important; padding: 3px 8px; border-radius: 5px; display: inline-block; margin: 2px; border: 2px solid #fff; box-shadow: 0 0 8px rgba(255,0,0,0.6); }
-        .btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 15px 0; }
-        button { border-radius: 10px; font-weight: bold; cursor: pointer; border: none; height: 50px; font-size: 15px; }
-        .btn-5set { background: linear-gradient(135deg, #00ffcc, #00a884); color: #000; }
-        .btn-main { background: linear-gradient(135deg, #ffd700, #b8860b); color: #000; }
-        .btn-save { background: var(--save); color: #fff; }
-        .btn-sub { background: #222; color: #fff; border: 1px solid #444; }
-        .row-line { background: var(--card); border-radius: 12px; padding: 10px; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; border: 1px solid #333; cursor: pointer; }
-        .num-container { display: flex; gap: 4px; flex-grow: 1; justify-content: center; flex-wrap: wrap; }
-        .num-box { width: 32px; height: 32px; line-height: 32px; text-align: center; font-size: 13px; font-weight: 900; border-radius: 50%; color: #fff; }
-        .zero { background: #ff0000 !important; border: 1.5px solid #fff; } 
+        
+        /* [사용자 캡처 기준] 미출수 전용 독립 창 */
+        .zero-window { 
+            border: 3px solid #ff4444; 
+            background: rgba(255, 0, 0, 0.1); 
+            border-radius: 15px; 
+            padding: 15px; 
+            margin-bottom: 15px; 
+            text-align: center; 
+        }
+        .zero-title { color: #ff4444; font-weight: 900; font-size: 16px; margin-bottom: 10px; }
+        .highlight-red { color: #fff !important; font-weight: 900; background: #ff0000; padding: 4px 8px; border-radius: 5px; display: inline-block; margin: 3px; border: 2px solid #fff; }
+
+        /* 추천 15수 표시창 */
+        .status-info { font-size: 14px; color: #fff; background: #222; border-radius: 12px; padding: 15px; margin-bottom: 15px; border: 1px solid #444; text-align: center; }
+
+        .btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 15px; }
+        button { border-radius: 10px; font-weight: bold; cursor: pointer; border: none; height: 55px; font-size: 16px; }
+        .btn-5set { background: #00ffcc; color: #000; }
+        .btn-main { background: #ffd700; color: #000; }
+        .btn-save { background: #ff00ff; color: #fff; } /* 보관함 확인 버튼 */
+        .btn-sub { background: #333; color: #fff; border: 1px solid #666; }
+
+        .row-line { background: var(--card); border-radius: 12px; padding: 12px; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; border: 1px solid #333; cursor: pointer; }
+        .num-container { display: flex; gap: 5px; flex-grow: 1; justify-content: center; flex-wrap: wrap; }
+        .num-box { width: 34px; height: 34px; line-height: 34px; text-align: center; font-size: 15px; font-weight: 900; border-radius: 50%; color: #fff; }
+        .zero { background: #ff0000 !important; border: 2px solid #fff; } 
         .fixed { background: #00ffcc; color: #000; }
         .normal { background: #444; border: 1px solid var(--gold); }
     </style>
@@ -31,16 +42,14 @@
 <body>
 
 <div class="outer-border">
-    <div class="header-box">
-        <span class="next-episode">SHIN-UI-SON v21.9</span>
+    <div style="text-align:center; margin-bottom:15px;"><span style="font-size:26px; font-weight:900; color:#fff;">SHIN-UI-SON v21.9</span></div>
+
+    <div class="zero-window">
+        <div class="zero-title">[23회차 보너스포함 미출수 리스트]</div>
+        <div id="zero_list" style="color:#fff;">데이터 합집합 계산 중...</div>
     </div>
 
-    <div id="zero_window" class="zero-display-box">
-        <div style="color:#ff4444; font-weight:bold; margin-bottom:5px; font-size:15px;">[23회차 보너스포함 미출수 리스트]</div>
-        <div id="zero_list" style="min-height:30px;">데이터 분석 중...</div>
-    </div>
-
-    <div id="status" class="status-info">최근 23회 빈도 분석 로딩 중...</div>
+    <div id="status" class="status-info">분석 대기 중...</div>
 
     <div class="btn-group">
         <button class="btn-5set" onclick="process(5)">5조합 추출</button>
@@ -66,39 +75,42 @@
 
     let g_zeros = [], g_basket = [], g_fixed = [], storage = [];
 
-    // [앞선 코드의 핵심 분석 로직] 23회차 합집합 분석
-    function initAnalysis() {
-        let appeared = new Set();
+    // [이중 구조] 페이지 로딩 즉시 미출수부터 합집합해서 전용 창에 표시
+    function init() {
+        let allNumbers = new Set();
         let freq = {};
         for(let n=1; n<=45; n++) freq[n] = 0;
 
+        // 23회차 다 모아서 합집합 (보너스 포함)
         FULL_DATA.forEach(row => {
-            for(let i=1; i<=7; i++) { // 보너스번호 포함 전수 수집
-                if(row[i]) { appeared.add(row[i]); freq[row[i]]++; }
+            for(let i=1; i<=7; i++) { 
+                if(row[i]) { allNumbers.add(row[i]); freq[row[i]]++; }
             }
         });
 
+        // 미출수 추출
         g_zeros = [];
-        for(let n=1; n<=45; n++) { if(!appeared.has(n)) g_zeros.push(n); }
+        for(let n=1; n<=45; n++) { if(!allNumbers.has(n)) g_zeros.push(n); }
         g_zeros.sort((a,b)=>a-b);
-        
-        let scored = Object.keys(freq).map(Number).sort((a,b) => freq[b] - freq[a]);
-        g_basket = scored.slice(0, 15);
-        g_fixed = scored.slice(0, 3);
 
-        // 상단 미출수 창에 즉시 결과 표시
-        document.getElementById('zero_list').innerHTML = g_zeros.map(n => `<span class="highlight-red">${n}</span>`).join(' ');
-        document.getElementById('status').innerHTML = "<b>분석 완료:</b> 추천 15수 [" + g_basket.slice(0,5).join(',') + "...]";
+        // 추천 15수 상위 컷오프
+        let sorted = Object.keys(freq).map(Number).sort((a,b) => freq[b] - freq[a]);
+        g_basket = sorted.slice(0, 15);
+        g_fixed = sorted.slice(0, 3);
+
+        // [사용자 요청] 전용 창에 미출수 먼저 뿌리기
+        document.getElementById('zero_list').innerHTML = g_zeros.map(n => `<span class="highlight-red">${n}</span>`).join('');
+        document.getElementById('status').innerHTML = `분석 완료: 추천 15수 [${g_basket.join(', ')}]`;
     }
 
     function process(limit) {
         const box = document.getElementById('console');
-        box.innerHTML = `<p style="font-size:11px; color:#888; text-align:center;">번호 클릭 시 보관함 저장</p>`;
+        box.innerHTML = `<p style="font-size:12px; color:#888; text-align:center; margin-bottom:10px;">번호를 클릭하면 보관함에 저장됩니다.</p>`;
         let count = 0;
 
         while(count < limit) {
             let res = new Set();
-            // 9, 10번 조합 미출수 우선 적용
+            // 9, 10번 조합 미출수 포함 로직
             if (count >= 8 && g_zeros.length > 0) {
                 res.add(g_zeros[Math.floor(Math.random() * g_zeros.length)]);
             } else {
@@ -122,11 +134,12 @@
     function renderRow(arr, target, idx) {
         const row = document.createElement('div');
         row.className = 'row-line';
-        row.onclick = () => {
-            storage.push([...arr]);
-            alert(arr.join(', ') + " 저장됨!");
+        row.onclick = () => { 
+            storage.push([...arr]); 
+            alert(arr.join(', ') + " 보관함 저장!"); 
         };
-        let html = `<span style="font-size:11px; color:#888;">${idx}</span><div class="num-container">`;
+        
+        let html = `<span style="font-size:12px; color:#888;">${idx}</span><div class="num-container">`;
         arr.forEach(n => {
             let cls = g_zeros.includes(n) ? "zero" : (g_fixed.includes(n) ? "fixed" : "normal");
             html += `<span class="num-box ${cls}">${n}</span>`;
@@ -137,11 +150,11 @@
     }
 
     function showStorage() {
-        if(storage.length === 0) return alert("보관함이 비어 있습니다.");
-        alert("--- 보관함 리스트 ---\n" + storage.map((a,i) => `${i+1}번: ${a.join(', ')}`).join('\n'));
+        if(storage.length === 0) return alert("보관함이 비어있습니다.");
+        alert("--- 저장된 번호 리스트 ---\n" + storage.map((a,i) => `${i+1}번: ${a.join(', ')}`).join('\n'));
     }
 
-    window.onload = initAnalysis;
+    window.onload = init;
 </script>
 </body>
 </html>
