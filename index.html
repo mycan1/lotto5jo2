@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SHIN-UI-SON v21.7 통합형</title>
+    <title>SHIN-UI-SON v21.8 정밀파싱형</title>
     <style>
         :root { --gold: #ffd700; --bg: #0b0b0b; --card: #1a1a1a; --accent: #00ffcc; --save: #ff00ff; --danger: #ff4444; }
         body { background-color: var(--bg); color: var(--gold); font-family: 'Malgun Gothic', sans-serif; padding: 10px; margin: 0; }
         .outer-border { border: 2px solid var(--gold); border-radius: 20px; padding: 15px; max-width: 480px; margin: 0 auto; }
         .header-box { text-align: center; margin-bottom: 10px; }
         .next-episode { font-size: 24px; font-weight: 900; color: #fff; text-shadow: 0 0 10px rgba(255,215,0,0.5); }
-        .status-info { font-size: 11px; color: var(--accent); line-height: 1.6; min-height: 100px; width: 100%; background: rgba(255,255,255,0.05); border-radius: 12px; padding: 10px; box-sizing: border-box; margin-top: 10px; text-align: left; border: 1px solid #333; }
+        .status-info { font-size: 11px; color: var(--accent); line-height: 1.6; min-height: 110px; width: 100%; background: rgba(255,255,255,0.05); border-radius: 12px; padding: 10px; box-sizing: border-box; margin-top: 10px; text-align: left; border: 1px solid #333; }
         .highlight-gold { color: var(--gold); font-weight: bold; }
         .highlight-red { color: var(--danger); font-weight: bold; }
         
@@ -35,22 +35,20 @@
 
 <div class="outer-border">
     <div class="header-box">
-        <span class="next-episode">신 의 손 v21.7 (보너스 필터)</span>
-        <div id="status" class="status-info">데이터 분석 중...</div>
+        <span class="next-episode">SHIN-UI-SON v21.8</span>
+        <div id="status" class="status-info">엔진 가동 준비 완료...</div>
     </div>
 
     <div class="btn-group">
         <button class="btn-5set" onclick="process(5)">5조합 추출</button>
         <button class="btn-main" onclick="process(10)">10조합 추출</button>
-        <button class="btn-sub" onclick="toggleStorage()">보관함 보기</button>
-        <button class="btn-sub" onclick="clearStorage()">보관함 비우기</button>
-        <button class="btn-sub btn-reset" onclick="location.reload()">화면 리셋</button>
+        <button class="btn-sub" onclick="toggleStorage()">보관함</button>
+        <button class="btn-sub" onclick="clearStorage()">초기화</button>
+        <button class="btn-sub btn-reset" onclick="location.reload()">새로고침</button>
     </div>
 
     <div id="console"></div>
-    <div id="storage-section">
-        <div id="storage"></div>
-    </div>
+    <div id="storage-section"><div id="storage"></div></div>
 </div>
 
 <script>
@@ -63,34 +61,38 @@
         let freq = {};
         for(let i=1; i<=45; i++) freq[i] = 0;
         
-        // 최근 25회차 추출
-        const data25 = FULL_DATA.slice(0, 25);
+        // 정확히 최근 23회차만 파싱 (인덱스 0 ~ 22)
+        const targetRange = 23;
+        const data23 = FULL_DATA.slice(0, targetRange);
         
-        // 핵심 수정: row.slice(1, 8)을 사용하여 당첨번호 6개 + 보너스번호까지 모두 빈도수 계산
-        data25.forEach(row => { 
-            row.slice(1, 8).forEach(n => {
-                if(n) freq[n]++; 
-            }); 
+        data23.forEach(row => { 
+            // 당첨번호(1~6) + 보너스(7) 모두 포함하여 빈도 계산
+            for(let j=1; j<=7; j++) { if(row[j]) freq[row[j]]++; }
         });
 
-        // 25회 동안 당첨+보너스 어디에도 안 나온 '완전 미출수' 필터링
+        // 23회 동안 보너스 포함 단 한번도 안나온 수
         zeroFreqNums = Object.keys(freq).filter(n => freq[n] === 0).map(Number).sort((a,b)=>a-b);
 
         let pScores = {};
-        for(let i=1; i<=45; i++) pScores[i] = (freq[i] || 0) * 1.5;
+        for(let i=1; i<=45; i++) pScores[i] = (freq[i] || 0) * 2; // 가중치 조정
+        
         const lastWin = FULL_DATA[0].slice(1, 7);
-        for(let i=1; i < 25; i++) {
+        for(let i=1; i < targetRange; i++) {
             let matches = FULL_DATA[i].slice(1, 7).filter(n => lastWin.includes(n)).length;
-            if(matches >= 2) { FULL_DATA[i-1].slice(1, 7).forEach(n => pScores[n] += 3); }
+            if(matches >= 2) { 
+                FULL_DATA[i-1].slice(1, 7).forEach(n => pScores[n] += 5); 
+            }
         }
 
         let scored = Object.keys(pScores).map(Number).sort((a,b) => pScores[b] - pScores[a]);
         basket = scored.slice(0, 15);
-        machineFixed = [scored[0], scored[1], 27];
+        // 고정수 전략: 상위 점수 2개 + 27(또는 점수 3위)
+        machineFixed = [scored[0], scored[1], scored[2]];
 
         document.getElementById('status').innerHTML = `
-            <div><span class="highlight-gold">★ 압축 타겟 15수:</span> ${basket.sort((a,b)=>a-b).join(', ')}</div>
-            <div><span class="highlight-red">★ 25회 완전 미출수(보너스 포함):</span> ${zeroFreqNums.length > 0 ? zeroFreqNums.join(', ') : '없음'}</div>
+            <div><span class="highlight-gold">★ 최근 23회 파싱 결과</span></div>
+            <div>압축 15수: ${basket.sort((a,b)=>a-b).join(', ')}</div>
+            <div><span class="highlight-red">완전 미출수(보너스 포함):</span> ${zeroFreqNums.join(', ')}</div>
         `;
     }
 
@@ -105,27 +107,31 @@
             let res = new Set();
             let currentIdx = count + 1;
 
-            if (limit === 10 && (currentIdx === 9 || currentIdx === 10) && zeroFreqNums.length > 0) {
+            // 10조합 추출 시 미출수(zeroFreqNums) 강제 배분 전략
+            if (limit === 10 && (currentIdx >= 8) && zeroFreqNums.length > 0) {
                 let zeroPool = [...zeroFreqNums].sort(() => Math.random() - 0.5);
-                res.add(zeroPool[0]); 
-                if(zeroPool.length > 1 && res.size < 6) res.add(zeroPool[1]);
+                res.add(zeroPool[0]);
+                if(zeroFreqNums.length > 1 && Math.random() > 0.5) res.add(zeroPool[1]);
             }
 
-            res.add(machineFixed[count % 3]);
+            // 고정수 1개 랜덤 삽입
+            res.add(machineFixed[Math.floor(Math.random()*3)]);
 
+            // 바스켓에서 채우기
             let tempBasket = [...basket].sort(() => Math.random() - 0.5);
             for(let n of tempBasket) { if(res.size < 6) res.add(n); }
             
+            // 부족분 랜덤 채우기
             while(res.size < 6) {
                 let r = Math.floor(Math.random()*45)+1;
-                if(basket.includes(r)) res.add(r);
-                else if(res.size === 5) res.add(r); 
+                res.add(r);
             }
 
             let finalArr = Array.from(res).sort((a,b)=>a-b);
             let sum = finalArr.reduce((a,b)=>a+b, 0);
             let key = finalArr.join(',');
 
+            // 합계 필터 (90~180) 및 중복 체크
             if(!used.has(key) && sum >= 90 && sum <= 180) {
                 used.add(key);
                 count++;
@@ -146,7 +152,7 @@
         if(!savedNumbers.includes(s)) {
             savedNumbers.push(s);
             localStorage.setItem('lottoSaveV21', JSON.stringify(savedNumbers));
-            alert("보관함에 저장되었습니다.");
+            alert("저장되었습니다.");
         }
     }
 
