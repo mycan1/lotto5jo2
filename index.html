@@ -13,11 +13,16 @@
         .status-info { font-size: 11px; color: var(--accent); line-height: 1.6; min-height: 100px; width: 100%; background: rgba(255,255,255,0.05); border-radius: 12px; padding: 10px; box-sizing: border-box; margin-top: 10px; text-align: left; border: 1px solid #333; }
         .highlight-gold { color: var(--gold); font-weight: bold; }
         .highlight-red { color: var(--danger); font-weight: bold; }
+        
+        /* 버튼 레이아웃 수정 */
         .btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 15px 0; }
         button { border-radius: 10px; font-weight: bold; cursor: pointer; border: none; height: 50px; transition: 0.2s; }
         .btn-main { background: linear-gradient(135deg, #ffd700, #b8860b); color: #000; font-size: 16px; }
         .btn-5set { background: linear-gradient(135deg, #00ffcc, #00a884); color: #000; font-size: 16px; }
         .btn-sub { background: #222; color: #fff; border: 1px solid #444; }
+        /* 리셋 버튼 전용 스타일: 맨 아래 배치용 */
+        .btn-reset { grid-column: span 2; background: #333; color: #aaa; height: 40px; margin-top: 5px; }
+        
         .row-line { background: var(--card); border-radius: 12px; padding: 12px; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; border: 1px solid #333; }
         .num-container { display: flex; gap: 5px; flex-grow: 1; justify-content: center; }
         .num-box { width: 34px; height: 34px; line-height: 34px; text-align: center; font-size: 14px; font-weight: 900; border-radius: 50%; color: #fff; }
@@ -39,9 +44,11 @@
     <div class="btn-group">
         <button class="btn-main" onclick="process(10)">10조합 추출</button>
         <button class="btn-5set" onclick="process(5)">5조합 추출</button>
-        <button class="btn-sub" onclick="toggleStorage()">보관함</button>
-        <button class="btn-sub" onclick="location.reload()">리셋</button>
-        <button class="btn-sub" style="grid-column: span 2; height: 40px; margin-top: 5px;" onclick="clearStorage()">비우기</button>
+        
+        <button class="btn-sub" onclick="toggleStorage()">보관함 보기</button>
+        <button class="btn-sub" onclick="clearStorage()">보관함 비우기</button>
+        
+        <button class="btn-sub btn-reset" onclick="location.reload()">화면 리셋 (새로고침)</button>
     </div>
 
     <div id="console"></div>
@@ -72,7 +79,6 @@
         }
 
         let scored = Object.keys(pScores).map(Number).sort((a,b) => pScores[b] - pScores[a]);
-        
         basket = scored.slice(0, 15);
         machineFixed = [scored[0], scored[1], 27];
 
@@ -91,27 +97,22 @@
         while(count < limit && safety < 5000) {
             safety++;
             let res = new Set();
-            
-            // 현재 추출 중인 조합 번호 (1번부터 시작)
             let currentIdx = count + 1;
 
-            // [핵심 수정] 10조합 추출 시, 9번과 10번 조합에 미출수 강제 투입
+            // 9번, 10번 조합에 미출수 강제 투입 (10조합 추출 시에만 적용)
             if (limit === 10 && (currentIdx === 9 || currentIdx === 10) && zeroFreqNums.length > 0) {
                 let zeroPool = [...zeroFreqNums].sort(() => Math.random() - 0.5);
                 res.add(zeroPool[0]); 
                 if(zeroPool.length > 1) res.add(zeroPool[1]);
             }
 
-            // 고정수 순환 배치
             res.add(machineFixed[count % 3]);
 
-            // 15수 바구니에서 나머지 채우기
             let tempBasket = [...basket].sort(() => Math.random() - 0.5);
             for(let n of tempBasket) {
                 if(res.size < 6) res.add(n);
             }
             
-            // 6개가 안 될 경우 보완 (압축수 위주)
             while(res.size < 6) {
                 let r = Math.floor(Math.random()*45)+1;
                 if(basket.includes(r)) res.add(r);
@@ -122,7 +123,6 @@
             let sum = finalArr.reduce((a,b)=>a+b, 0);
             let key = finalArr.join(',');
 
-            // 합계 필터 적용 (90~180)
             if(!used.has(key) && sum >= 90 && sum <= 180) {
                 used.add(key);
                 count++;
@@ -159,7 +159,7 @@
     }
 
     function clearStorage() {
-        if(confirm("비울까요?")) {
+        if(confirm("보관함을 완전히 비울까요?")) {
             savedNumbers = [];
             localStorage.removeItem('lottoSaveV21');
             renderStorage();
