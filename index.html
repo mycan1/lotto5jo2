@@ -3,29 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SHIN-UI-SON v21.8 - FINAL FIXED</title>
+    <title>SHIN-UI-SON v21.9 - 보관함 복구본</title>
     <style>
-        :root { --gold: #ffd700; --bg: #0b0b0b; --card: #1a1a1a; --accent: #00ffcc; --save: #ff00ff; --danger: #ff4444; }
+        :root { --gold: #ffd700; --bg: #0b0b0b; --card: #1a1a1a; --accent: #00ffcc; --save: #ff00ff; }
         body { background-color: var(--bg); color: var(--gold); font-family: 'Malgun Gothic', sans-serif; padding: 10px; margin: 0; }
         .outer-border { border: 2px solid var(--gold); border-radius: 20px; padding: 15px; max-width: 480px; margin: 0 auto; box-sizing: border-box; }
         .header-box { text-align: center; margin-bottom: 10px; }
         .next-episode { font-size: 24px; font-weight: 900; color: #fff; text-shadow: 0 0 10px rgba(255,215,0,0.5); }
-        .status-info { font-size: 13px; color: #fff; line-height: 1.6; width: 100%; background: rgba(255,255,255,0.07); border-radius: 12px; padding: 15px; box-sizing: border-box; margin-top: 10px; text-align: left; border: 1px solid #444; }
-        .highlight-gold { color: var(--gold); font-weight: bold; }
-        /* 미출수 빨간색 가시성 대폭 강화 */
-        .highlight-red { color: #fff !important; font-weight: 900 !important; font-size: 14px; background: #b30000 !important; padding: 2px 8px; border-radius: 4px; display: inline-block; margin: 2px; border: 1.5px solid #fff; box-shadow: 0 0 5px rgba(255,0,0,0.5); }
-        .basket-box { margin: 8px 0; padding: 10px; background: rgba(0, 255, 204, 0.1); border-radius: 8px; border: 1px solid var(--accent); }
-        .seed-box { margin-top: 8px; border-top: 1px dashed #555; padding-top: 8px; }
+        .status-info { font-size: 13px; color: #fff; line-height: 1.6; width: 100%; background: rgba(255,255,255,0.07); border-radius: 12px; padding: 15px; box-sizing: border-box; margin-top: 10px; border: 1px solid #444; }
+        /* 미출수 전용 창 */
+        .zero-display-box { background: rgba(255, 0, 0, 0.15); border: 2px solid #ff4444; border-radius: 12px; padding: 12px; margin-top: 10px; text-align: center; }
+        .highlight-red { color: #fff !important; font-weight: 900; background: #ff0000 !important; padding: 3px 8px; border-radius: 5px; display: inline-block; margin: 2px; border: 2px solid #fff; box-shadow: 0 0 8px rgba(255,0,0,0.6); }
         .btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 15px 0; }
-        button { border-radius: 10px; font-weight: bold; cursor: pointer; border: none; height: 50px; font-size: 16px; }
+        button { border-radius: 10px; font-weight: bold; cursor: pointer; border: none; height: 50px; font-size: 15px; }
         .btn-5set { background: linear-gradient(135deg, #00ffcc, #00a884); color: #000; }
         .btn-main { background: linear-gradient(135deg, #ffd700, #b8860b); color: #000; }
+        .btn-save { background: var(--save); color: #fff; }
         .btn-sub { background: #222; color: #fff; border: 1px solid #444; }
-        .row-line { background: var(--card); border-radius: 12px; padding: 10px; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; border: 1px solid #333; }
+        .row-line { background: var(--card); border-radius: 12px; padding: 10px; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; border: 1px solid #333; cursor: pointer; }
         .num-container { display: flex; gap: 4px; flex-grow: 1; justify-content: center; flex-wrap: wrap; }
         .num-box { width: 32px; height: 32px; line-height: 32px; text-align: center; font-size: 13px; font-weight: 900; border-radius: 50%; color: #fff; }
-        .fixed { background: linear-gradient(135deg, #00ffcc, #00a884); color: #000; } 
-        .zero { background: #b30000 !important; border: 1.5px solid #fff !important; } 
+        .zero { background: #ff0000 !important; border: 1.5px solid #fff; } 
+        .fixed { background: #00ffcc; color: #000; }
         .normal { background: #444; border: 1px solid var(--gold); }
     </style>
 </head>
@@ -33,15 +32,21 @@
 
 <div class="outer-border">
     <div class="header-box">
-        <span class="next-episode">SHIN-UI-SON v21.8</span>
-        <div id="status" class="status-info">데이터 분석 준비 중...</div>
+        <span class="next-episode">SHIN-UI-SON v21.9</span>
     </div>
+
+    <div id="zero_window" class="zero-display-box">
+        <div style="color:#ff4444; font-weight:bold; margin-bottom:5px; font-size:15px;">[23회차 보너스포함 미출수 리스트]</div>
+        <div id="zero_list" style="min-height:30px;">데이터 분석 중...</div>
+    </div>
+
+    <div id="status" class="status-info">최근 23회 빈도 분석 로딩 중...</div>
 
     <div class="btn-group">
         <button class="btn-5set" onclick="process(5)">5조합 추출</button>
         <button class="btn-main" onclick="process(10)">10조합 추출</button>
+        <button class="btn-save" onclick="showStorage()">보관함 확인</button>
         <button class="btn-sub" onclick="location.reload()">새로고침</button>
-        <button class="btn-sub" onclick="analyze()">데이터 갱신</button>
     </div>
 
     <div id="console"></div>
@@ -59,74 +64,54 @@
         [1190,7,9,19,23,26,45,33],[1189,9,19,29,35,37,38,31]
     ];
 
-    let basket = [], zeroFreqNums = [], machineFixed = [];
+    let g_zeros = [], g_basket = [], g_fixed = [], storage = [];
 
-    function analyze() {
-        let appearance = new Set();
+    // [앞선 코드의 핵심 분석 로직] 23회차 합집합 분석
+    function initAnalysis() {
+        let appeared = new Set();
         let freq = {};
         for(let n=1; n<=45; n++) freq[n] = 0;
 
-        // 보너스 포함 전수 데이터 스캔 (진짜 로직 시작)
         FULL_DATA.forEach(row => {
-            for(let i=1; i<=7; i++) {
-                if(row[i]) {
-                    appearance.add(row[i]);
-                    freq[row[i]]++;
-                }
+            for(let i=1; i<=7; i++) { // 보너스번호 포함 전수 수집
+                if(row[i]) { appeared.add(row[i]); freq[row[i]]++; }
             }
         });
 
-        // 1~45 중 한 번도 안 나온 번호 필터링
-        zeroFreqNums = [];
-        for(let n=1; n<=45; n++) {
-            if(!appearance.has(n)) zeroFreqNums.push(n);
-        }
-        zeroFreqNums.sort((a,b)=>a-b);
-
+        g_zeros = [];
+        for(let n=1; n<=45; n++) { if(!appeared.has(n)) g_zeros.push(n); }
+        g_zeros.sort((a,b)=>a-b);
+        
         let scored = Object.keys(freq).map(Number).sort((a,b) => freq[b] - freq[a]);
-        basket = scored.slice(0, 15);
-        machineFixed = scored.slice(0, 3); 
+        g_basket = scored.slice(0, 15);
+        g_fixed = scored.slice(0, 3);
 
-        // [중요] 미출수를 화면에 강제로 주입
-        const statusEl = document.getElementById('status');
-        statusEl.innerHTML = `
-            <div style="margin-bottom:8px;"><span class="highlight-gold">★ 알고리즘: v21.8 (23회 전수 분석형)</span></div>
-            <div class="basket-box">
-                <span class="highlight-gold">추천 15수:</span><br>
-                <span style="color:var(--accent); font-weight:bold;">${basket.join(', ')}</span>
-            </div>
-            <div class="seed-box">
-                <span style="color:#ff4444; font-weight:bold;">23회간 무출현 (미출수):</span><br>
-                <div style="margin-top:8px;">
-                    ${zeroFreqNums.map(n => `<span class="highlight-red">${n}</span>`).join(' ') || '<span style="color:#888;">데이터 없음</span>'}
-                </div>
-            </div>`;
+        // 상단 미출수 창에 즉시 결과 표시
+        document.getElementById('zero_list').innerHTML = g_zeros.map(n => `<span class="highlight-red">${n}</span>`).join(' ');
+        document.getElementById('status').innerHTML = "<b>분석 완료:</b> 추천 15수 [" + g_basket.slice(0,5).join(',') + "...]";
     }
 
     function process(limit) {
-        analyze(); 
         const box = document.getElementById('console');
-        box.innerHTML = "";
+        box.innerHTML = `<p style="font-size:11px; color:#888; text-align:center;">번호 클릭 시 보관함 저장</p>`;
         let count = 0;
 
         while(count < limit) {
             let res = new Set();
-            
-            // 9, 10번 조합에 미출수 강제 배정
-            if (limit === 10 && count >= 8 && zeroFreqNums.length > 0) {
-                res.add(zeroFreqNums[Math.floor(Math.random() * zeroFreqNums.length)]);
+            // 9, 10번 조합 미출수 우선 적용
+            if (count >= 8 && g_zeros.length > 0) {
+                res.add(g_zeros[Math.floor(Math.random() * g_zeros.length)]);
             } else {
-                res.add(machineFixed[Math.floor(Math.random() * machineFixed.length)]);
+                res.add(g_fixed[Math.floor(Math.random() * g_fixed.length)]);
             }
 
-            let tempBasket = [...basket].sort(() => Math.random() - 0.5);
-            for(let n of tempBasket) { if(res.size < 6) res.add(n); }
+            let temp = [...g_basket].sort(() => Math.random() - 0.5);
+            for(let n of temp) { if(res.size < 6) res.add(n); }
             while(res.size < 6) res.add(Math.floor(Math.random()*45)+1);
 
             let finalArr = Array.from(res).sort((a,b)=>a-b);
             let sum = finalArr.reduce((a,b)=>a+b, 0);
 
-            // 필터 완화: 10조합 무조건 출력용
             if(sum >= 80 && sum <= 200) {
                 count++;
                 renderRow(finalArr, box, count);
@@ -135,18 +120,28 @@
     }
 
     function renderRow(arr, target, idx) {
-        const html = arr.map(n => {
-            let cls = zeroFreqNums.includes(n) ? "zero" : (machineFixed.includes(n) ? "fixed" : "normal");
-            return `<span class="num-box ${cls}">${n}</span>`;
-        }).join('');
-        target.innerHTML += `
-            <div class="row-line">
-                <span style="font-size:11px; color:#888; width:20px;">${idx}</span>
-                <div class="num-container">${html}</div>
-            </div>`;
+        const row = document.createElement('div');
+        row.className = 'row-line';
+        row.onclick = () => {
+            storage.push([...arr]);
+            alert(arr.join(', ') + " 저장됨!");
+        };
+        let html = `<span style="font-size:11px; color:#888;">${idx}</span><div class="num-container">`;
+        arr.forEach(n => {
+            let cls = g_zeros.includes(n) ? "zero" : (g_fixed.includes(n) ? "fixed" : "normal");
+            html += `<span class="num-box ${cls}">${n}</span>`;
+        });
+        html += `</div>`;
+        row.innerHTML = html;
+        target.appendChild(row);
     }
 
-    window.onload = analyze;
+    function showStorage() {
+        if(storage.length === 0) return alert("보관함이 비어 있습니다.");
+        alert("--- 보관함 리스트 ---\n" + storage.map((a,i) => `${i+1}번: ${a.join(', ')}`).join('\n'));
+    }
+
+    window.onload = initAnalysis;
 </script>
 </body>
 </html>
