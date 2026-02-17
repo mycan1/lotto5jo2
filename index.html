@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SHIN-UI-SON v22.0 - 다음회차 패턴분석형</title>
+    <title>SHIN-UI-SON v23.0 - 30회 빈도22위 다음회차 분석형</title>
     <style>
         :root { --gold: #ffd700; --bg: #0b0b0b; --card: #1a1a1a; --accent: #00ffcc; --save: #ff00ff; --danger: #ff4444; }
         body { background-color: var(--bg); color: var(--gold); font-family: 'Malgun Gothic', sans-serif; padding: 10px; margin: 0; }
         .outer-border { border: 2px solid var(--gold); border-radius: 20px; padding: 15px; max-width: 480px; margin: 0 auto; }
         .header-box { text-align: center; margin-bottom: 10px; }
         .next-episode { font-size: 24px; font-weight: 900; color: #fff; text-shadow: 0 0 10px rgba(255,215,0,0.5); }
-        .status-info { font-size: 11px; color: var(--accent); line-height: 1.6; min-height: 130px; width: 100%; background: rgba(255,255,255,0.05); border-radius: 12px; padding: 10px; box-sizing: border-box; margin-top: 10px; text-align: left; border: 1px solid #333; }
+        .status-info { font-size: 11px; color: var(--accent); line-height: 1.6; min-height: 150px; width: 100%; background: rgba(255,255,255,0.05); border-radius: 12px; padding: 10px; box-sizing: border-box; margin-top: 10px; text-align: left; border: 1px solid #333; }
         .highlight-gold { color: var(--gold); font-weight: bold; }
         .highlight-red { color: var(--danger); font-weight: bold; }
         .highlight-blue { color: #00ccff; font-weight: bold; }
@@ -36,7 +36,7 @@
 
 <div class="outer-border">
     <div class="header-box">
-        <span class="next-episode">SHIN-UI-SON v22.0</span>
+        <span class="next-episode">SHIN-UI-SON v23.0</span>
         <div id="status" class="status-info">엔진 가동 준비 완료...</div>
     </div>
 
@@ -63,26 +63,31 @@
         let freq = {};
         for(let i=1; i<=45; i++) freq[i] = 0;
         
-        const targetRange = 23;
-        const data23 = FULL_DATA.slice(0, targetRange);
+        // ★ 1. 최근 30회차로 변경
+        const targetRange = 30;
+        const data30 = FULL_DATA.slice(0, targetRange);
         
-        data23.forEach(row => { 
+        data30.forEach(row => { 
             for(let j=1; j<=7; j++) { if(row[j]) freq[row[j]]++; }
         });
 
         zeroFreqNums = Object.keys(freq).filter(n => freq[n] === 0).map(Number).sort((a,b)=>a-b);
 
+        // ★ 2. 빈도순 22위 계산
+        let sortedByFreq = Object.keys(freq).map(Number).sort((a,b) => freq[b] - freq[a]);
+        let top22Freq = sortedByFreq.slice(0, 22);
+
         let pScores = {};
         for(let i=1; i<=45; i++) pScores[i] = (freq[i] || 0) * 2;
         
-        const lastWin = FULL_DATA[0].slice(1, 7);
-        let nextSums = [];  // ★ 유사회차 다음 회차 합계 저장
+        let nextSums = [];  // 다음 회차 합계 저장
 
+        // ★ 3. top22 번호 포함 회차의 "다음 회차"에 가중치 +5
         for(let i=1; i < targetRange; i++) {
-            let matches = FULL_DATA[i].slice(1, 7).filter(n => lastWin.includes(n)).length;
+            let currentNums = FULL_DATA[i].slice(1, 7);
+            let hasTop22 = currentNums.some(n => top22Freq.includes(n));
             
-            // ★ 유사회차(2개 이상 일치)의 "다음 회차"에 가중치 +5
-            if(matches >= 2 && i+1 < FULL_DATA.length) { 
+            if(hasTop22 && i+1 < FULL_DATA.length) {
                 FULL_DATA[i+1].slice(1, 7).forEach(n => pScores[n] += 5);
                 
                 // 다음 회차 합계 기록
@@ -92,7 +97,7 @@
             }
         }
 
-        // ★ 유사회차 다음 회차들의 평균 합계 계산
+        // ★ 다음 회차들의 평균 합계 계산
         if (nextSums.length > 0) {
             dynamicAvgSum = Math.round(nextSums.reduce((a,b)=>a+b, 0) / nextSums.length);
         } else {
@@ -104,10 +109,11 @@
         machineFixed = [scored[0], scored[1], scored[2]];
 
         document.getElementById('status').innerHTML = `
-            <div><span class="highlight-gold">★ 최근 23회 파싱 결과</span></div>
+            <div><span class="highlight-gold">★ 최근 30회 빈도순 22위 기준 분석</span></div>
+            <div>빈도순 22위: ${top22Freq.slice(0, 10).join(', ')}... 외 ${top22Freq.length-10}개</div>
             <div>압축 15수: ${basket.sort((a,b)=>a-b).join(', ')}</div>
             <div><span class="highlight-red">완전 미출수:</span> ${zeroFreqNums.join(', ')}</div>
-            <div><span class="highlight-blue">📊 유사회차 다음 회차 평균 합계:</span> ${dynamicAvgSum} (자동 적용)</div>
+            <div><span class="highlight-blue">📊 다음 회차 평균 합계:</span> ${dynamicAvgSum} (자동 적용)</div>
             <div><span class="highlight-blue">🎯 적용 필터:</span> ${dynamicAvgSum-25} ~ ${dynamicAvgSum+25}</div>
         `;
     }
@@ -118,7 +124,6 @@
         box.innerHTML = "";
         let count = 0, used = new Set(), safety = 0;
 
-        // ★ 동적으로 계산된 합계 범위
         let minSum = dynamicAvgSum - 25;
         let maxSum = dynamicAvgSum + 25;
 
@@ -151,7 +156,6 @@
             let sum = finalArr.reduce((a,b)=>a+b, 0);
             let key = finalArr.join(',');
 
-            // ★ 동적 합계 필터 적용 (하드코딩된 90~180 대체)
             if(!used.has(key) && sum >= minSum && sum <= maxSum) {
                 used.add(key);
                 count++;
@@ -159,7 +163,6 @@
             }
         }
 
-        // 만약 원하는 개수만큼 못 찾았으면 알림
         if (count < limit) {
             alert(`⚠️ 조건에 맞는 조합을 ${count}개만 찾았습니다. (목표: ${limit}개)`);
         }
