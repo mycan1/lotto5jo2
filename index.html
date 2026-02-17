@@ -132,24 +132,34 @@
             let res = new Set();
             let currentIdx = count + 1;
 
-            // 10조합 추출 시 미출수 강제 배분 (8~10번째)
-            if (limit === 10 && (currentIdx >= 8) && zeroFreqNums.length > 0) {
-                let zeroPool = [...zeroFreqNums].sort(() => Math.random() - 0.5);
-                res.add(zeroPool[0]);
-                if(zeroFreqNums.length > 1 && Math.random() > 0.5) res.add(zeroPool[1]);
+            // ★ 10조합 = 유사 다음회차 방식
+            if (limit === 10) {
+                // basket(15수)에서 4~5개 선택
+                let basketCopy = [...basket].sort(() => Math.random() - 0.5);
+                let pickCount = Math.floor(Math.random() * 2) + 4; // 4~5개
+                for(let i=0; i<pickCount; i++) {
+                    if(basketCopy.length > 0) res.add(basketCopy.shift());
+                }
+                
+                // 미출수 50% 확률로 1개 추가
+                if(zeroFreqNums.length > 0 && Math.random() > 0.5) {
+                    res.add(zeroFreqNums[Math.floor(Math.random()*zeroFreqNums.length)]);
+                }
+            } else {
+                // 5조합 = 기존 방식 (미출수 없음)
+                res.add(machineFixed[Math.floor(Math.random()*3)]);
+                let tempBasket = [...basket].sort(() => Math.random() - 0.5);
+                for(let n of tempBasket) { if(res.size < 6) res.add(n); }
             }
 
-            // 고정수 1개 랜덤 삽입
-            res.add(machineFixed[Math.floor(Math.random()*3)]);
-
-            // 바스켓에서 채우기
-            let tempBasket = [...basket].sort(() => Math.random() - 0.5);
-            for(let n of tempBasket) { if(res.size < 6) res.add(n); }
-            
-            // 부족분 랜덤 채우기
+            // 부족분은 basket(15수)에서 우선 채우기
+            let basketRemaining = [...basket].sort(() => Math.random() - 0.5);
             while(res.size < 6) {
-                let r = Math.floor(Math.random()*45)+1;
-                res.add(r);
+                if(basketRemaining.length > 0) {
+                    res.add(basketRemaining.shift());
+                } else {
+                    res.add(Math.floor(Math.random()*45)+1);
+                }
             }
 
             let finalArr = Array.from(res).sort((a,b)=>a-b);
