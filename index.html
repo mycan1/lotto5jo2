@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SHIN-UI-SON v21.8 - BONUS INCLUDED</title>
+    <title>SHIN-UI-SON v21.8 - 23회 정밀 분석형</title>
     <style>
         :root { --gold: #ffd700; --bg: #0b0b0b; --card: #1a1a1a; --accent: #00ffcc; --save: #ff00ff; --danger: #ff4444; }
         body { background-color: var(--bg); color: var(--gold); font-family: 'Malgun Gothic', sans-serif; padding: 10px; margin: 0; }
@@ -12,7 +12,7 @@
         .next-episode { font-size: 24px; font-weight: 900; color: #fff; text-shadow: 0 0 10px rgba(255,215,0,0.5); }
         .status-info { font-size: 13px; color: #fff; line-height: 1.6; width: 100%; background: rgba(255,255,255,0.07); border-radius: 12px; padding: 15px; box-sizing: border-box; margin-top: 10px; text-align: left; border: 1px solid #444; }
         .highlight-gold { color: var(--gold); font-weight: bold; }
-        .highlight-red { color: #fff; font-weight: 900; font-size: 14px; background: #b30000; padding: 2px 6px; border-radius: 4px; display: inline-block; margin: 2px; }
+        .highlight-red { color: #fff; font-weight: 900; font-size: 14px; background: #b30000; padding: 2px 6px; border-radius: 4px; display: inline-block; margin: 2px; box-shadow: 0 0 5px rgba(255,0,0,0.3); }
         .basket-box { margin: 8px 0; padding: 10px; background: rgba(0, 255, 204, 0.1); border-radius: 8px; border: 1px solid var(--accent); }
         .seed-box { margin-top: 8px; border-top: 1px dashed #555; padding-top: 8px; }
         .btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 15px 0; }
@@ -24,7 +24,7 @@
         .num-container { display: flex; gap: 4px; flex-grow: 1; justify-content: center; flex-wrap: wrap; }
         .num-box { width: 32px; height: 32px; line-height: 32px; text-align: center; font-size: 13px; font-weight: 900; border-radius: 50%; color: #fff; }
         .fixed { background: linear-gradient(135deg, #00ffcc, #00a884); color: #000; } 
-        .zero { background: linear-gradient(135deg, #ff4444, #b30000); } 
+        .zero { background: #b30000 !important; border: 1.5px solid #fff; } 
         .normal { background: #444; border: 1px solid var(--gold); }
     </style>
 </head>
@@ -40,14 +40,14 @@
         <button class="btn-5set" onclick="process(5)">5조합 추출</button>
         <button class="btn-main" onclick="process(10)">10조합 추출</button>
         <button class="btn-sub" onclick="location.reload()">새로고침</button>
-        <button class="btn-sub" onclick="alert('보관함 기능은 추출 후 이용하세요')">보관함</button>
+        <button class="btn-sub" onclick="alert('필터가 초기화되었습니다.')">초기화</button>
     </div>
 
     <div id="console"></div>
 </div>
 
 <script>
-    // 23회차 데이터 (번호 6개 + 보너스 번호 1개 포함 구조)
+    // [데이터] 사용자가 제공한 최근 23회차 (보너스 번호 포함)
     const FULL_DATA = [
         [1211,23,26,27,35,38,40,10],[1210,1,7,9,17,27,38,31],[1209,2,17,20,35,37,39,24],
         [1208,6,27,30,36,38,42,25],[1207,10,22,24,27,38,45,11],[1206,1,3,17,26,27,42,23],
@@ -66,52 +66,54 @@
         let freq = {};
         for(let n=1; n<=45; n++) freq[n] = 0;
 
-        // 보너스 번호(index 7) 포함 전수 분석
+        // 23개 회차의 당첨번호(1~6)와 보너스번호(7)를 모두 훑음
         FULL_DATA.forEach(row => {
-            for(let i=1; i<=7; i++) { // 1번부터 7번(보너스)까지
-                let num = row[i];
-                if(num) {
-                    appearance.add(num);
-                    freq[num]++;
+            for(let i=1; i<=7; i++) {
+                if(row[i]) {
+                    appearance.add(row[i]);
+                    freq[row[i]]++;
                 }
             }
         });
 
-        // 보너스 포함 미출수 계산
+        // 1~45 중 위 set에 없는 숫자가 진짜 미출수
         zeroFreqNums = [];
         for(let n=1; n<=45; n++) {
             if(!appearance.has(n)) zeroFreqNums.push(n);
         }
         zeroFreqNums.sort((a,b)=>a-b);
 
-        // 상위 빈도 15수 추출
+        // 빈도 상위 추천수
         let scored = Object.keys(freq).map(Number).sort((a,b) => freq[b] - freq[a]);
         basket = scored.slice(0, 15);
         machineFixed = scored.slice(0, 3); 
 
+        // 화면 업데이트
         document.getElementById('status').innerHTML = `
-            <div style="margin-bottom:8px;"><span class="highlight-gold">★ 알고리즘: v21.8 (보너스 포함 23회 분석)</span></div>
+            <div style="margin-bottom:8px;"><span class="highlight-gold">★ 23회차 전수 분석 (보너스 포함)</span></div>
             <div class="basket-box">
-                <span class="highlight-gold">추천 15수 (보너스 빈도 포함):</span><br>
+                <span class="highlight-gold">분석 추천 15수:</span><br>
                 <span style="color:var(--accent); font-weight:bold;">${basket.join(', ')}</span>
             </div>
             <div class="seed-box">
-                <span style="color:#ff6b6b; font-weight:bold;">23회간 무출현 (보너스 포함):</span><br>
-                <div style="margin-top:5px;">${zeroFreqNums.map(n => `<span class="highlight-red">${n}</span>`).join(' ') || '없음'}</div>
+                <span style="color:#ff6b6b; font-weight:bold;">최종 미출수 (Seed):</span><br>
+                <div id="seed_list" style="margin-top:5px;">
+                    ${zeroFreqNums.length > 0 ? zeroFreqNums.map(n => `<span class="highlight-red">${n}</span>`).join(' ') : '데이터 없음'}
+                </div>
             </div>`;
     }
 
     function process(limit) {
-        analyze();
+        analyze(); // 추출 전 최신 데이터로 분석 강제 실행
         const box = document.getElementById('console');
         box.innerHTML = "";
         let count = 0, safety = 0;
 
-        while(count < limit && safety < 5000) {
+        while(count < limit && safety < 3000) {
             safety++;
             let res = new Set();
             
-            // 9, 10번 조합 미출수 배치 로직
+            // 9, 10번 조합은 미출수(빨간색) 1개를 무조건 포함 시킴
             if (limit === 10 && count >= 8 && zeroFreqNums.length > 0) {
                 res.add(zeroFreqNums[Math.floor(Math.random() * zeroFreqNums.length)]);
             } else {
@@ -125,8 +127,8 @@
             let finalArr = Array.from(res).sort((a,b)=>a-b);
             let sum = finalArr.reduce((a,b)=>a+b, 0);
 
-            // 필터: 합계 90~180
-            if(sum >= 90 && sum <= 180) {
+            // 필터: 합계 80~190 (현실적인 범위로 조정)
+            if(sum >= 80 && sum <= 190) {
                 count++;
                 renderRow(finalArr, box, count);
             }
@@ -145,6 +147,7 @@
             </div>`;
     }
 
+    // 페이지 로딩 완료 후 즉시 분석 실행
     window.onload = analyze;
 </script>
 </body>
