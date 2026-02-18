@@ -1,9 +1,14 @@
+✅ 최종 통합 코드입니다!
+
+아래 코드를 복사해서 HTML 파일로 저장하고 실행하세요!
+
+```html
 <!DOCTYPE html>
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SHIN-UI-SON v23.0 - 30회 빈도22위 다음회차 분석형</title>
+    <title>SHIN-UI-SON v24.0 - 30회 분석 + 23회 미출수</title>
     <style>
         :root { --gold: #ffd700; --bg: #0b0b0b; --card: #1a1a1a; --accent: #00ffcc; --save: #ff00ff; --danger: #ff4444; }
         body { background-color: var(--bg); color: var(--gold); font-family: 'Malgun Gothic', sans-serif; padding: 10px; margin: 0; }
@@ -36,7 +41,7 @@
 
 <div class="outer-border">
     <div class="header-box">
-        <span class="next-episode">SHIN-UI-SON v23.0</span>
+        <span class="next-episode">SHIN-UI-SON v24.0</span>
         <div id="status" class="status-info">엔진 가동 준비 완료...</div>
     </div>
 
@@ -63,7 +68,7 @@
         let freq = {};
         for(let i=1; i<=45; i++) freq[i] = 0;
         
-        // ★ 1. 최근 30회차로 변경
+        // 1. 점수 계산용: 최근 30회차
         const targetRange = 30;
         const data30 = FULL_DATA.slice(0, targetRange);
         
@@ -71,18 +76,27 @@
             for(let j=1; j<=7; j++) { if(row[j]) freq[row[j]]++; }
         });
 
-        zeroFreqNums = Object.keys(freq).filter(n => freq[n] === 0).map(Number).sort((a,b)=>a-b);
+        // 2. 미출수 계산용: 최근 23회차 (별도로 계산!)
+        const recent23 = FULL_DATA.slice(0, 23);
+        let recentFreq = {};
+        for(let i=1; i<=45; i++) recentFreq[i] = 0;
+        
+        recent23.forEach(row => {
+            for(let j=1; j<=7; j++) { if(row[j]) recentFreq[row[j]]++; }
+        });
+        
+        zeroFreqNums = Object.keys(recentFreq).filter(n => recentFreq[n] === 0).map(Number).sort((a,b)=>a-b);
 
-        // ★ 2. 빈도순 22위 계산
+        // 3. 빈도순 22위 계산
         let sortedByFreq = Object.keys(freq).map(Number).sort((a,b) => freq[b] - freq[a]);
         let top22Freq = sortedByFreq.slice(0, 22);
 
         let pScores = {};
         for(let i=1; i<=45; i++) pScores[i] = (freq[i] || 0) * 2;
         
-        let nextSums = [];  // 다음 회차 합계 저장
+        let nextSums = [];
 
-        // ★ 3. top22 번호 포함 회차의 "다음 회차"에 가중치 +5
+        // 4. top22 번호 포함 회차의 "다음 회차"에 가중치 +5
         for(let i=1; i < targetRange; i++) {
             let currentNums = FULL_DATA[i].slice(1, 7);
             let hasTop22 = currentNums.some(n => top22Freq.includes(n));
@@ -90,18 +104,17 @@
             if(hasTop22 && i+1 < FULL_DATA.length) {
                 FULL_DATA[i+1].slice(1, 7).forEach(n => pScores[n] += 5);
                 
-                // 다음 회차 합계 기록
                 let nextNums = FULL_DATA[i+1].slice(1, 7);
                 let sum = nextNums.reduce((a,b)=>a+b, 0);
                 nextSums.push(sum);
             }
         }
 
-        // ★ 다음 회차들의 평균 합계 계산
+        // 5. 다음 회차들의 평균 합계 계산
         if (nextSums.length > 0) {
             dynamicAvgSum = Math.round(nextSums.reduce((a,b)=>a+b, 0) / nextSums.length);
         } else {
-            dynamicAvgSum = 145; // 기본값
+            dynamicAvgSum = 145;
         }
 
         let scored = Object.keys(pScores).map(Number).sort((a,b) => pScores[b] - pScores[a]);
@@ -112,7 +125,7 @@
             <div><span class="highlight-gold">★ 최근 30회 빈도순 22위 기준 분석</span></div>
             <div>빈도순 22위: ${top22Freq.slice(0, 10).join(', ')}... 외 ${top22Freq.length-10}개</div>
             <div>압축 15수: ${basket.sort((a,b)=>a-b).join(', ')}</div>
-            <div><span class="highlight-red">완전 미출수:</span> ${zeroFreqNums.join(', ')}</div>
+            <div><span class="highlight-red">완전 미출수(23회 기준):</span> ${zeroFreqNums.join(', ')}</div>
             <div><span class="highlight-blue">📊 다음 회차 평균 합계:</span> ${dynamicAvgSum} (자동 적용)</div>
             <div><span class="highlight-blue">🎯 적용 필터:</span> ${dynamicAvgSum-25} ~ ${dynamicAvgSum+25}</div>
         `;
@@ -132,27 +145,22 @@
             let res = new Set();
             let currentIdx = count + 1;
 
-            // ★ 10조합 = 유사 다음회차 방식
             if (limit === 10) {
-                // basket(15수)에서 4~5개 선택
                 let basketCopy = [...basket].sort(() => Math.random() - 0.5);
-                let pickCount = Math.floor(Math.random() * 2) + 4; // 4~5개
+                let pickCount = Math.floor(Math.random() * 2) + 4;
                 for(let i=0; i<pickCount; i++) {
                     if(basketCopy.length > 0) res.add(basketCopy.shift());
                 }
                 
-                // 미출수 50% 확률로 1개 추가
                 if(zeroFreqNums.length > 0 && Math.random() > 0.5) {
                     res.add(zeroFreqNums[Math.floor(Math.random()*zeroFreqNums.length)]);
                 }
             } else {
-                // 5조합 = 기존 방식 (미출수 없음)
                 res.add(machineFixed[Math.floor(Math.random()*3)]);
                 let tempBasket = [...basket].sort(() => Math.random() - 0.5);
                 for(let n of tempBasket) { if(res.size < 6) res.add(n); }
             }
 
-            // 부족분은 basket(15수)에서 우선 채우기
             let basketRemaining = [...basket].sort(() => Math.random() - 0.5);
             while(res.size < 6) {
                 if(basketRemaining.length > 0) {
@@ -216,3 +224,4 @@
 </script>
 </body>
 </html>
+```
