@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SHIN-UI-SON v23.1 - 30회 빈도22위 다음회차 분석형</title>
+    <title>SHIN-UI-SON v24.1 - 미출수 25회 집중 분석형</title>
     <style>
         :root { --gold: #ffd700; --bg: #0b0b0b; --card: #1a1a1a; --accent: #00ffcc; --save: #ff00ff; --danger: #ff4444; }
         body { background-color: var(--bg); color: var(--gold); font-family: 'Malgun Gothic', sans-serif; padding: 10px; margin: 0; }
         .outer-border { border: 2px solid var(--gold); border-radius: 20px; padding: 15px; max-width: 480px; margin: 0 auto; }
         .header-box { text-align: center; margin-bottom: 10px; }
-        .next-episode { font-size: 24px; font-weight: 900; color: #fff; text-shadow: 0 0 10px rgba(255,215,0,0.5); }
-        .status-info { font-size: 11px; color: var(--accent); line-height: 1.6; min-height: 150px; width: 100%; background: rgba(255,255,255,0.05); border-radius: 12px; padding: 10px; box-sizing: border-box; margin-top: 10px; text-align: left; border: 1px solid #333; }
+        .next-episode { font-size: 22px; font-weight: 900; color: #fff; text-shadow: 0 0 10px rgba(255,215,0,0.5); }
+        .status-info { font-size: 11px; color: var(--accent); line-height: 1.6; min-height: 160px; width: 100%; background: rgba(255,255,255,0.05); border-radius: 12px; padding: 12px; box-sizing: border-box; margin-top: 10px; text-align: left; border: 1px solid #333; }
         .highlight-gold { color: var(--gold); font-weight: bold; }
         .highlight-red { color: var(--danger); font-weight: bold; }
         .highlight-blue { color: #00ccff; font-weight: bold; }
@@ -37,8 +37,8 @@
 
 <div class="outer-border">
     <div class="header-box">
-        <span class="next-episode">SHIN-UI-SON v23.1</span>
-        <div id="status" class="status-info">엔진 가동 준비 완료...</div>
+        <span class="next-episode">SHIN-UI-SON v24.1 (0000)</span>
+        <div id="status" class="status-info">엔진 초기화 중...</div>
     </div>
 
     <div class="btn-group">
@@ -54,71 +54,60 @@
 </div>
 
 <script>
+    // [보안코드 0000 적용 데이터뱅크]
     const FULL_DATA = [[1211,23,26,27,35,38,40,10],[1210,1,7,9,17,27,38,31],[1209,2,17,20,35,37,39,24],[1208,6,27,30,36,38,42,25],[1207,10,22,24,27,38,45,11],[1206,1,3,17,26,27,42,23],[1205,1,4,16,23,31,41,2],[1204,8,16,28,30,31,44,27],[1203,3,6,18,29,35,39,24],[1202,5,12,21,33,37,40,7],[1201,7,9,24,27,35,36,37],[1200,1,2,4,16,20,32,45],[1199,16,24,25,30,31,32,7],[1198,26,30,33,38,39,41,21],[1197,1,5,7,26,28,43,30],[1196,8,12,15,29,40,45,14],[1195,3,15,27,33,34,36,37],[1194,3,13,15,24,33,37,2],[1193,6,9,16,19,24,28,17],[1192,10,16,23,36,39,40,11],[1191,1,4,11,12,20,41,2],[1190,7,9,19,23,26,45,33],[1189,9,19,29,35,37,38,31],[1188,3,4,12,19,22,27,9],[1187,5,13,26,29,37,40,42],[1186,2,8,13,16,23,28,35],[1185,6,17,22,28,29,32,38],[1184,14,16,23,25,31,37,42],[1183,4,15,17,23,27,36,31],[1182,1,13,21,25,28,31,22],[1181,8,10,14,20,33,41,28],[1180,6,12,18,37,40,41,3],[1179,3,16,18,24,40,44,21],[1178,5,6,11,27,43,44,17],[1177,3,7,15,16,19,43,21],[1176,7,9,11,21,30,35,29],[1175,3,4,6,8,32,42,31],[1174,8,11,14,17,36,39,22],[1173,1,5,18,20,30,35,3],[1172,7,9,24,40,42,44,45],[1171,3,6,7,11,12,17,19],[1170,3,13,28,34,38,42,25],[1169,5,12,24,26,39,42,20],[1168,9,21,24,30,33,37,29],[1167,8,23,31,35,39,40,24],[1166,14,23,25,27,29,42,16],[1165,6,7,27,29,38,45,17],[1164,17,18,23,25,38,39,22],[1163,2,13,15,16,33,43,4],[1162,20,21,22,25,28,29,6],[1161,2,12,20,24,34,42,37],[1160,7,13,18,36,39,45,19],[1159,3,9,27,28,38,39,7],[1158,21,25,27,32,37,38,20],[1157,5,7,12,20,25,26,28],[1156,30,31,34,39,41,45,7],[1155,10,16,19,27,37,38,13],[1154,4,8,22,26,32,38,27],[1153,1,9,10,13,35,44,5],[1152,30,31,32,35,36,37,5],[1151,2,3,9,15,27,29,8],[1150,8,9,18,35,39,45,25],[1149,8,15,19,21,32,36,38],[1148,3,6,13,15,16,22,32],[1147,7,11,24,26,27,37,32],[1146,6,11,17,19,40,43,28],[1145,2,11,31,33,37,44,32],[1144,3,4,12,15,26,34,6],[1143,10,16,17,27,28,36,6],[1142,2,8,28,30,37,41,22],[1141,7,11,12,21,26,35,20],[1140,7,10,22,29,31,38,15],[1139,5,12,15,30,37,40,18],[1138,14,16,19,20,29,34,35],[1137,4,9,12,15,33,45,26],[1136,21,33,35,38,42,44,1],[1135,1,6,13,19,21,33,4],[1134,3,7,9,13,19,24,23],[1133,13,14,20,28,29,34,23],[1132,6,7,19,28,34,41,5],[1131,1,2,6,14,27,38,33],[1130,15,19,21,25,27,28,40],[1129,5,10,11,17,28,34,22],[1128,1,5,8,16,28,33,45],[1127,10,15,24,30,31,37,32],[1126,4,5,9,11,37,40,7],[1125,6,14,25,33,40,44,30],[1124,3,8,17,30,33,34,28],[1123,13,19,21,24,34,35,26],[1122,3,6,21,30,34,35,22],[1121,6,24,31,32,38,44,8],[1120,2,19,26,31,38,41,34],[1119,1,9,12,13,20,45,3],[1118,11,13,14,15,16,45,3],[1117,3,4,9,30,33,36,7],[1116,15,16,17,25,30,31,32],[1115,7,12,23,32,34,36,8],[1114,10,16,19,32,33,38,3],[1113,11,13,20,21,32,44,8],[1112,16,20,26,36,42,44,24]];
 
     let basket = [], zeroFreqNums = [], machineFixed = [];
-    let savedNumbers = JSON.parse(localStorage.getItem('lottoSaveV21')) || [];
-    let dynamicAvgSum = 145; // 기본값
+    let savedNumbers = JSON.parse(localStorage.getItem('lottoSaveV24')) || [];
+    let dynamicAvgSum = 145;
 
     function analyze() {
         let freq = {};
         for(let i=1; i<=45; i++) freq[i] = 0;
         
-        // ★ 1. 최근 30회차로 변경 (보너스 번호 포함)
+        // ★ 1. 미출수 분석 기준: 최근 25회 (보너스 포함)
+        const zeroRange = 25;
+        const data25 = FULL_DATA.slice(0, zeroRange);
+        let freq25 = {};
+        for(let i=1; i<=45; i++) freq25[i] = 0;
+        data25.forEach(row => { for(let j=1; j<=7; j++) { if(row[j]) freq25[row[j]]++; } });
+        zeroFreqNums = Object.keys(freq25).filter(n => freq25[n] === 0).map(Number).sort((a,b)=>a-b);
+
+        // ★ 2. 빈도 분석 기준: 최근 30회 (가중치 계산용)
         const targetRange = 30;
         const data30 = FULL_DATA.slice(0, targetRange);
-        
-        // 보너스 번호(8번째)까지 포함하여 빈도 계산
-        data30.forEach(row => { 
-            for(let j=1; j<=7; j++) { if(row[j]) freq[row[j]]++; } // 1~6: 본번호, 7: 보너스
-        });
+        data30.forEach(row => { for(let j=1; j<=7; j++) { if(row[j]) freq[row[j]]++; } });
 
-        // ★ 완전 미출수 (보너스 포함하여 한 번도 안 나온 번호)
-        zeroFreqNums = Object.keys(freq).filter(n => freq[n] === 0).map(Number).sort((a,b)=>a-b);
-
-        // ★ 2. 빈도순 22위 계산 (본번호+보너스 기준)
         let sortedByFreq = Object.keys(freq).map(Number).sort((a,b) => freq[b] - freq[a]);
         let top22Freq = sortedByFreq.slice(0, 22);
 
         let pScores = {};
         for(let i=1; i<=45; i++) pScores[i] = (freq[i] || 0) * 2;
         
-        let nextSums = [];  // 다음 회차 합계 저장
-
-        // ★ 3. top22 번호 포함 회차의 "다음 회차"에 가중치 +5 (보너스 제외 본번호만)
+        let nextSums = [];
         for(let i=1; i < targetRange; i++) {
-            let currentNums = FULL_DATA[i].slice(1, 7); // 본번호만
+            let currentNums = FULL_DATA[i].slice(1, 7);
             let hasTop22 = currentNums.some(n => top22Freq.includes(n));
-            
             if(hasTop22 && i+1 < FULL_DATA.length) {
-                FULL_DATA[i+1].slice(1, 7).forEach(n => pScores[n] += 5); // 다음 회차 본번호에 가중치
-                
-                // 다음 회차 본번호 합계 기록
-                let nextNums = FULL_DATA[i+1].slice(1, 7);
-                let sum = nextNums.reduce((a,b)=>a+b, 0);
+                FULL_DATA[i+1].slice(1, 7).forEach(n => pScores[n] += 5);
+                let sum = FULL_DATA[i+1].slice(1, 7).reduce((a,b)=>a+b, 0);
                 nextSums.push(sum);
             }
         }
 
-        // ★ 다음 회차들의 평균 합계 계산
-        if (nextSums.length > 0) {
-            dynamicAvgSum = Math.round(nextSums.reduce((a,b)=>a+b, 0) / nextSums.length);
-        } else {
-            dynamicAvgSum = 145; // 기본값
-        }
+        if (nextSums.length > 0) dynamicAvgSum = Math.round(nextSums.reduce((a,b)=>a+b, 0) / nextSums.length);
 
         let scored = Object.keys(pScores).map(Number).sort((a,b) => pScores[b] - pScores[a]);
-        basket = scored.slice(0, 15);
+        basket = scored.slice(0, 16); // 16수로 소폭 확장
         machineFixed = [scored[0], scored[1], scored[2]];
 
         document.getElementById('status').innerHTML = `
-            <div><span class="highlight-gold">★ 최근 30회 (보너스 포함) 빈도순 22위 기준 분석</span></div>
-            <div>빈도순 22위: ${top22Freq.slice(0, 10).join(', ')}... 외 ${top22Freq.length-10}개</div>
-            <div>압축 15수: ${basket.sort((a,b)=>a-b).join(', ')}</div>
-            <div><span class="highlight-red">🎯 완전 미출수 (보너스 포함):</span> ${zeroFreqNums.length > 0 ? zeroFreqNums.join(', ') : '없음'}</div>
-            <div><span class="highlight-blue">📊 다음 회차 평균 합계:</span> ${dynamicAvgSum} (자동 적용)</div>
-            <div><span class="highlight-blue">🎯 적용 필터:</span> ${dynamicAvgSum-25} ~ ${dynamicAvgSum+25}</div>
-            <div><span class="highlight-red">⚠️ 9,10번 조합에 미출수 1개씩 강제 포함</span></div>
+            <div><span class="highlight-gold">★ SHIN-UI-SON v24.1 엔진 가동</span></div>
+            <div><span class="highlight-red">🎯 미출수(최근 25회 기준):</span> ${zeroFreqNums.length > 0 ? zeroFreqNums.join(', ') : '없음'}</div>
+            <div>압축 후보 16수: ${basket.sort((a,b)=>a-b).join(', ')}</div>
+            <div><span class="highlight-blue">📊 다음 회차 기대 합계:</span> ${dynamicAvgSum}</div>
+            <div><span class="highlight-blue">⚖️ 필터링 범위:</span> ${dynamicAvgSum-28} ~ ${dynamicAvgSum+28}</div>
+            <div style="margin-top:5px; color:#fff; font-size:10px;">※ 9,10번 조합에 25회 미출수 강제 포함 로직 적용됨</div>
         `;
     }
 
@@ -127,63 +116,32 @@
         const box = document.getElementById('console');
         box.innerHTML = "";
         let count = 0, used = new Set(), safety = 0;
+        let minSum = dynamicAvgSum - 28;
+        let maxSum = dynamicAvgSum + 28;
 
-        let minSum = dynamicAvgSum - 25;
-        let maxSum = dynamicAvgSum + 25;
-
-        while(count < limit && safety < 5000) {
+        while(count < limit && safety < 10000) {
             safety++;
             let res = new Set();
-            let currentIdx = count + 1; // 1부터 시작하는 조합 번호
+            let currentIdx = count + 1;
 
-            // ★ 10조합일 때 9번째와 10번째는 미출수 강제 포함
+            // 9, 10번 조합 미출수 강제 포함
             if (limit === 10 && (currentIdx === 9 || currentIdx === 10) && zeroFreqNums.length > 0) {
-                // 미출수 1개를 반드시 포함
                 let zeroNum = zeroFreqNums[Math.floor(Math.random() * zeroFreqNums.length)];
                 res.add(zeroNum);
-                
-                // 나머지 5개는 basket에서 선택
-                let basketCopy = [...basket].filter(n => n !== zeroNum).sort(() => Math.random() - 0.5);
-                while(res.size < 6) {
-                    if(basketCopy.length > 0) {
-                        res.add(basketCopy.shift());
-                    } else {
-                        res.add(Math.floor(Math.random()*45)+1);
-                    }
-                }
-            } 
-            // ★ 일반 10조합 (1~8번) 또는 5조합
-            else {
-                // 10조합 = 유사 다음회차 방식
-                if (limit === 10) {
-                    // basket(15수)에서 4~5개 선택
-                    let basketCopy = [...basket].sort(() => Math.random() - 0.5);
-                    let pickCount = Math.floor(Math.random() * 2) + 4; // 4~5개
-                    for(let i=0; i<pickCount; i++) {
-                        if(basketCopy.length > 0) res.add(basketCopy.shift());
-                    }
-                    
-                    // 미출수 30% 확률로 1개 추가 (9,10번이 아니므로 확률 낮춤)
-                    if(zeroFreqNums.length > 0 && Math.random() > 0.7) {
-                        res.add(zeroFreqNums[Math.floor(Math.random()*zeroFreqNums.length)]);
-                    }
-                } else {
-                    // 5조합 = 기존 방식
-                    res.add(machineFixed[Math.floor(Math.random()*3)]);
-                    let tempBasket = [...basket].sort(() => Math.random() - 0.5);
-                    for(let n of tempBasket) { if(res.size < 6) res.add(n); }
-                }
+            } else if (Math.random() > 0.8 && zeroFreqNums.length > 0) {
+                // 일반 조합에서도 20% 확률로 미출수 포함
+                res.add(zeroFreqNums[Math.floor(Math.random() * zeroFreqNums.length)]);
             }
 
-            // 부족분은 basket(15수)에서 우선 채우기
-            let basketRemaining = [...basket].sort(() => Math.random() - 0.5);
-            while(res.size < 6) {
-                if(basketRemaining.length > 0) {
-                    res.add(basketRemaining.shift());
-                } else {
-                    res.add(Math.floor(Math.random()*45)+1);
-                }
-            }
+            // 고정수 전략 (5조합일 때 강화)
+            if(limit === 5) res.add(machineFixed[Math.floor(Math.random()*3)]);
+
+            // 후보수(basket)에서 채우기
+            let shuffleBasket = [...basket].sort(() => Math.random() - 0.5);
+            for(let n of shuffleBasket) { if(res.size < 6) res.add(n); }
+
+            // 완전 랜덤 보정 (다양성 확보)
+            while(res.size < 6) res.add(Math.floor(Math.random()*45)+1);
 
             let finalArr = Array.from(res).sort((a,b)=>a-b);
             let sum = finalArr.reduce((a,b)=>a+b, 0);
@@ -192,15 +150,9 @@
             if(!used.has(key) && sum >= minSum && sum <= maxSum) {
                 used.add(key);
                 count++;
-                
-                // 조합 번호 표시 (9,10번은 미출수 포함 표시)
-                let specialMark = (limit === 10 && (count === 9 || count === 10)) ? '🔥 미출수 포함' : '';
+                let specialMark = (limit === 10 && (count === 9 || count === 10)) ? '🔥 25회 미출수' : '';
                 renderRow(finalArr, box, key, specialMark);
             }
-        }
-
-        if (count < limit) {
-            alert(`⚠️ 조건에 맞는 조합을 ${count}개만 찾았습니다. (목표: ${limit}개)`);
         }
     }
 
@@ -209,7 +161,6 @@
             let cls = machineFixed.includes(n) ? "fixed" : (zeroFreqNums.includes(n) ? "zero" : "normal");
             return `<span class="num-box ${cls}">${n}</span>`;
         }).join('');
-        
         let specialHtml = specialMark ? `<span class="badge">${specialMark}</span>` : '';
         target.innerHTML += `<div class="row-line"><div class="num-container">${html}</div><div style="display: flex; align-items: center;">${specialHtml}<div class="save-btn" onclick="saveToBox('${key}')">저장</div></div></div>`;
     }
@@ -217,8 +168,8 @@
     function saveToBox(s) {
         if(!savedNumbers.includes(s)) {
             savedNumbers.push(s);
-            localStorage.setItem('lottoSaveV21', JSON.stringify(savedNumbers));
-            alert("저장되었습니다.");
+            localStorage.setItem('lottoSaveV24', JSON.stringify(savedNumbers));
+            alert("보관함에 저장되었습니다.");
         }
     }
 
@@ -230,13 +181,14 @@
 
     function renderStorage() {
         const st = document.getElementById('storage');
+        if(savedNumbers.length === 0) { st.innerHTML = "<div style='text-align:center; padding:20px; opacity:0.5;'>저장된 조합이 없습니다.</div>"; return; }
         st.innerHTML = savedNumbers.map(n => `<div class="row-line"><div class="num-container">${n.split(',').map(v=>`<span class="num-box normal" style="background:#333; font-size:12px; border:none;">${v}</span>`).join('')}</div></div>`).join('');
     }
 
     function clearStorage() {
-        if(confirm("보관함을 비울까요?")) {
+        if(confirm("보관함을 초기화할까요?")) {
             savedNumbers = [];
-            localStorage.removeItem('lottoSaveV21');
+            localStorage.removeItem('lottoSaveV24');
             renderStorage();
         }
     }
