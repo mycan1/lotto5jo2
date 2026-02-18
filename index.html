@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SHIN-UI-SON v23.0 - 30회 빈도22위 다음회차 분석형</title>
+    <title>SHIN-UI-SON v23.1 - 30회 빈도22위 다음회차 분석형</title>
     <style>
         :root { --gold: #ffd700; --bg: #0b0b0b; --card: #1a1a1a; --accent: #00ffcc; --save: #ff00ff; --danger: #ff4444; }
         body { background-color: var(--bg); color: var(--gold); font-family: 'Malgun Gothic', sans-serif; padding: 10px; margin: 0; }
@@ -30,13 +30,14 @@
         .normal { background: #444; border: 1px solid var(--gold); }
         .save-btn { font-size: 11px; background: var(--save); color: white; padding: 6px 10px; border-radius: 6px; cursor: pointer; }
         #storage-section { display: none; margin-top: 15px; border-top: 1px dashed #444; padding-top: 15px; }
+        .badge { font-size: 10px; background: #333; padding: 2px 6px; border-radius: 10px; margin-left: 5px; color: #aaa; }
     </style>
 </head>
 <body>
 
 <div class="outer-border">
     <div class="header-box">
-        <span class="next-episode">SHIN-UI-SON v23.0</span>
+        <span class="next-episode">SHIN-UI-SON v23.1</span>
         <div id="status" class="status-info">엔진 가동 준비 완료...</div>
     </div>
 
@@ -63,17 +64,19 @@
         let freq = {};
         for(let i=1; i<=45; i++) freq[i] = 0;
         
-        // ★ 1. 최근 30회차로 변경
+        // ★ 1. 최근 30회차로 변경 (보너스 번호 포함)
         const targetRange = 30;
         const data30 = FULL_DATA.slice(0, targetRange);
         
+        // 보너스 번호(8번째)까지 포함하여 빈도 계산
         data30.forEach(row => { 
-            for(let j=1; j<=7; j++) { if(row[j]) freq[row[j]]++; }
+            for(let j=1; j<=7; j++) { if(row[j]) freq[row[j]]++; } // 1~6: 본번호, 7: 보너스
         });
 
+        // ★ 완전 미출수 (보너스 포함하여 한 번도 안 나온 번호)
         zeroFreqNums = Object.keys(freq).filter(n => freq[n] === 0).map(Number).sort((a,b)=>a-b);
 
-        // ★ 2. 빈도순 22위 계산
+        // ★ 2. 빈도순 22위 계산 (본번호+보너스 기준)
         let sortedByFreq = Object.keys(freq).map(Number).sort((a,b) => freq[b] - freq[a]);
         let top22Freq = sortedByFreq.slice(0, 22);
 
@@ -82,15 +85,15 @@
         
         let nextSums = [];  // 다음 회차 합계 저장
 
-        // ★ 3. top22 번호 포함 회차의 "다음 회차"에 가중치 +5
+        // ★ 3. top22 번호 포함 회차의 "다음 회차"에 가중치 +5 (보너스 제외 본번호만)
         for(let i=1; i < targetRange; i++) {
-            let currentNums = FULL_DATA[i].slice(1, 7);
+            let currentNums = FULL_DATA[i].slice(1, 7); // 본번호만
             let hasTop22 = currentNums.some(n => top22Freq.includes(n));
             
             if(hasTop22 && i+1 < FULL_DATA.length) {
-                FULL_DATA[i+1].slice(1, 7).forEach(n => pScores[n] += 5);
+                FULL_DATA[i+1].slice(1, 7).forEach(n => pScores[n] += 5); // 다음 회차 본번호에 가중치
                 
-                // 다음 회차 합계 기록
+                // 다음 회차 본번호 합계 기록
                 let nextNums = FULL_DATA[i+1].slice(1, 7);
                 let sum = nextNums.reduce((a,b)=>a+b, 0);
                 nextSums.push(sum);
@@ -109,12 +112,13 @@
         machineFixed = [scored[0], scored[1], scored[2]];
 
         document.getElementById('status').innerHTML = `
-            <div><span class="highlight-gold">★ 최근 30회 빈도순 22위 기준 분석</span></div>
+            <div><span class="highlight-gold">★ 최근 30회 (보너스 포함) 빈도순 22위 기준 분석</span></div>
             <div>빈도순 22위: ${top22Freq.slice(0, 10).join(', ')}... 외 ${top22Freq.length-10}개</div>
             <div>압축 15수: ${basket.sort((a,b)=>a-b).join(', ')}</div>
-            <div><span class="highlight-red">완전 미출수:</span> ${zeroFreqNums.join(', ')}</div>
+            <div><span class="highlight-red">🎯 완전 미출수 (보너스 포함):</span> ${zeroFreqNums.length > 0 ? zeroFreqNums.join(', ') : '없음'}</div>
             <div><span class="highlight-blue">📊 다음 회차 평균 합계:</span> ${dynamicAvgSum} (자동 적용)</div>
             <div><span class="highlight-blue">🎯 적용 필터:</span> ${dynamicAvgSum-25} ~ ${dynamicAvgSum+25}</div>
+            <div><span class="highlight-red">⚠️ 9,10번 조합에 미출수 1개씩 강제 포함</span></div>
         `;
     }
 
@@ -130,26 +134,45 @@
         while(count < limit && safety < 5000) {
             safety++;
             let res = new Set();
-            let currentIdx = count + 1;
+            let currentIdx = count + 1; // 1부터 시작하는 조합 번호
 
-            // ★ 10조합 = 유사 다음회차 방식
-            if (limit === 10) {
-                // basket(15수)에서 4~5개 선택
-                let basketCopy = [...basket].sort(() => Math.random() - 0.5);
-                let pickCount = Math.floor(Math.random() * 2) + 4; // 4~5개
-                for(let i=0; i<pickCount; i++) {
-                    if(basketCopy.length > 0) res.add(basketCopy.shift());
-                }
+            // ★ 10조합일 때 9번째와 10번째는 미출수 강제 포함
+            if (limit === 10 && (currentIdx === 9 || currentIdx === 10) && zeroFreqNums.length > 0) {
+                // 미출수 1개를 반드시 포함
+                let zeroNum = zeroFreqNums[Math.floor(Math.random() * zeroFreqNums.length)];
+                res.add(zeroNum);
                 
-                // 미출수 50% 확률로 1개 추가
-                if(zeroFreqNums.length > 0 && Math.random() > 0.5) {
-                    res.add(zeroFreqNums[Math.floor(Math.random()*zeroFreqNums.length)]);
+                // 나머지 5개는 basket에서 선택
+                let basketCopy = [...basket].filter(n => n !== zeroNum).sort(() => Math.random() - 0.5);
+                while(res.size < 6) {
+                    if(basketCopy.length > 0) {
+                        res.add(basketCopy.shift());
+                    } else {
+                        res.add(Math.floor(Math.random()*45)+1);
+                    }
                 }
-            } else {
-                // 5조합 = 기존 방식 (미출수 없음)
-                res.add(machineFixed[Math.floor(Math.random()*3)]);
-                let tempBasket = [...basket].sort(() => Math.random() - 0.5);
-                for(let n of tempBasket) { if(res.size < 6) res.add(n); }
+            } 
+            // ★ 일반 10조합 (1~8번) 또는 5조합
+            else {
+                // 10조합 = 유사 다음회차 방식
+                if (limit === 10) {
+                    // basket(15수)에서 4~5개 선택
+                    let basketCopy = [...basket].sort(() => Math.random() - 0.5);
+                    let pickCount = Math.floor(Math.random() * 2) + 4; // 4~5개
+                    for(let i=0; i<pickCount; i++) {
+                        if(basketCopy.length > 0) res.add(basketCopy.shift());
+                    }
+                    
+                    // 미출수 30% 확률로 1개 추가 (9,10번이 아니므로 확률 낮춤)
+                    if(zeroFreqNums.length > 0 && Math.random() > 0.7) {
+                        res.add(zeroFreqNums[Math.floor(Math.random()*zeroFreqNums.length)]);
+                    }
+                } else {
+                    // 5조합 = 기존 방식
+                    res.add(machineFixed[Math.floor(Math.random()*3)]);
+                    let tempBasket = [...basket].sort(() => Math.random() - 0.5);
+                    for(let n of tempBasket) { if(res.size < 6) res.add(n); }
+                }
             }
 
             // 부족분은 basket(15수)에서 우선 채우기
@@ -169,7 +192,10 @@
             if(!used.has(key) && sum >= minSum && sum <= maxSum) {
                 used.add(key);
                 count++;
-                renderRow(finalArr, box, key);
+                
+                // 조합 번호 표시 (9,10번은 미출수 포함 표시)
+                let specialMark = (limit === 10 && (count === 9 || count === 10)) ? '🔥 미출수 포함' : '';
+                renderRow(finalArr, box, key, specialMark);
             }
         }
 
@@ -178,12 +204,14 @@
         }
     }
 
-    function renderRow(arr, target, key) {
+    function renderRow(arr, target, key, specialMark = '') {
         const html = arr.map(n => {
             let cls = machineFixed.includes(n) ? "fixed" : (zeroFreqNums.includes(n) ? "zero" : "normal");
             return `<span class="num-box ${cls}">${n}</span>`;
         }).join('');
-        target.innerHTML += `<div class="row-line"><div class="num-container">${html}</div><div class="save-btn" onclick="saveToBox('${key}')">저장</div></div>`;
+        
+        let specialHtml = specialMark ? `<span class="badge">${specialMark}</span>` : '';
+        target.innerHTML += `<div class="row-line"><div class="num-container">${html}</div><div style="display: flex; align-items: center;">${specialHtml}<div class="save-btn" onclick="saveToBox('${key}')">저장</div></div></div>`;
     }
 
     function saveToBox(s) {
