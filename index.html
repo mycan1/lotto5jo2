@@ -10,7 +10,6 @@
         .outer-border { border: 2px solid var(--gold); border-radius: 20px; padding: 15px; max-width: 480px; margin: 0 auto; }
         .header-box { text-align: center; margin-bottom: 10px; }
         
-        /* 1212회차 크게 표시 (분석 방법 수정 없음) */
         .next-episode { 
             font-size: 22px; 
             font-weight: 900; 
@@ -18,13 +17,12 @@
             text-shadow: 0 0 10px rgba(255,215,0,0.5);
         }
         
-        .big-round {
-            font-size: 60px;
+        .round-text {
+            font-size: 32px;
             font-weight: 900;
             color: #ffd700;
-            text-shadow: 0 0 20px #ffd700;
-            line-height: 1.2;
-            margin: 5px 0;
+            text-shadow: 0 0 15px #ffd700;
+            margin: 0 0 5px 0;
         }
         
         .status-info { 
@@ -128,8 +126,8 @@
 
 <div class="outer-border">
     <div class="header-box">
-        <div class="big-round">1212</div>
         <div class="next-episode">SHIN-UI-SON v24.1</div>
+        <div class="round-text">예상 1212회차</div>
         <div id="userDisplay" class="user-info"></div>
         <div id="status" class="status-info">엔진 초기화 중...</div>
     </div>
@@ -272,15 +270,12 @@
         document.querySelector('.popup-title').innerHTML = `📦 ${userName}의 보관함 (${savedNumbers.length}개)`;
     }
 
-    // ===== 통합 분석 함수 (이동 분석 + 계절성 + 유사패턴) =====
+    // ===== 통합 분석 함수 =====
     function analyze() {
         let freq = {};
         for(let i=1; i<=45; i++) freq[i] = 0;
         
-        // ===== 1. 이동 분석: 항상 최신 100개 데이터 유지 =====
-        // FULL_DATA는 이미 최신 100개 (1112~1211)
-        
-        // ===== 2. 미출수 분석 (최근 22회) =====
+        // ===== 미출수 분석 (최근 22회) =====
         const zeroRange = 22;
         const data22 = FULL_DATA.slice(0, zeroRange);
         let freq22 = {};
@@ -288,7 +283,7 @@
         data22.forEach(row => { for(let j=1; j<=7; j++) { if(row[j]) freq22[row[j]]++; } });
         zeroFreqNums = Object.keys(freq22).filter(n => freq22[n] === 0).map(Number).sort((a,b)=>a-b);
 
-        // ===== 3. 빈도 분석 (최근 30회) =====
+        // ===== 빈도 분석 (최근 30회) =====
         const targetRange = 30;
         const data30 = FULL_DATA.slice(0, targetRange);
         data30.forEach(row => { for(let j=1; j<=7; j++) { if(row[j]) freq[row[j]]++; } });
@@ -296,11 +291,11 @@
         let sortedByFreq = Object.keys(freq).map(Number).sort((a,b) => freq[b] - freq[a]);
         let top22Freq = sortedByFreq.slice(0, 22);
 
-        // ===== 4. 점수 초기화 =====
+        // ===== 점수 초기화 =====
         let pScores = {};
         for(let i=1; i<=45; i++) pScores[i] = (freq[i] || 0) * 2;
         
-        // ===== 5. 유사패턴 분석 (30회 내 패턴) =====
+        // ===== 유사패턴 분석 =====
         let nextSums = [];
         for(let i=1; i < targetRange; i++) {
             let currentNums = FULL_DATA[i].slice(1, 7);
@@ -312,29 +307,28 @@
             }
         }
 
-        // ===== 6. 평균 합계 계산 =====
+        // ===== 평균 합계 계산 =====
         if (nextSums.length > 0) dynamicAvgSum = Math.round(nextSums.reduce((a,b)=>a+b, 0) / nextSums.length);
 
-        // ===== 7. 계절 가중치 (2월 전용) =====
+        // ===== 계절 가중치 (2월 전용) =====
         const today = new Date();
-        const currentMonth = today.getMonth() + 1;  // 1~12
+        const currentMonth = today.getMonth() + 1;
         
         if (currentMonth === 2) {
-            // 우리가 분석한 2월 강세 16수
             const winterBoost = [16, 17, 38, 27, 20, 32, 37, 2, 5, 7, 12, 13, 15, 19, 22, 23];
             winterBoost.forEach(n => {
                 if (n >= 1 && n <= 45) {
-                    pScores[n] = (pScores[n] || 0) + 15;  // +15점 가중치
+                    pScores[n] = (pScores[n] || 0) + 15;
                 }
             });
         }
 
-        // ===== 8. 최종 점수 정렬 및 16수 선정 =====
+        // ===== 최종 점수 정렬 및 16수 선정 =====
         let scored = Object.keys(pScores).map(Number).sort((a,b) => pScores[b] - pScores[a]);
         basket = scored.slice(0, 16);
         machineFixed = [scored[0], scored[1], scored[2]];
 
-        // ===== 9. 월 표시 =====
+        // ===== 월 표시 =====
         const monthNames = ['','1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
         
         document.getElementById('status').innerHTML = `
@@ -346,7 +340,7 @@
         `;
     }
 
-    // ===== 수정된 process 함수 (9,10번 조합에 미출수 최대 4개) =====
+    // ===== process 함수 =====
     function process(limit) {
         analyze();
         const box = document.getElementById('console');
@@ -361,30 +355,21 @@
             let currentIdx = count + 1;
             let zeroCount = 0;
 
-            // ===== 수정: 9,10번 조합 미출수 처리 (최대 4개까지) =====
+            // 9,10번 조합 미출수 처리
             if (limit === 10 && (currentIdx === 9 || currentIdx === 10) && zeroFreqNums.length > 0) {
-                // 미출수 배열 복사
                 let availableZeros = [...zeroFreqNums];
-                
-                // 1~4개 중 랜덤하게 선택 (최대 4개,但 실제 개수보다 많을 순 없음)
                 let maxPossible = Math.min(4, availableZeros.length);
-                let selectCount = Math.floor(Math.random() * maxPossible) + 1;  // 1 ~ maxPossible
+                let selectCount = Math.floor(Math.random() * maxPossible) + 1;
                 
                 for(let i = 0; i < selectCount; i++) {
                     if(availableZeros.length === 0) break;
-                    
-                    // 랜덤 인덱스 선택
                     let randomIndex = Math.floor(Math.random() * availableZeros.length);
                     let selectedNum = availableZeros[randomIndex];
-                    
                     res.add(selectedNum);
                     zeroCount++;
-                    
-                    // 선택한 번호는 배열에서 제거 (중복 방지)
                     availableZeros.splice(randomIndex, 1);
                 }
             } else if (Math.random() > 0.8 && zeroFreqNums.length > 0 && zeroCount < 2) {
-                // 일반 조합에서 20% 확률로 미출수 1개 추가
                 let zeroNum = zeroFreqNums[Math.floor(Math.random() * zeroFreqNums.length)];
                 res.add(zeroNum);
                 zeroCount++;
@@ -392,7 +377,6 @@
 
             if(limit === 5) res.add(machineFixed[Math.floor(Math.random()*3)]);
 
-            // 후보수에서 채우기 (지난번호는 최대 2개)
             let shuffleBasket = [...basket].sort(() => Math.random() - 0.5);
             for(let n of shuffleBasket) {
                 if(res.size >= 6) break;
@@ -407,7 +391,6 @@
                 }
             }
 
-            // 부족한 번호 채우기 (지난번호는 최대 2개)
             while(res.size < 6) {
                 let rand = Math.floor(Math.random()*45)+1;
                 if(zeroFreqNums.includes(rand)) {
