@@ -126,7 +126,7 @@
     </div>
 
     <div id="console"></div>
-    <div class="small-note">※ 9,10번 조합에 미출수 포함</div>
+    <div class="small-note">※ 9,10번 조합에 미출수 포함 (최대 4개)</div>
 </div>
 
 <div id="popup" class="popup-overlay" style="display:none;">
@@ -255,12 +255,11 @@
         document.querySelector('.popup-title').innerHTML = `📦 ${userName}의 보관함 (${savedNumbers.length}개)`;
     }
 
-    // ===== 수정: 25회 → 22회 =====
+    // ===== 22회 기준 분석 =====
     function analyze() {
         let freq = {};
         for(let i=1; i<=45; i++) freq[i] = 0;
         
-        // ★ 22회 기준으로 변경!
         const zeroRange = 22;
         const data22 = FULL_DATA.slice(0, zeroRange);
         let freq22 = {};
@@ -304,6 +303,7 @@
         `;
     }
 
+    // ===== 수정된 process 함수 (9,10번 조합에 미출수 최대 4개) =====
     function process(limit) {
         analyze();
         const box = document.getElementById('console');
@@ -318,11 +318,30 @@
             let currentIdx = count + 1;
             let zeroCount = 0;
 
+            // ===== 수정: 9,10번 조합 미출수 처리 (최대 4개까지) =====
             if (limit === 10 && (currentIdx === 9 || currentIdx === 10) && zeroFreqNums.length > 0) {
-                let zeroNum = zeroFreqNums[Math.floor(Math.random() * zeroFreqNums.length)];
-                res.add(zeroNum);
-                zeroCount++;
+                // 미출수 배열 복사
+                let availableZeros = [...zeroFreqNums];
+                
+                // 1~4개 중 랜덤하게 선택 (최대 4개,但 실제 개수보다 많을 순 없음)
+                let maxPossible = Math.min(4, availableZeros.length);
+                let selectCount = Math.floor(Math.random() * maxPossible) + 1;  // 1 ~ maxPossible
+                
+                for(let i = 0; i < selectCount; i++) {
+                    if(availableZeros.length === 0) break;
+                    
+                    // 랜덤 인덱스 선택
+                    let randomIndex = Math.floor(Math.random() * availableZeros.length);
+                    let selectedNum = availableZeros[randomIndex];
+                    
+                    res.add(selectedNum);
+                    zeroCount++;
+                    
+                    // 선택한 번호는 배열에서 제거 (중복 방지)
+                    availableZeros.splice(randomIndex, 1);
+                }
             } else if (Math.random() > 0.8 && zeroFreqNums.length > 0 && zeroCount < 2) {
+                // 일반 조합에서 20% 확률로 미출수 1개 추가
                 let zeroNum = zeroFreqNums[Math.floor(Math.random() * zeroFreqNums.length)];
                 res.add(zeroNum);
                 zeroCount++;
@@ -330,6 +349,7 @@
 
             if(limit === 5) res.add(machineFixed[Math.floor(Math.random()*3)]);
 
+            // 후보수에서 채우기 (지난번호는 최대 2개)
             let shuffleBasket = [...basket].sort(() => Math.random() - 0.5);
             for(let n of shuffleBasket) {
                 if(res.size >= 6) break;
@@ -344,6 +364,7 @@
                 }
             }
 
+            // 부족한 번호 채우기 (지난번호는 최대 2개)
             while(res.size < 6) {
                 let rand = Math.floor(Math.random()*45)+1;
                 if(zeroFreqNums.includes(rand)) {
