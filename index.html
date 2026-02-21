@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -255,11 +256,15 @@
         document.querySelector('.popup-title').innerHTML = `📦 ${userName}의 보관함 (${savedNumbers.length}개)`;
     }
 
-    // ===== 22회 기준 분석 =====
+    // ===== 통합 분석 함수 (이동 분석 + 계절성 + 유사패턴) =====
     function analyze() {
         let freq = {};
         for(let i=1; i<=45; i++) freq[i] = 0;
         
+        // ===== 1. 이동 분석: 항상 최신 100개 데이터 유지 =====
+        // FULL_DATA는 이미 최신 100개 (1112~1211)
+        
+        // ===== 2. 미출수 분석 (최근 22회) =====
         const zeroRange = 22;
         const data22 = FULL_DATA.slice(0, zeroRange);
         let freq22 = {};
@@ -267,6 +272,7 @@
         data22.forEach(row => { for(let j=1; j<=7; j++) { if(row[j]) freq22[row[j]]++; } });
         zeroFreqNums = Object.keys(freq22).filter(n => freq22[n] === 0).map(Number).sort((a,b)=>a-b);
 
+        // ===== 3. 빈도 분석 (최근 30회) =====
         const targetRange = 30;
         const data30 = FULL_DATA.slice(0, targetRange);
         data30.forEach(row => { for(let j=1; j<=7; j++) { if(row[j]) freq[row[j]]++; } });
@@ -274,9 +280,11 @@
         let sortedByFreq = Object.keys(freq).map(Number).sort((a,b) => freq[b] - freq[a]);
         let top22Freq = sortedByFreq.slice(0, 22);
 
+        // ===== 4. 점수 초기화 =====
         let pScores = {};
         for(let i=1; i<=45; i++) pScores[i] = (freq[i] || 0) * 2;
         
+        // ===== 5. 유사패턴 분석 (30회 내 패턴) =====
         let nextSums = [];
         for(let i=1; i < targetRange; i++) {
             let currentNums = FULL_DATA[i].slice(1, 7);
@@ -288,14 +296,33 @@
             }
         }
 
+        // ===== 6. 평균 합계 계산 =====
         if (nextSums.length > 0) dynamicAvgSum = Math.round(nextSums.reduce((a,b)=>a+b, 0) / nextSums.length);
 
+        // ===== 7. 계절 가중치 (2월 전용) =====
+        const today = new Date();
+        const currentMonth = today.getMonth() + 1;  // 1~12
+        
+        if (currentMonth === 2) {
+            // 우리가 분석한 2월 강세 16수
+            const winterBoost = [16, 17, 38, 27, 20, 32, 37, 2, 5, 7, 12, 13, 15, 19, 22, 23];
+            winterBoost.forEach(n => {
+                if (n >= 1 && n <= 45) {
+                    pScores[n] = (pScores[n] || 0) + 15;  // +15점 가중치
+                }
+            });
+        }
+
+        // ===== 8. 최종 점수 정렬 및 16수 선정 =====
         let scored = Object.keys(pScores).map(Number).sort((a,b) => pScores[b] - pScores[a]);
         basket = scored.slice(0, 16);
         machineFixed = [scored[0], scored[1], scored[2]];
 
+        // ===== 9. 월 표시 =====
+        const monthNames = ['','1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
+        
         document.getElementById('status').innerHTML = `
-            <div><span class="highlight-gold">★ SHIN-UI-SON v24.1 엔진 가동</span></div>
+            <div><span class="highlight-gold">★ SHIN-UI-SON v24.1 통합 엔진 [${monthNames[currentMonth]}]</span></div>
             <div><span class="highlight-red">🎯 미출수(최근 22회 기준):</span> ${zeroFreqNums.length > 0 ? zeroFreqNums.join(', ') : '없음'}</div>
             <div>압축 후보 16수: ${basket.sort((a,b)=>a-b).join(', ')}</div>
             <div><span class="highlight-blue">📊 다음 회차 기대 합계:</span> ${dynamicAvgSum}</div>
