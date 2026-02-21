@@ -3,13 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SHIN-UI-SON v24.1 - 미출수 22회 집중 분석형</title>
+    <title>SHIN-UI-SON v24.1 - 1212회차 집중 분석형</title>
     <style>
         :root { --gold: #ffd700; --bg: #0b0b0b; --card: #1a1a1a; --accent: #00ffcc; --save: #ff00ff; --danger: #ff4444; }
         body { background-color: var(--bg); color: var(--gold); font-family: 'Malgun Gothic', sans-serif; padding: 10px; margin: 0; }
         .outer-border { border: 2px solid var(--gold); border-radius: 20px; padding: 15px; max-width: 480px; margin: 0 auto; }
         .header-box { text-align: center; margin-bottom: 10px; }
-        .next-episode { font-size: 22px; font-weight: 900; color: #fff; text-shadow: 0 0 10px rgba(255,215,0,0.5); }
+        
+        /* 1212회차 크게 표시 (분석 방법 수정 없음) */
+        .next-episode { 
+            font-size: 22px; 
+            font-weight: 900; 
+            color: #fff; 
+            text-shadow: 0 0 10px rgba(255,215,0,0.5);
+        }
+        
+        .big-round {
+            font-size: 60px;
+            font-weight: 900;
+            color: #ffd700;
+            text-shadow: 0 0 20px #ffd700;
+            line-height: 1.2;
+            margin: 5px 0;
+        }
         
         .status-info { 
             font-size: 11px; 
@@ -112,7 +128,8 @@
 
 <div class="outer-border">
     <div class="header-box">
-        <span class="next-episode">SHIN-UI-SON v24.1</span>
+        <div class="big-round">1212</div>
+        <div class="next-episode">SHIN-UI-SON v24.1</div>
         <div id="userDisplay" class="user-info"></div>
         <div id="status" class="status-info">엔진 초기화 중...</div>
     </div>
@@ -126,7 +143,7 @@
     </div>
 
     <div id="console"></div>
-    <div class="small-note">※ 9,10번 조합에 미출수 포함 (최대 4개)</div>
+    <div class="small-note">※ 9,10번 조합에 미출수 포함 (최대 4개) | 🎯 1212회차 예상</div>
 </div>
 
 <div id="popup" class="popup-overlay" style="display:none;">
