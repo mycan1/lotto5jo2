@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SHIN-UI-SON - 1212회차 (1번코드 적용)</title>
+    <title>SHIN-UI-SON - 1213회 (1번코드 적용)</title>
     <style>
         :root { --gold: #ffd700; --bg: #0b0b0b; --card: #1a1a1a; --accent: #00ffcc; --save: #ff00ff; --danger: #ff4444; }
         body { background-color: var(--bg); color: var(--gold); font-family: 'Malgun Gothic', sans-serif; padding: 10px; margin: 0; }
@@ -150,7 +150,7 @@
 <div class="outer-border">
     <div class="header-box">
         <div class="next-episode">SHIN-UI-SON + 1번코드</div>
-        <div class="round-text">예상 1212회차</div>
+        <div class="round-text">예상 1213회차</div>
         <div id="userDisplay" class="user-info"></div>
         <div id="status" class="status-info">엔진 초기화 중...</div>
     </div>
@@ -164,7 +164,7 @@
     </div>
 
     <div id="console"></div>
-    <div class="small-note">※ 9,10번 조합에 미출수 포함 (최대 4개) | 🎯 1212회차 예상</div>
+    <div class="small-note">※ 9,10번 조합에 미출수 포함 (최대 4개) | 🎯 1213회차 예상</div>
 </div>
 
 <div id="popup" class="popup-overlay" style="display:none;">
@@ -176,22 +176,23 @@
 </div>
 
 <script>
-    // ===== 필요한 6개 회차 데이터 (1211 + 52주 전 5개) =====
+    // ===== 1213회차 기준 6개 회차 데이터 (1212 + 52주 전 5개) =====
     const FULL_DATA = [
-        [1211, 23,26,27,35,38,40,10],
-        [1160, 7,13,18,36,39,45,19],
-        [1108, 7,19,26,37,39,44,27],
-        [1056, 13,20,24,32,36,45,29],
-        [1004, 7,15,30,37,39,44,18],
-        [952,  4,12,22,24,33,41,38]
+        [1212, 5,8,25,31,41,44,45],   // 이월수 계산용 (1212회)
+        [1161, 2,12,20,24,34,42,37],
+        [1109, 10,12,13,19,33,40,2],
+        [1057, 8,13,19,27,40,45,12],
+        [1005, 8,13,18,24,27,29,17],
+        [953,  7,9,22,27,37,42,34]
     ];
 
-    // ===== 1번코드 알고리즘 (17수 생성) =====
+    // ===== 1번코드 알고리즘 (1213회 기준) =====
     function lottoSystem00001212Final(allData, lastWinning) {
         let dataMap = {};
         allData.forEach(row => dataMap[row[0]] = row);
 
-        const targetRounds = [1160, 1108, 1056, 1004, 952];
+        // 1213회 기준 52주 전 5개 회차
+        const targetRounds = [1161, 1109, 1057, 1005, 953];
 
         let mainPool = [], bonusPool = [];
         targetRounds.forEach(r => {
@@ -371,14 +372,14 @@
         });
         zeroFreqNums = Object.keys(freq22).filter(n => freq22[n] === 0).map(Number).sort((a,b)=>a-b);
 
-        // 1번코드 실행
-        const lastWinning = FULL_DATA[0].slice(1, 7); // [23,26,27,35,38,40]
+        // 1번코드 실행: 이월수는 1212회차 (FULL_DATA[0])
+        const lastWinning = FULL_DATA[0].slice(1, 7); // [5,8,25,31,41,44]
         basket = lottoSystem00001212Final(FULL_DATA, lastWinning);
 
         machineFixed = basket.slice(0, 3);
 
-        // 기준 합계: 5개 회차(1160,1108,1056,1004,952) 평균
-        const sumRounds = [1160, 1108, 1056, 1004, 952];
+        // 기준 합계: 5개 회차(1161,1109,1057,1005,953) 평균
+        const sumRounds = [1161, 1109, 1057, 1005, 953];
         let sums = [];
         sumRounds.forEach(r => {
             let row = FULL_DATA.find(x => x[0] === r);
