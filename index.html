@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SHIN-UI-SON v24.1 - 1212회차 집중 분석형</title>
+    <title>SHIN-UI-SON - 1212회차 (1번코드 적용)</title>
     <style>
         :root { --gold: #ffd700; --bg: #0b0b0b; --card: #1a1a1a; --accent: #00ffcc; --save: #ff00ff; --danger: #ff4444; }
         body { background-color: var(--bg); color: var(--gold); font-family: 'Malgun Gothic', sans-serif; padding: 10px; margin: 0; }
@@ -41,7 +41,6 @@
         }
         
         .highlight-gold { color: var(--gold); font-weight: bold; }
-        .highlight-red { color: var(--danger); font-weight: bold; }
         .highlight-blue { color: #00ccff; font-weight: bold; }
         
         .btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 15px 0; }
@@ -53,10 +52,28 @@
         
         .row-line { background: var(--card); border-radius: 12px; padding: 12px; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; border: 1px solid #333; }
         .num-container { display: flex; gap: 5px; flex-grow: 1; justify-content: center; }
-        .num-box { width: 34px; height: 34px; line-height: 34px; text-align: center; font-size: 14px; font-weight: 900; border-radius: 50%; color: #fff; }
-        .fixed { background: linear-gradient(135deg, #00ffcc, #00a884); color: #000; } 
-        .zero { background: linear-gradient(135deg, #ff4444, #b30000); } 
-        .normal { background: #444; border: 1px solid var(--gold); }
+        
+        /* 번호 공 스타일 통일: 검정 배경 + 금색 글씨/테두리 */
+        .num-box {
+            width: 34px;
+            height: 34px;
+            line-height: 34px;
+            text-align: center;
+            font-size: 14px;
+            font-weight: 900;
+            border-radius: 50%;
+            background: #000000 !important;
+            color: var(--gold) !important;
+            border: 1px solid var(--gold) !important;
+        }
+        .num-box.fixed,
+        .num-box.zero,
+        .num-box.normal {
+            background: #000000 !important;
+            color: var(--gold) !important;
+            border: 1px solid var(--gold) !important;
+        }
+        
         .save-btn { font-size: 11px; background: var(--save); color: white; padding: 6px 10px; border-radius: 6px; cursor: pointer; }
         .badge { font-size: 10px; background: #333; padding: 2px 6px; border-radius: 10px; margin-left: 5px; color: #aaa; }
         
@@ -120,13 +137,19 @@
             font-size: 9px;
             text-align: center;
         }
+
+        /* 클릭 강조색 제거 */
+        *:focus, *:active {
+            outline: none;
+            -webkit-tap-highlight-color: transparent;
+        }
     </style>
 </head>
 <body>
 
 <div class="outer-border">
     <div class="header-box">
-        <div class="next-episode">SHIN-UI-SON v24.1</div>
+        <div class="next-episode">SHIN-UI-SON + 1번코드</div>
         <div class="round-text">예상 1212회차</div>
         <div id="userDisplay" class="user-info"></div>
         <div id="status" class="status-info">엔진 초기화 중...</div>
@@ -153,8 +176,74 @@
 </div>
 
 <script>
-    const FULL_DATA = [[1211,23,26,27,35,38,40,10],[1210,1,7,9,17,27,38,31],[1209,2,17,20,35,37,39,24],[1208,6,27,30,36,38,42,25],[1207,10,22,24,27,38,45,11],[1206,1,3,17,26,27,42,23],[1205,1,4,16,23,31,41,2],[1204,8,16,28,30,31,44,27],[1203,3,6,18,29,35,39,24],[1202,5,12,21,33,37,40,7],[1201,7,9,24,27,35,36,37],[1200,1,2,4,16,20,32,45],[1199,16,24,25,30,31,32,7],[1198,26,30,33,38,39,41,21],[1197,1,5,7,26,28,43,30],[1196,8,12,15,29,40,45,14],[1195,3,15,27,33,34,36,37],[1194,3,13,15,24,33,37,2],[1193,6,9,16,19,24,28,17],[1192,10,16,23,36,39,40,11],[1191,1,4,11,12,20,41,2],[1190,7,9,19,23,26,45,33],[1189,9,19,29,35,37,38,31],[1188,3,4,12,19,22,27,9],[1187,5,13,26,29,37,40,42],[1186,2,8,13,16,23,28,35],[1185,6,17,22,28,29,32,38],[1184,14,16,23,25,31,37,42],[1183,4,15,17,23,27,36,31],[1182,1,13,21,25,28,31,22],[1181,8,10,14,20,33,41,28],[1180,6,12,18,37,40,41,3],[1179,3,16,18,24,40,44,21],[1178,5,6,11,27,43,44,17],[1177,3,7,15,16,19,43,21],[1176,7,9,11,21,30,35,29],[1175,3,4,6,8,32,42,31],[1174,8,11,14,17,36,39,22],[1173,1,5,18,20,30,35,3],[1172,7,9,24,40,42,44,45],[1171,3,6,7,11,12,17,19],[1170,3,13,28,34,38,42,25],[1169,5,12,24,26,39,42,20],[1168,9,21,24,30,33,37,29],[1167,8,23,31,35,39,40,24],[1166,14,23,25,27,29,42,16],[1165,6,7,27,29,38,45,17],[1164,17,18,23,25,38,39,22],[1163,2,13,15,16,33,43,4],[1162,20,21,22,25,28,29,6],[1161,2,12,20,24,34,42,37],[1160,7,13,18,36,39,45,19],[1159,3,9,27,28,38,39,7],[1158,21,25,27,32,37,38,20],[1157,5,7,12,20,25,26,28],[1156,30,31,34,39,41,45,7],[1155,10,16,19,27,37,38,13],[1154,4,8,22,26,32,38,27],[1153,1,9,10,13,35,44,5],[1152,30,31,32,35,36,37,5],[1151,2,3,9,15,27,29,8],[1150,8,9,18,35,39,45,25],[1149,8,15,19,21,32,36,38],[1148,3,6,13,15,16,22,32],[1147,7,11,24,26,27,37,32],[1146,6,11,17,19,40,43,28],[1145,2,11,31,33,37,44,32],[1144,3,4,12,15,26,34,6],[1143,10,16,17,27,28,36,6],[1142,2,8,28,30,37,41,22],[1141,7,11,12,21,26,35,20],[1140,7,10,22,29,31,38,15],[1139,5,12,15,30,37,40,18],[1138,14,16,19,20,29,34,35],[1137,4,9,12,15,33,45,26],[1136,21,33,35,38,42,44,1],[1135,1,6,13,19,21,33,4],[1134,3,7,9,13,19,24,23],[1133,13,14,20,28,29,34,23],[1132,6,7,19,28,34,41,5],[1131,1,2,6,14,27,38,33],[1130,15,19,21,25,27,28,40],[1129,5,10,11,17,28,34,22],[1128,1,5,8,16,28,33,45],[1127,10,15,24,30,31,37,32],[1126,4,5,9,11,37,40,7],[1125,6,14,25,33,40,44,30],[1124,3,8,17,30,33,34,28],[1123,13,19,21,24,34,35,26],[1122,3,6,21,30,34,35,22],[1121,6,24,31,32,38,44,8],[1120,2,19,26,31,38,41,34],[1119,1,9,12,13,20,45,3],[1118,11,13,14,15,16,45,3],[1117,3,4,9,30,33,36,7],[1116,15,16,17,25,30,31,32],[1115,7,12,23,32,34,36,8],[1114,10,16,19,32,33,38,3],[1113,11,13,20,21,32,44,8],[1112,16,20,26,36,42,44,24]];
+    // ===== 필요한 6개 회차 데이터 (1211 + 52주 전 5개) =====
+    const FULL_DATA = [
+        [1211, 23,26,27,35,38,40,10],
+        [1160, 7,13,18,36,39,45,19],
+        [1108, 7,19,26,37,39,44,27],
+        [1056, 13,20,24,32,36,45,29],
+        [1004, 7,15,30,37,39,44,18],
+        [952,  4,12,22,24,33,41,38]
+    ];
 
+    // ===== 1번코드 알고리즘 (17수 생성) =====
+    function lottoSystem00001212Final(allData, lastWinning) {
+        let dataMap = {};
+        allData.forEach(row => dataMap[row[0]] = row);
+
+        const targetRounds = [1160, 1108, 1056, 1004, 952];
+
+        let mainPool = [], bonusPool = [];
+        targetRounds.forEach(r => {
+            if (dataMap[r]) {
+                mainPool.push(...dataMap[r].slice(1, 7));
+                bonusPool.push(dataMap[r][7]);
+            }
+        });
+
+        let survivors = Array.from(new Set([...mainPool, ...bonusPool]));
+
+        let mainFreq = {}, bonusFreq = {};
+        mainPool.forEach(n => mainFreq[n] = (mainFreq[n] || 0) + 1);
+        bonusPool.forEach(n => bonusFreq[n] = (bonusFreq[n] || 0) + 1);
+
+        let rankedAll = survivors.sort((a, b) => {
+            let aInLast = lastWinning.includes(a);
+            let bInLast = lastWinning.includes(b);
+            if (aInLast && !bInLast) return -1;
+            if (!aInLast && bInLast) return 1;
+            let aFreq = mainFreq[a] || 0, bFreq = mainFreq[b] || 0;
+            if (aFreq > bFreq) return -1;
+            if (aFreq < bFreq) return 1;
+            return a - b;
+        });
+
+        let final17 = rankedAll.slice(0, 13);
+        let remaining = rankedAll.slice(13);
+        let rebels = remaining.sort((a, b) => {
+            let aFreq = bonusFreq[a] || 0, bFreq = bonusFreq[b] || 0;
+            if (aFreq > bFreq) return -1;
+            if (aFreq < bFreq) return 1;
+            return a - b;
+        }).slice(0, 4);
+        final17.push(...rebels);
+
+        let sections = [[1,10], [11,20], [21,30], [31,40], [41,45]];
+        sections.forEach(([start, end]) => {
+            if (!final17.some(n => n >= start && n <= end)) {
+                let candidates = survivors.filter(n => n >= start && n <= end && !final17.includes(n));
+                if (candidates.length) {
+                    candidates.sort((a, b) => (bonusFreq[b]||0) - (bonusFreq[a]||0) || a - b);
+                    final17.pop();
+                    final17.push(candidates[0]);
+                }
+            }
+        });
+
+        return Array.from(new Set(final17)).sort((a, b) => a - b);
+    }
+
+    // ===== 전역 변수 =====
     let basket = [], zeroFreqNums = [], machineFixed = [];
     let dynamicAvgSum = 145;
     
@@ -215,7 +304,7 @@
         savedNumbers = localData ? JSON.parse(localData) : [];
         
         updateUserDisplay();
-        document.getElementById('status').innerHTML = `분석 초기화 중...`;
+        analyze();
     }
 
     function saveToBox(s) {
@@ -255,7 +344,7 @@
             return `
                 <div class="row-line" style="margin-bottom:10px; background:#2a2a2a;">
                     <div class="num-container">
-                        ${numbers.map(v=>`<span class="num-box normal" style="background:#444; font-size:12px;">${v}</span>`).join('')}
+                        ${numbers.map(v=>`<span class="num-box">${v}</span>`).join('')}
                     </div>
                     <div style="display:flex; gap:5px;">
                         <button onclick="loadFromStorage('${n}')" 
@@ -270,84 +359,52 @@
         document.querySelector('.popup-title').innerHTML = `📦 ${userName}의 보관함 (${savedNumbers.length}개)`;
     }
 
-    // ===== 통합 분석 함수 =====
+    // ===== 통합 분석 함수 (미출수 제거, 기준 합계 5개 회차 평균) =====
     function analyze() {
-        let freq = {};
-        for(let i=1; i<=45; i++) freq[i] = 0;
-        
-        // ===== 미출수 분석 (최근 22회) =====
-        const zeroRange = 22;
-        const data22 = FULL_DATA.slice(0, zeroRange);
+        // 미출수 계산 (내부적으로만 사용, 화면 표시 안 함)
         let freq22 = {};
         for(let i=1; i<=45; i++) freq22[i] = 0;
-        data22.forEach(row => { for(let j=1; j<=7; j++) { if(row[j]) freq22[row[j]]++; } });
+        FULL_DATA.forEach(row => {
+            for(let j=1; j<=7; j++) {
+                if(row[j]) freq22[row[j]]++;
+            }
+        });
         zeroFreqNums = Object.keys(freq22).filter(n => freq22[n] === 0).map(Number).sort((a,b)=>a-b);
 
-        // ===== 빈도 분석 (최근 30회) =====
-        const targetRange = 30;
-        const data30 = FULL_DATA.slice(0, targetRange);
-        data30.forEach(row => { for(let j=1; j<=7; j++) { if(row[j]) freq[row[j]]++; } });
+        // 1번코드 실행
+        const lastWinning = FULL_DATA[0].slice(1, 7); // [23,26,27,35,38,40]
+        basket = lottoSystem00001212Final(FULL_DATA, lastWinning);
 
-        let sortedByFreq = Object.keys(freq).map(Number).sort((a,b) => freq[b] - freq[a]);
-        let top22Freq = sortedByFreq.slice(0, 22);
+        machineFixed = basket.slice(0, 3);
 
-        // ===== 점수 초기화 =====
-        let pScores = {};
-        for(let i=1; i<=45; i++) pScores[i] = (freq[i] || 0) * 2;
-        
-        // ===== 유사패턴 분석 =====
-        let nextSums = [];
-        for(let i=1; i < targetRange; i++) {
-            let currentNums = FULL_DATA[i].slice(1, 7);
-            let hasTop22 = currentNums.some(n => top22Freq.includes(n));
-            if(hasTop22 && i+1 < FULL_DATA.length) {
-                FULL_DATA[i+1].slice(1, 7).forEach(n => pScores[n] += 5);
-                let sum = FULL_DATA[i+1].slice(1, 7).reduce((a,b)=>a+b, 0);
-                nextSums.push(sum);
-            }
+        // 기준 합계: 5개 회차(1160,1108,1056,1004,952) 평균
+        const sumRounds = [1160, 1108, 1056, 1004, 952];
+        let sums = [];
+        sumRounds.forEach(r => {
+            let row = FULL_DATA.find(x => x[0] === r);
+            if (row) sums.push(row.slice(1,7).reduce((a,b)=>a+b,0));
+        });
+        if (sums.length > 0) {
+            dynamicAvgSum = Math.round(sums.reduce((a,b)=>a+b,0) / sums.length);
+        } else {
+            dynamicAvgSum = 145; // fallback
         }
 
-        // ===== 평균 합계 계산 =====
-        if (nextSums.length > 0) dynamicAvgSum = Math.round(nextSums.reduce((a,b)=>a+b, 0) / nextSums.length);
-
-        // ===== 계절 가중치 (2월 전용) =====
-        const today = new Date();
-        const currentMonth = today.getMonth() + 1;
-        
-        if (currentMonth === 2) {
-            const winterBoost = [16, 17, 38, 27, 20, 32, 37, 2, 5, 7, 12, 13, 15, 19, 22, 23];
-            winterBoost.forEach(n => {
-                if (n >= 1 && n <= 45) {
-                    pScores[n] = (pScores[n] || 0) + 15;
-                }
-            });
-        }
-
-        // ===== 최종 점수 정렬 및 16수 선정 =====
-        let scored = Object.keys(pScores).map(Number).sort((a,b) => pScores[b] - pScores[a]);
-        basket = scored.slice(0, 16);
-        machineFixed = [scored[0], scored[1], scored[2]];
-
-        // ===== 월 표시 =====
-        const monthNames = ['','1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
-        
         document.getElementById('status').innerHTML = `
-            <div><span class="highlight-gold">★ SHIN-UI-SON v24.1 통합 엔진 [${monthNames[currentMonth]}]</span></div>
-            <div><span class="highlight-red">🎯 미출수(최근 22회 기준):</span> ${zeroFreqNums.length > 0 ? zeroFreqNums.join(', ') : '없음'}</div>
-            <div>압축 후보 16수: ${basket.sort((a,b)=>a-b).join(', ')}</div>
-            <div><span class="highlight-blue">📊 다음 회차 기대 합계:</span> ${dynamicAvgSum}</div>
-            <div><span class="highlight-blue">⚖️ 필터링 범위:</span> ${dynamicAvgSum-28} ~ ${dynamicAvgSum+28}</div>
+            <div><span class="highlight-gold">★ 1번코드 통합 엔진</span></div>
+            <div>AI 추천 17수: ${basket.join(', ')}</div>
+            <div><span class="highlight-blue">📊 기준 합계 (5회차 평균):</span> ${dynamicAvgSum} (${dynamicAvgSum-25}~${dynamicAvgSum+25})</div>
         `;
     }
 
-    // ===== process 함수 =====
+    // ===== 조합 생성 함수 =====
     function process(limit) {
         analyze();
         const box = document.getElementById('console');
         box.innerHTML = "";
         let count = 0, used = new Set(), safety = 0;
-        let minSum = dynamicAvgSum - 28;
-        let maxSum = dynamicAvgSum + 28;
+        let minSum = dynamicAvgSum - 25;
+        let maxSum = dynamicAvgSum + 25;
 
         while(count < limit && safety < 10000) {
             safety++;
@@ -355,7 +412,7 @@
             let currentIdx = count + 1;
             let zeroCount = 0;
 
-            // 9,10번 조합 미출수 처리
+            // 9,10번 조합 미출수 포함 (미출수 표시는 안 하지만 로직 유지)
             if (limit === 10 && (currentIdx === 9 || currentIdx === 10) && zeroFreqNums.length > 0) {
                 let availableZeros = [...zeroFreqNums];
                 let maxPossible = Math.min(4, availableZeros.length);
@@ -417,10 +474,7 @@
     }
 
     function renderRow(arr, target, key, specialMark = '') {
-        const html = arr.map(n => {
-            let cls = machineFixed.includes(n) ? "fixed" : (zeroFreqNums.includes(n) ? "zero" : "normal");
-            return `<span class="num-box ${cls}">${n}</span>`;
-        }).join('');
+        const html = arr.map(n => `<span class="num-box">${n}</span>`).join('');
         let specialHtml = specialMark ? `<span class="badge">${specialMark}</span>` : '';
         target.innerHTML += `<div class="row-line"><div class="num-container">${html}</div><div style="display: flex; align-items: center;">${specialHtml}<div class="save-btn" onclick="saveToBox('${key}')">저장</div></div></div>`;
     }
@@ -445,7 +499,6 @@
     
     window.onload = function() {
         initUser();
-        analyze();
     };
 </script>
 </body>
