@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SHIN-UI-SON - 1213회 (터치 게임 포함)</title>
+    <title>SHIN-UI-SON - 1213회 (터치 게임 수정)</title>
     <style>
         :root { --gold: #ffd700; --bg: #0b0b0b; --card: #1a1a1a; --accent: #00ffcc; --save: #ff00ff; --danger: #ff4444; }
         body { background-color: var(--bg); color: var(--gold); font-family: 'Malgun Gothic', sans-serif; padding: 10px; margin: 0; }
@@ -101,9 +101,13 @@
         .popup-close {
             position: absolute;
             top: 10px; right: 15px;
-            font-size: 24px;
-            cursor: pointer;
+            font-size: 28px;
+            background: transparent;
+            border: none;
             color: var(--gold);
+            cursor: pointer;
+            z-index: 1100;
+            padding: 5px 10px;
         }
         .popup-title {
             font-size: 18px;
@@ -161,6 +165,7 @@
             gap: 8px;
             justify-content: center;
             margin: 10px 0;
+            flex-wrap: wrap;
         }
         .selected-ball {
             width: 40px;
@@ -221,7 +226,7 @@
 <!-- 보관함 팝업 -->
 <div id="popup" class="popup-overlay" style="display:none;">
     <div class="popup-content">
-        <span class="popup-close" onclick="closePopup()">&times;</span>
+        <button class="popup-close" onclick="closePopup()">&times;</button>
         <div class="popup-title">📦 보관함</div>
         <div id="storage"></div>
     </div>
@@ -230,14 +235,14 @@
 <!-- 게임 팝업 (단일 게임) -->
 <div id="gamePopup" class="popup-overlay" style="display:none;">
     <div class="popup-content" style="max-width: 450px;">
-        <span class="popup-close" onclick="closeGame()">&times;</span>
+        <button class="popup-close" onclick="closeGame()" ontouchstart="event.stopPropagation(); closeGame();">&times;</button>
         <div class="popup-title">🎮 터치 러쉬</div>
         <div>
             <canvas id="gameCanvas" class="game-canvas"></canvas>
             <div class="selected-numbers" id="selectedNumbersContainer"></div>
             <div class="game-btn-group">
-                <button class="game-btn" onclick="resetGame()">리셋</button>
-                <button class="game-btn" id="saveComboBtn" onclick="saveGameCombo()" disabled>조합 저장</button>
+                <button class="game-btn" onclick="resetGame()" ontouchstart="event.stopPropagation(); resetGame();">리셋</button>
+                <button class="game-btn" id="saveComboBtn" onclick="saveGameCombo()" ontouchstart="event.stopPropagation(); saveGameCombo();" disabled>조합 저장</button>
             </div>
         </div>
     </div>
