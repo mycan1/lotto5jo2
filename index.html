@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SHIN-UI-SON - 1213회 (터치 게임 수정)</title>
+    <title>SHIN-UI-SON - 1213회 (게임 탭 수정)</title>
     <style>
         :root { --gold: #ffd700; --bg: #0b0b0b; --card: #1a1a1a; --accent: #00ffcc; --save: #ff00ff; --danger: #ff4444; }
         body { background-color: var(--bg); color: var(--gold); font-family: 'Malgun Gothic', sans-serif; padding: 10px; margin: 0; }
@@ -92,9 +92,9 @@
             border: 2px solid var(--gold);
             border-radius: 20px;
             padding: 20px;
-            max-width: 400px;
+            max-width: 450px;
             width: 90%;
-            max-height: 70vh;
+            max-height: 80vh;
             overflow-y: auto;
             position: relative;
         }
@@ -151,6 +151,36 @@
         }
 
         /* 게임 전용 스타일 */
+        .game-tabs {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #444;
+            padding-bottom: 5px;
+        }
+        .game-tab {
+            flex: 1;
+            background: #222;
+            color: #aaa;
+            border: 1px solid #444;
+            border-radius: 5px;
+            padding: 8px 0;
+            font-size: 14px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .game-tab.active {
+            background: var(--accent);
+            color: #000;
+            font-weight: bold;
+            border-color: var(--accent);
+        }
+        .game-panel {
+            display: none;
+        }
+        .game-panel.active {
+            display: block;
+        }
         .game-canvas {
             width: 100%;
             height: 300px;
@@ -158,7 +188,7 @@
             border-radius: 12px;
             border: 1px solid #444;
             margin: 10px 0;
-            touch-action: none; /* 스크롤 방지 */
+            touch-action: none;
         }
         .selected-numbers {
             display: flex;
@@ -198,6 +228,20 @@
             opacity: 0.3;
             cursor: not-allowed;
         }
+        .stat-box {
+            background: #222;
+            border: 1px solid #444;
+            border-radius: 8px;
+            padding: 10px;
+            margin: 10px 0;
+            text-align: left;
+            color: #fff;
+        }
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 5px 0;
+        }
     </style>
 </head>
 <body>
@@ -214,7 +258,7 @@
         <button class="btn-5set" onclick="process(5)">5조합 추출</button>
         <button class="btn-main" onclick="process(10)">10조합 추출</button>
         <button class="btn-sub" onclick="openPopup()">보관함</button>
-        <button class="btn-sub" onclick="openGame()">🎮 게임하기</button>
+        <button class="btn-sub" onclick="openGamePopup()">🎮 게임센터</button>
         <button class="btn-sub" onclick="clearStorage()">초기화</button>
         <button class="btn-sub btn-reset" onclick="location.reload()">새로고침</button>
     </div>
@@ -232,26 +276,51 @@
     </div>
 </div>
 
-<!-- 게임 팝업 (단일 게임) -->
+<!-- 게임 팝업 (2개 게임) -->
 <div id="gamePopup" class="popup-overlay" style="display:none;">
     <div class="popup-content" style="max-width: 450px;">
-        <button class="popup-close" onclick="closeGame()" ontouchstart="event.stopPropagation(); closeGame();">&times;</button>
-        <div class="popup-title">🎮 터치 러쉬</div>
-        <div>
+        <button class="popup-close" onclick="closeGamePopup()" ontouchstart="event.stopPropagation(); closeGamePopup();">&times;</button>
+        <div class="popup-title">🎮 게임센터</div>
+        
+        <!-- 게임 선택 탭 -->
+        <div class="game-tabs">
+            <button class="game-tab active" data-game="touch" onclick="switchGame('touch')">터치 러쉬</button>
+            <button class="game-tab" data-game="clicker" onclick="switchGame('clicker')">클리커 어드벤처</button>
+        </div>
+
+        <!-- 터치 러쉬 게임 패널 -->
+        <div id="touchGame" class="game-panel active">
             <canvas id="gameCanvas" class="game-canvas"></canvas>
             <div class="selected-numbers" id="selectedNumbersContainer"></div>
             <div class="game-btn-group">
-                <button class="game-btn" onclick="resetGame()" ontouchstart="event.stopPropagation(); resetGame();">리셋</button>
-                <button class="game-btn" id="saveComboBtn" onclick="saveGameCombo()" ontouchstart="event.stopPropagation(); saveGameCombo();" disabled>조합 저장</button>
+                <button class="game-btn" onclick="resetTouchGame()" ontouchstart="event.stopPropagation(); resetTouchGame();">리셋</button>
+                <button class="game-btn" id="saveComboBtn" onclick="saveTouchCombo()" ontouchstart="event.stopPropagation(); saveTouchCombo();" disabled>조합 저장</button>
+            </div>
+        </div>
+
+        <!-- 클리커 어드벤처 게임 패널 -->
+        <div id="clickerGame" class="game-panel">
+            <div class="stat-box">
+                <div class="stat-row"><span>💰 골드:</span> <span id="clickerGold">0</span></div>
+                <div class="stat-row"><span>⚔️ 공격력:</span> <span id="clickerAttack">1</span></div>
+                <div class="stat-row"><span>📊 레벨:</span> <span id="clickerLevel">1</span></div>
+                <div class="stat-row"><span>👾 몬스터 HP:</span> <span id="monsterHp">10</span></div>
+            </div>
+            <div style="text-align: center; margin: 20px 0;">
+                <div style="font-size: 24px; margin-bottom: 10px;" id="monsterEmoji">👹</div>
+                <button class="game-btn" onclick="attackMonster()" ontouchstart="event.stopPropagation(); attackMonster();">⚔️ 공격!</button>
+            </div>
+            <div class="game-btn-group">
+                <button class="game-btn" onclick="upgradeAttack()" ontouchstart="event.stopPropagation(); upgradeAttack();">🔨 공격력 업그레이드 (10골드)</button>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-    // ===== 1213회차 기준 6개 회차 데이터 (1212 + 52주 전 5개) =====
+    // ===== 1213회차 기준 6개 회차 데이터 =====
     const FULL_DATA = [
-        [1212, 5,8,25,31,41,44,45],   // 이월수 계산용 (1212회)
+        [1212, 5,8,25,31,41,44,45],
         [1161, 2,12,20,24,34,42,37],
         [1109, 10,12,13,19,33,40,2],
         [1057, 8,13,19,27,40,45,12],
@@ -259,13 +328,11 @@
         [953,  7,9,22,27,37,42,34]
     ];
 
-    // ===== 1번코드 알고리즘 (1213회 기준) =====
+    // ===== 1번코드 알고리즘 =====
     function lottoSystem00001212Final(allData, lastWinning) {
         let dataMap = {};
         allData.forEach(row => dataMap[row[0]] = row);
-
         const targetRounds = [1161, 1109, 1057, 1005, 953];
-
         let mainPool = [], bonusPool = [];
         targetRounds.forEach(r => {
             if (dataMap[r]) {
@@ -273,13 +340,10 @@
                 bonusPool.push(dataMap[r][7]);
             }
         });
-
         let survivors = Array.from(new Set([...mainPool, ...bonusPool]));
-
         let mainFreq = {}, bonusFreq = {};
         mainPool.forEach(n => mainFreq[n] = (mainFreq[n] || 0) + 1);
         bonusPool.forEach(n => bonusFreq[n] = (bonusFreq[n] || 0) + 1);
-
         let rankedAll = survivors.sort((a, b) => {
             let aInLast = lastWinning.includes(a);
             let bInLast = lastWinning.includes(b);
@@ -290,7 +354,6 @@
             if (aFreq < bFreq) return 1;
             return a - b;
         });
-
         let final17 = rankedAll.slice(0, 13);
         let remaining = rankedAll.slice(13);
         let rebels = remaining.sort((a, b) => {
@@ -300,7 +363,6 @@
             return a - b;
         }).slice(0, 4);
         final17.push(...rebels);
-
         let sections = [[1,10], [11,20], [21,30], [31,40], [41,45]];
         sections.forEach(([start, end]) => {
             if (!final17.some(n => n >= start && n <= end)) {
@@ -312,106 +374,83 @@
                 }
             }
         });
-
         return Array.from(new Set(final17)).sort((a, b) => a - b);
     }
 
     // ===== 전역 변수 =====
     let basket = [], zeroFreqNums = [], machineFixed = [];
     let dynamicAvgSum = 145;
-    
-    // ===== 이름 관리 기능 =====
     let userName = "";
     let savedNumbers = [];
-    
+
+    // ===== 사용자 관리 =====
     function updateUserDisplay() {
         const userDisplay = document.getElementById('userDisplay');
         userDisplay.innerHTML = `👤 현재 접속자: ${userName} 
             <button class="change-name-btn" onclick="changeName()">이름변경</button>
             <button class="change-name-btn" style="background:#ff4444;" onclick="deleteUser()">삭제</button>`;
     }
-    
     function changeName() {
         const newName = prompt("새로운 이름을 입력하세요:", userName);
         if (newName && newName.trim() !== "") {
             userName = newName.trim();
             localStorage.setItem('lottoUserName', userName);
-            
             const storageKey = `lottoSave_${userName}`;
-            const localData = localStorage.getItem(storageKey);
-            savedNumbers = localData ? JSON.parse(localData) : [];
-            
+            savedNumbers = JSON.parse(localStorage.getItem(storageKey)) || [];
             updateUserDisplay();
             analyze();
             alert(`이름이 ${userName}(으)로 변경되었습니다.`);
         }
     }
-    
     function deleteUser() {
         if(confirm(`정말 ${userName}님의 모든 기록을 삭제하시겠습니까?`)) {
-            const storageKey = `lottoSave_${userName}`;
-            localStorage.removeItem(storageKey);
-            
+            localStorage.removeItem(`lottoSave_${userName}`);
             userName = "guest_" + Math.random().toString(36).substring(2, 6);
             localStorage.setItem('lottoUserName', userName);
             savedNumbers = [];
-            
             updateUserDisplay();
             analyze();
             alert(`새로운 손님 계정(${userName})으로 시작합니다.`);
         }
     }
-
     function initUser() {
         const savedName = localStorage.getItem('lottoUserName');
-        
-        if (savedName) {
-            userName = savedName;
-        } else {
+        if (savedName) userName = savedName;
+        else {
             userName = "guest_" + Math.random().toString(36).substring(2, 6);
             localStorage.setItem('lottoUserName', userName);
         }
-        
         const storageKey = `lottoSave_${userName}`;
-        const localData = localStorage.getItem(storageKey);
-        savedNumbers = localData ? JSON.parse(localData) : [];
-        
+        savedNumbers = JSON.parse(localStorage.getItem(storageKey)) || [];
         updateUserDisplay();
         analyze();
     }
-
     function saveToBox(s) {
         if(!savedNumbers.includes(s)) {
             savedNumbers.push(s);
-            const storageKey = `lottoSave_${userName}`;
-            localStorage.setItem(storageKey, JSON.stringify(savedNumbers));
+            localStorage.setItem(`lottoSave_${userName}`, JSON.stringify(savedNumbers));
             alert(`${userName}님의 보관함에 저장되었습니다.`);
         } else {
             alert("이미 저장된 번호입니다.");
         }
     }
-
     function deleteSingleItem(index) {
         if(confirm("이 조합을 삭제할까요?")) {
             savedNumbers.splice(index, 1);
-            const storageKey = `lottoSave_${userName}`;
-            localStorage.setItem(storageKey, JSON.stringify(savedNumbers));
+            localStorage.setItem(`lottoSave_${userName}`, JSON.stringify(savedNumbers));
             renderStorage();
         }
     }
-
     function loadFromStorage(nums) {
         alert(`선택된 번호: ${nums.split(',').join(', ')}`);
         closePopup();
     }
-
     function renderStorage() {
         const st = document.getElementById('storage');
         if(savedNumbers.length === 0) { 
             st.innerHTML = "<div style='text-align:center; padding:20px; opacity:0.5;'>저장된 조합이 없습니다.</div>"; 
             return; 
         }
-        
         st.innerHTML = savedNumbers.map((n, index) => {
             const numbers = n.split(',');
             return `
@@ -428,38 +467,28 @@
                 </div>
             `;
         }).join('');
-        
         document.querySelector('.popup-title').innerHTML = `📦 ${userName}의 보관함 (${savedNumbers.length}개)`;
     }
 
-    // ===== 통합 분석 함수 (미출수 제거, 기준 합계 5개 회차 평균) =====
+    // ===== 분석 함수 =====
     function analyze() {
         let freq22 = {};
         for(let i=1; i<=45; i++) freq22[i] = 0;
         FULL_DATA.forEach(row => {
-            for(let j=1; j<=7; j++) {
-                if(row[j]) freq22[row[j]]++;
-            }
+            for(let j=1; j<=7; j++) if(row[j]) freq22[row[j]]++;
         });
         zeroFreqNums = Object.keys(freq22).filter(n => freq22[n] === 0).map(Number).sort((a,b)=>a-b);
-
-        const lastWinning = FULL_DATA[0].slice(1, 7); // [5,8,25,31,41,44]
+        const lastWinning = FULL_DATA[0].slice(1, 7);
         basket = lottoSystem00001212Final(FULL_DATA, lastWinning);
-
         machineFixed = basket.slice(0, 3);
-
         const sumRounds = [1161, 1109, 1057, 1005, 953];
         let sums = [];
         sumRounds.forEach(r => {
             let row = FULL_DATA.find(x => x[0] === r);
             if (row) sums.push(row.slice(1,7).reduce((a,b)=>a+b,0));
         });
-        if (sums.length > 0) {
-            dynamicAvgSum = Math.round(sums.reduce((a,b)=>a+b,0) / sums.length);
-        } else {
-            dynamicAvgSum = 145;
-        }
-
+        if (sums.length > 0) dynamicAvgSum = Math.round(sums.reduce((a,b)=>a+b,0) / sums.length);
+        else dynamicAvgSum = 145;
         document.getElementById('status').innerHTML = `
             <div><span class="highlight-gold">★ 2번코드 통합 엔진</span></div>
             <div>AI 추천 17수: ${basket.join(', ')}</div>
@@ -467,7 +496,7 @@
         `;
     }
 
-    // ===== 조합 생성 함수 =====
+    // ===== 조합 생성 =====
     function process(limit) {
         analyze();
         const box = document.getElementById('console');
@@ -475,18 +504,15 @@
         let count = 0, used = new Set(), safety = 0;
         let minSum = dynamicAvgSum - 25;
         let maxSum = dynamicAvgSum + 25;
-
         while(count < limit && safety < 10000) {
             safety++;
             let res = new Set();
             let currentIdx = count + 1;
             let zeroCount = 0;
-
             if (limit === 10 && (currentIdx === 9 || currentIdx === 10) && zeroFreqNums.length > 0) {
                 let availableZeros = [...zeroFreqNums];
                 let maxPossible = Math.min(4, availableZeros.length);
                 let selectCount = Math.floor(Math.random() * maxPossible) + 1;
-                
                 for(let i = 0; i < selectCount; i++) {
                     if(availableZeros.length === 0) break;
                     let randomIndex = Math.floor(Math.random() * availableZeros.length);
@@ -500,13 +526,10 @@
                 res.add(zeroNum);
                 zeroCount++;
             }
-
             if(limit === 5) res.add(machineFixed[Math.floor(Math.random()*3)]);
-
             let shuffleBasket = [...basket].sort(() => Math.random() - 0.5);
             for(let n of shuffleBasket) {
                 if(res.size >= 6) break;
-                
                 if(zeroFreqNums.includes(n)) {
                     if(zeroCount < 2) {
                         res.add(n);
@@ -516,7 +539,6 @@
                     res.add(n);
                 }
             }
-
             while(res.size < 6) {
                 let rand = Math.floor(Math.random()*45)+1;
                 if(zeroFreqNums.includes(rand)) {
@@ -528,11 +550,9 @@
                     res.add(rand);
                 }
             }
-
             let finalArr = Array.from(res).sort((a,b)=>a-b);
             let sum = finalArr.reduce((a,b)=>a+b, 0);
             let key = finalArr.join(',');
-
             if(!used.has(key) && sum >= minSum && sum <= maxSum) {
                 used.add(key);
                 count++;
@@ -541,69 +561,90 @@
             }
         }
     }
-
     function renderRow(arr, target, key, specialMark = '') {
         const html = arr.map(n => `<span class="num-box">${n}</span>`).join('');
         let specialHtml = specialMark ? `<span class="badge">${specialMark}</span>` : '';
         target.innerHTML += `<div class="row-line"><div class="num-container">${html}</div><div style="display: flex; align-items: center;">${specialHtml}<div class="save-btn" onclick="saveToBox('${key}')">저장</div></div></div>`;
     }
 
+    // ===== 팝업 함수 =====
     function openPopup() {
         document.getElementById('popup').style.display = 'flex';
         renderStorage();
     }
-
     function closePopup() {
         document.getElementById('popup').style.display = 'none';
     }
-
     function clearStorage() {
         if(confirm("보관함을 초기화할까요?")) {
             savedNumbers = [];
-            const storageKey = `lottoSave_${userName}`;
-            localStorage.removeItem(storageKey);
+            localStorage.removeItem(`lottoSave_${userName}`);
             renderStorage();
         }
     }
 
-    // ===== 게임 관련 코드 =====
-    let game = null;
-    let gameInterval = null;
-    let selectedNumbers = [];
+    // ===== 게임 관련 변수 =====
+    let touchGame = null;
+    let touchInterval = null;
+    let touchSelected = [];
 
     // 게임 팝업 열기
-    function openGame() {
+    function openGamePopup() {
         analyze(); // 최신 17수 가져오기
         document.getElementById('gamePopup').style.display = 'flex';
-        startGame();
+        // 항상 터치 게임을 기본으로 표시
+        switchGame('touch');
+        // 클리커 게임 상태 로드
+        loadClickerState();
     }
-
-    function closeGame() {
+    function closeGamePopup() {
         document.getElementById('gamePopup').style.display = 'none';
-        if (gameInterval) {
-            cancelAnimationFrame(gameInterval);
-            gameInterval = null;
+        if (touchInterval) {
+            cancelAnimationFrame(touchInterval);
+            touchInterval = null;
         }
     }
 
-    // 게임 초기화 및 시작
-    function startGame() {
+    // ===== 게임 탭 전환 =====
+    function switchGame(game) {
+        // 모든 탭 비활성화
+        document.querySelectorAll('.game-tab').forEach(tab => {
+            tab.classList.remove('active');
+        });
+        // 모든 게임 패널 숨기기
+        document.querySelectorAll('.game-panel').forEach(panel => {
+            panel.classList.remove('active');
+        });
+
+        if (game === 'touch') {
+            // 터치 게임 활성화
+            document.querySelector('[data-game="touch"]').classList.add('active');
+            document.getElementById('touchGame').classList.add('active');
+            startTouchGame();
+        } else {
+            // 클리커 게임 활성화
+            document.querySelector('[data-game="clicker"]').classList.add('active');
+            document.getElementById('clickerGame').classList.add('active');
+            // 클리커 게임 UI 업데이트
+            loadClickerState();
+        }
+    }
+
+    // ===== 터치 게임 =====
+    function startTouchGame() {
         const canvas = document.getElementById('gameCanvas');
+        if (!canvas) return;
         canvas.width = canvas.clientWidth;
         canvas.height = canvas.clientHeight;
-
-        // 게임 객체 생성
-        game = {
+        touchGame = {
             ctx: canvas.getContext('2d'),
             width: canvas.width,
             height: canvas.height,
             numbers: [],
-            highlightSet: new Set(basket) // AI 추천 17수
+            highlightSet: new Set(basket)
         };
-
-        // 1~45 숫자 생성, 랜덤 위치/속도
         for (let i = 1; i <= 45; i++) {
-            game.numbers.push({
+            touchGame.numbers.push({
                 num: i,
                 x: Math.random() * (canvas.width - 40) + 20,
                 y: Math.random() * (canvas.height - 40) + 20,
@@ -612,33 +653,20 @@
                 radius: 20
             });
         }
-
-        // 선택된 숫자 초기화
-        selectedNumbers = [];
-        updateSelectedDisplay();
-
-        // 애니메이션 시작
-        if (gameInterval) cancelAnimationFrame(gameInterval);
-        gameInterval = requestAnimationFrame(updateGame);
+        touchSelected = [];
+        updateTouchDisplay();
+        if (touchInterval) cancelAnimationFrame(touchInterval);
+        touchInterval = requestAnimationFrame(updateTouchGame);
     }
-
-    // 게임 루프
-    function updateGame() {
-        if (!game) return;
-
-        const ctx = game.ctx;
-        const w = game.width;
-        const h = game.height;
-
-        // 배경 지우기
+    function updateTouchGame() {
+        if (!touchGame) return;
+        const ctx = touchGame.ctx;
+        const w = touchGame.width;
+        const h = touchGame.height;
         ctx.clearRect(0, 0, w, h);
-
-        // 숫자 위치 업데이트 및 벽 충돌
-        game.numbers.forEach(num => {
+        touchGame.numbers.forEach(num => {
             num.x += num.vx;
             num.y += num.vy;
-
-            // 벽 충돌 반사
             if (num.x - num.radius < 0 || num.x + num.radius > w) {
                 num.vx *= -1;
                 num.x = Math.max(num.radius, Math.min(w - num.radius, num.x));
@@ -647,12 +675,9 @@
                 num.vy *= -1;
                 num.y = Math.max(num.radius, Math.min(h - num.radius, num.y));
             }
-
-            // 그리기
             ctx.beginPath();
             ctx.arc(num.x, num.y, num.radius, 0, 2 * Math.PI);
-            // AI 추천 번호는 금색 테두리 + 두께
-            if (game.highlightSet.has(num.num)) {
+            if (touchGame.highlightSet.has(num.num)) {
                 ctx.strokeStyle = '#ffd700';
                 ctx.lineWidth = 4;
                 ctx.fillStyle = '#000000';
@@ -663,32 +688,24 @@
             }
             ctx.fill();
             ctx.stroke();
-
-            // 숫자 텍스트
             ctx.fillStyle = '#ffd700';
             ctx.font = 'bold 14px Malgun Gothic';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
             ctx.fillText(num.num, num.x, num.y);
         });
-
-        gameInterval = requestAnimationFrame(updateGame);
+        touchInterval = requestAnimationFrame(updateTouchGame);
     }
-
-    // 캔버스 터치 이벤트
     document.addEventListener('touchstart', (e) => {
-        if (!game || document.getElementById('gamePopup').style.display !== 'flex') return;
-
+        if (!touchGame || document.getElementById('gamePopup').style.display !== 'flex' || !document.getElementById('touchGame').classList.contains('active')) return;
         const canvas = document.getElementById('gameCanvas');
         const rect = canvas.getBoundingClientRect();
         const touch = e.touches[0];
         const x = (touch.clientX - rect.left) * (canvas.width / rect.width);
         const y = (touch.clientY - rect.top) * (canvas.height / rect.height);
-
-        // 숫자와 충돌 검사 (가까운 순)
         let touchedNum = null;
         let minDist = Infinity;
-        game.numbers.forEach(num => {
+        touchGame.numbers.forEach(num => {
             const dx = num.x - x;
             const dy = num.y - y;
             const dist = Math.sqrt(dx*dx + dy*dy);
@@ -697,49 +714,96 @@
                 touchedNum = num.num;
             }
         });
-
-        if (touchedNum !== null && !selectedNumbers.includes(touchedNum)) {
-            selectedNumbers.push(touchedNum);
-            updateSelectedDisplay();
+        if (touchedNum !== null && !touchSelected.includes(touchedNum)) {
+            touchSelected.push(touchedNum);
+            updateTouchDisplay();
         }
-
-        e.preventDefault(); // 스크롤 방지
+        e.preventDefault();
     }, { passive: false });
-
-    // 선택된 숫자 UI 업데이트
-    function updateSelectedDisplay() {
+    function updateTouchDisplay() {
         const container = document.getElementById('selectedNumbersContainer');
-        const html = selectedNumbers.map(n => `<div class="selected-ball">${n}</div>`).join('');
+        const html = touchSelected.map(n => `<div class="selected-ball">${n}</div>`).join('');
         container.innerHTML = html || '<div style="color:#666;">터치해서 숫자를 선택하세요</div>';
-
         const saveBtn = document.getElementById('saveComboBtn');
-        saveBtn.disabled = selectedNumbers.length !== 6;
+        saveBtn.disabled = touchSelected.length !== 6;
     }
-
-    // 리셋
-    function resetGame() {
-        if (game) {
-            // 위치 랜덤 재설정
-            game.numbers.forEach(num => {
-                num.x = Math.random() * (game.width - 40) + 20;
-                num.y = Math.random() * (game.height - 40) + 20;
+    function resetTouchGame() {
+        if (touchGame) {
+            touchGame.numbers.forEach(num => {
+                num.x = Math.random() * (touchGame.width - 40) + 20;
+                num.y = Math.random() * (touchGame.height - 40) + 20;
                 num.vx = (Math.random() - 0.5) * 3;
                 num.vy = (Math.random() - 0.5) * 3;
             });
-            selectedNumbers = [];
-            updateSelectedDisplay();
+            touchSelected = [];
+            updateTouchDisplay();
+        }
+    }
+    function saveTouchCombo() {
+        if (touchSelected.length === 6) {
+            const sorted = [...touchSelected].sort((a,b)=>a-b);
+            const key = sorted.join(',');
+            saveToBox(key);
+            touchSelected = [];
+            updateTouchDisplay();
         }
     }
 
-    // 조합 저장
-    function saveGameCombo() {
-        if (selectedNumbers.length === 6) {
-            const sorted = [...selectedNumbers].sort((a,b)=>a-b);
-            const key = sorted.join(',');
-            saveToBox(key);
-            // 선택 초기화
-            selectedNumbers = [];
-            updateSelectedDisplay();
+    // ===== 클리커 게임 =====
+    let clickerState = {
+        gold: 0,
+        attack: 1,
+        level: 1,
+        monsterHp: 10,
+        monsterMaxHp: 10
+    };
+    function loadClickerState() {
+        const saved = localStorage.getItem('clickerState');
+        if (saved) {
+            clickerState = JSON.parse(saved);
+        } else {
+            clickerState = { gold: 0, attack: 1, level: 1, monsterHp: 10, monsterMaxHp: 10 };
+        }
+        updateClickerUI();
+    }
+    function saveClickerState() {
+        localStorage.setItem('clickerState', JSON.stringify(clickerState));
+    }
+    function updateClickerUI() {
+        document.getElementById('clickerGold').innerText = clickerState.gold;
+        document.getElementById('clickerAttack').innerText = clickerState.attack;
+        document.getElementById('clickerLevel').innerText = clickerState.level;
+        document.getElementById('monsterHp').innerText = clickerState.monsterHp;
+        const emoji = document.getElementById('monsterEmoji');
+        if (clickerState.monsterHp <= 0) emoji.innerText = '💀';
+        else if (clickerState.monsterHp < clickerState.monsterMaxHp / 2) emoji.innerText = '😫';
+        else emoji.innerText = '👹';
+    }
+    function attackMonster() {
+        if (clickerState.monsterHp <= 0) {
+            clickerState.monsterHp = clickerState.monsterMaxHp;
+        }
+        clickerState.monsterHp -= clickerState.attack;
+        if (clickerState.monsterHp <= 0) {
+            clickerState.gold += 10 * clickerState.level;
+            clickerState.monsterHp = clickerState.monsterMaxHp;
+            if (clickerState.gold >= clickerState.level * 100) {
+                clickerState.level++;
+                clickerState.monsterMaxHp = 10 * clickerState.level;
+                clickerState.monsterHp = clickerState.monsterMaxHp;
+            }
+        }
+        updateClickerUI();
+        saveClickerState();
+    }
+    function upgradeAttack() {
+        if (clickerState.gold >= 10) {
+            clickerState.gold -= 10;
+            clickerState.attack++;
+            updateClickerUI();
+            saveClickerState();
+        } else {
+            alert('골드가 부족합니다.');
         }
     }
 
