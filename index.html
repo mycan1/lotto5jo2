@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SHIN-UI-SON - 1213회 (1번코드 적용)</title>
+    <title>SHIN-UI-SON - 1213회 (게임센터 포함)</title>
     <style>
         :root { --gold: #ffd700; --bg: #0b0b0b; --card: #1a1a1a; --accent: #00ffcc; --save: #ff00ff; --danger: #ff4444; }
         body { background-color: var(--bg); color: var(--gold); font-family: 'Malgun Gothic', sans-serif; padding: 10px; margin: 0; }
@@ -77,6 +77,7 @@
         .save-btn { font-size: 11px; background: var(--save); color: white; padding: 6px 10px; border-radius: 6px; cursor: pointer; }
         .badge { font-size: 10px; background: #333; padding: 2px 6px; border-radius: 10px; margin-left: 5px; color: #aaa; }
         
+        /* 팝업 공통 */
         .popup-overlay {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -111,6 +112,7 @@
             text-align: center;
             color: var(--gold);
         }
+        
         .user-info {
             background: #333;
             color: var(--accent);
@@ -143,6 +145,70 @@
             outline: none;
             -webkit-tap-highlight-color: transparent;
         }
+
+        /* 게임센터 스타일 */
+        .game-tabs {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #444;
+            padding-bottom: 5px;
+        }
+        .game-tab {
+            flex: 1;
+            background: #222;
+            color: #aaa;
+            border: 1px solid #444;
+            border-radius: 5px;
+            padding: 8px 0;
+            font-size: 12px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .game-tab.active {
+            background: var(--accent);
+            color: #000;
+            font-weight: bold;
+            border-color: var(--accent);
+        }
+        .game-content {
+            min-height: 200px;
+            text-align: center;
+        }
+        .game-btn {
+            background: var(--accent);
+            color: #000;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
+            font-size: 14px;
+            margin: 10px;
+            cursor: pointer;
+        }
+        .game-result {
+            font-size: 16px;
+            margin-top: 15px;
+            color: var(--gold);
+        }
+        .number-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 5px;
+            margin: 10px 0;
+        }
+        .number-cell {
+            background: #222;
+            border: 1px solid #444;
+            border-radius: 5px;
+            padding: 8px 0;
+            font-size: 14px;
+            color: #fff;
+        }
+        .number-cell.highlight {
+            background: var(--gold);
+            color: #000;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -159,6 +225,7 @@
         <button class="btn-5set" onclick="process(5)">5조합 추출</button>
         <button class="btn-main" onclick="process(10)">10조합 추출</button>
         <button class="btn-sub" onclick="openPopup()">보관함</button>
+        <button class="btn-sub" onclick="openGameCenter()">🎮 게임센터</button>
         <button class="btn-sub" onclick="clearStorage()">초기화</button>
         <button class="btn-sub btn-reset" onclick="location.reload()">새로고침</button>
     </div>
@@ -167,11 +234,28 @@
     <div class="small-note">※ 9,10번 조합에 미출수 포함 (최대 4개) | 🎯 1213회차 예상</div>
 </div>
 
+<!-- 보관함 팝업 -->
 <div id="popup" class="popup-overlay" style="display:none;">
     <div class="popup-content">
         <span class="popup-close" onclick="closePopup()">&times;</span>
         <div class="popup-title">📦 보관함</div>
         <div id="storage"></div>
+    </div>
+</div>
+
+<!-- 게임센터 팝업 -->
+<div id="gamePopup" class="popup-overlay" style="display:none;">
+    <div class="popup-content">
+        <span class="popup-close" onclick="closeGameCenter()">&times;</span>
+        <div class="popup-title">🎮 게임센터</div>
+        <div class="game-tabs">
+            <button class="game-tab active" data-game="reaction" onclick="switchGame('reaction')">반응속도</button>
+            <button class="game-tab" data-game="holzzak" onclick="switchGame('holzzak')">홀짝</button>
+            <button class="game-tab" data-game="survival" onclick="switchGame('survival')">숫자생존</button>
+        </div>
+        <div id="gameContent" class="game-content">
+            <!-- 초기 게임 (반응속도) 표시 -->
+        </div>
     </div>
 </div>
 
@@ -191,7 +275,6 @@
         let dataMap = {};
         allData.forEach(row => dataMap[row[0]] = row);
 
-        // 1213회 기준 52주 전 5개 회차
         const targetRounds = [1161, 1109, 1057, 1005, 953];
 
         let mainPool = [], bonusPool = [];
@@ -362,7 +445,6 @@
 
     // ===== 통합 분석 함수 (미출수 제거, 기준 합계 5개 회차 평균) =====
     function analyze() {
-        // 미출수 계산 (내부적으로만 사용, 화면 표시 안 함)
         let freq22 = {};
         for(let i=1; i<=45; i++) freq22[i] = 0;
         FULL_DATA.forEach(row => {
@@ -372,13 +454,10 @@
         });
         zeroFreqNums = Object.keys(freq22).filter(n => freq22[n] === 0).map(Number).sort((a,b)=>a-b);
 
-        // 1번코드 실행: 이월수는 1212회차 (FULL_DATA[0])
-        const lastWinning = FULL_DATA[0].slice(1, 7); // [5,8,25,31,41,44]
+        const lastWinning = FULL_DATA[0].slice(1, 7);
         basket = lottoSystem00001212Final(FULL_DATA, lastWinning);
-
         machineFixed = basket.slice(0, 3);
 
-        // 기준 합계: 5개 회차(1161,1109,1057,1005,953) 평균
         const sumRounds = [1161, 1109, 1057, 1005, 953];
         let sums = [];
         sumRounds.forEach(r => {
@@ -388,7 +467,7 @@
         if (sums.length > 0) {
             dynamicAvgSum = Math.round(sums.reduce((a,b)=>a+b,0) / sums.length);
         } else {
-            dynamicAvgSum = 145; // fallback
+            dynamicAvgSum = 145;
         }
 
         document.getElementById('status').innerHTML = `
@@ -413,7 +492,6 @@
             let currentIdx = count + 1;
             let zeroCount = 0;
 
-            // 9,10번 조합 미출수 포함 (미출수 표시는 안 하지만 로직 유지)
             if (limit === 10 && (currentIdx === 9 || currentIdx === 10) && zeroFreqNums.length > 0) {
                 let availableZeros = [...zeroFreqNums];
                 let maxPossible = Math.min(4, availableZeros.length);
@@ -480,6 +558,7 @@
         target.innerHTML += `<div class="row-line"><div class="num-container">${html}</div><div style="display: flex; align-items: center;">${specialHtml}<div class="save-btn" onclick="saveToBox('${key}')">저장</div></div></div>`;
     }
 
+    // ===== 보관함 팝업 함수 =====
     function openPopup() {
         document.getElementById('popup').style.display = 'flex';
         renderStorage();
@@ -489,15 +568,172 @@
         document.getElementById('popup').style.display = 'none';
     }
 
-    function clearStorage() {
-        if(confirm("보관함을 초기화할까요?")) {
-            savedNumbers = [];
-            const storageKey = `lottoSave_${userName}`;
-            localStorage.removeItem(storageKey);
-            renderStorage();
+    // ===== 게임센터 관련 =====
+    let currentGame = 'reaction';
+    let gameState = {};
+
+    function openGameCenter() {
+        document.getElementById('gamePopup').style.display = 'flex';
+        switchGame(currentGame);
+    }
+
+    function closeGameCenter() {
+        document.getElementById('gamePopup').style.display = 'none';
+    }
+
+    function switchGame(game) {
+        currentGame = game;
+        document.querySelectorAll('.game-tab').forEach(tab => {
+            tab.classList.remove('active');
+            if(tab.dataset.game === game) tab.classList.add('active');
+        });
+        renderGame(game);
+    }
+
+    function renderGame(game) {
+        const content = document.getElementById('gameContent');
+        if (game === 'reaction') {
+            content.innerHTML = `
+                <div style="margin:10px 0;">
+                    <p>화면이 초록색으로 바뀌면 클릭하세요!</p>
+                    <div id="reactionBox" style="width:100%; height:150px; background:#222; border-radius:10px; display:flex; align-items:center; justify-content:center; color:#fff; cursor:pointer; transition:0.1s;" onclick="handleReactionClick()">
+                        준비되면 시작 버튼을 누르세요
+                    </div>
+                    <button class="game-btn" onclick="startReaction()">시작</button>
+                    <div id="reactionResult" class="game-result"></div>
+                </div>
+            `;
+            gameState.reaction = { state: 'idle', timer: null, startTime: 0 };
+        } else if (game === 'holzzak') {
+            content.innerHTML = `
+                <div style="margin:10px 0;">
+                    <p>AI가 선택한 번호가 홀일까요? 짝일까요?</p>
+                    <div style="display:flex; gap:10px; justify-content:center;">
+                        <button class="game-btn" onclick="guessHolzzak('홀')">홀</button>
+                        <button class="game-btn" onclick="guessHolzzak('짝')">짝</button>
+                    </div>
+                    <div id="holzzakResult" class="game-result"></div>
+                </div>
+            `;
+            gameState.holzzak = { score: 0 };
+        } else if (game === 'survival') {
+            // 숫자 생존 게임: 1~45 중 랜덤 제거, 마지막까지 남을 숫자 맞히기
+            content.innerHTML = `
+                <div style="margin:10px 0;">
+                    <p>매초 하나씩 숫자가 사라집니다. 마지막까지 남을 숫자를 선택하세요!</p>
+                    <div id="survivalGrid" class="number-grid"></div>
+                    <button class="game-btn" onclick="startSurvival()">시작</button>
+                    <div id="survivalResult" class="game-result"></div>
+                </div>
+            `;
+            gameState.survival = { active: false, numbers: [], target: null, timer: null };
         }
     }
-    
+
+    // ===== 반응속도 게임 =====
+    function startReaction() {
+        const box = document.getElementById('reactionBox');
+        const result = document.getElementById('reactionResult');
+        if (!box) return;
+        gameState.reaction.state = 'waiting';
+        box.style.background = '#222';
+        box.innerText = '기다리세요...';
+        result.innerText = '';
+
+        const delay = Math.random() * 2000 + 1000; // 1~3초
+        gameState.reaction.timer = setTimeout(() => {
+            if (gameState.reaction.state === 'waiting') {
+                gameState.reaction.state = 'ready';
+                box.style.background = '#00aa00';
+                box.innerText = '클릭!';
+                gameState.reaction.startTime = performance.now();
+            }
+        }, delay);
+    }
+
+    function handleReactionClick() {
+        const box = document.getElementById('reactionBox');
+        const result = document.getElementById('reactionResult');
+        if (!box || !result) return;
+
+        if (gameState.reaction.state === 'ready') {
+            const reactionTime = performance.now() - gameState.reaction.startTime;
+            result.innerText = `반응속도: ${reactionTime.toFixed(0)}ms`;
+            box.style.background = '#222';
+            box.innerText = '다시 시작?';
+            gameState.reaction.state = 'idle';
+            clearTimeout(gameState.reaction.timer);
+        } else if (gameState.reaction.state === 'waiting') {
+            result.innerText = '너무 빨랐어요! 다시 시작하세요.';
+            box.style.background = '#222';
+            box.innerText = '준비';
+            gameState.reaction.state = 'idle';
+            clearTimeout(gameState.reaction.timer);
+        }
+    }
+
+    // ===== 홀짝 게임 =====
+    function guessHolzzak(choice) {
+        const resultDiv = document.getElementById('holzzakResult');
+        const aiNum = Math.floor(Math.random() * 45) + 1;
+        const isOdd = aiNum % 2 === 1;
+        const correct = (choice === '홀' && isOdd) || (choice === '짝' && !isOdd);
+        if (correct) {
+            gameState.holzzak.score++;
+            resultDiv.innerHTML = `✅ 정답! (AI 선택: ${aiNum})<br>현재 점수: ${gameState.holzzak.score}`;
+        } else {
+            gameState.holzzak.score = 0;
+            resultDiv.innerHTML = `❌ 틀렸어요! (AI 선택: ${aiNum})<br>점수 초기화. 다시 도전!`;
+        }
+    }
+
+    // ===== 숫자 생존 게임 =====
+    function startSurvival() {
+        if (gameState.survival.active) return;
+        gameState.survival.active = true;
+        // 1~45 배열 생성
+        let numbers = Array.from({ length: 45 }, (_, i) => i + 1);
+        // 랜덤 셔플
+        for (let i = numbers.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [numbers[i], numbers[j]] = [numbers[j], numbers[i]];
+        }
+        gameState.survival.numbers = numbers;
+        gameState.survival.target = numbers[Math.floor(Math.random() * numbers.length)]; // 정답 (임의로 마지막까지 남을 숫자)
+        renderSurvivalGrid();
+
+        // 1초마다 하나씩 제거
+        gameState.survival.timer = setInterval(() => {
+            if (gameState.survival.numbers.length <= 1) {
+                clearInterval(gameState.survival.timer);
+                gameState.survival.active = false;
+                document.getElementById('survivalResult').innerHTML = `게임 종료! 정답은 ${gameState.survival.target} 였습니다.`;
+                return;
+            }
+            // 랜덤하게 하나 제거 (target이 제거되지 않도록 주의)
+            let idx = Math.floor(Math.random() * gameState.survival.numbers.length);
+            // target이 제거되지 않도록 보정 (단, numbers.length가 1일 때는 위에서 처리)
+            while (gameState.survival.numbers[idx] === gameState.survival.target && gameState.survival.numbers.length > 1) {
+                idx = Math.floor(Math.random() * gameState.survival.numbers.length);
+            }
+            gameState.survival.numbers.splice(idx, 1);
+            renderSurvivalGrid();
+        }, 1000);
+    }
+
+    function renderSurvivalGrid() {
+        const grid = document.getElementById('survivalGrid');
+        if (!grid) return;
+        grid.innerHTML = '';
+        gameState.survival.numbers.slice(0, 25).forEach(n => { // 최대 25개만 표시 (화면 제한)
+            const cell = document.createElement('div');
+            cell.className = 'number-cell';
+            cell.innerText = n;
+            grid.appendChild(cell);
+        });
+    }
+
+    // ===== 초기화 및 분석 실행 =====
     window.onload = function() {
         initUser();
     };
