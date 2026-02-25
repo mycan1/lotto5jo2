@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SHIN-UI-SON - 1213회 (완전판 + 복기 + 보너스)</title>
+    <title>SHIN-UI-SON - 1213회 (복기 버튼 추가)</title>
     <style>
         :root { --gold: #ffd700; --bg: #0b0b0b; --card: #1a1a1a; --accent: #00ffcc; --save: #ff00ff; --danger: #ff4444; }
         body { background-color: var(--bg); color: var(--gold); font-family: 'Malgun Gothic', sans-serif; padding: 10px; margin: 0; }
@@ -76,12 +76,32 @@
         .highlight-gold { color: var(--gold); font-weight: bold; }
         .highlight-blue { color: #00ccff; font-weight: bold; }
         
-        .btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 15px 0; }
-        button { border-radius: 10px; font-weight: bold; cursor: pointer; border: none; height: 50px; transition: 0.2s; }
+        .btn-group { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 8px; 
+            margin: 15px 0; 
+        }
+        button { 
+            border-radius: 10px; 
+            font-weight: bold; 
+            cursor: pointer; 
+            border: none; 
+            height: 50px; 
+            transition: 0.2s; 
+        }
         .btn-5set { background: linear-gradient(135deg, #00ffcc, #00a884); color: #000; font-size: 16px; }
         .btn-main { background: linear-gradient(135deg, #ffd700, #b8860b); color: #000; font-size: 16px; }
         .btn-sub { background: #222; color: #fff; border: 1px solid #444; }
         .btn-reset { grid-column: span 2; background: #333; color: #aaa; height: 40px; margin-top: 5px; }
+        .btn-review { 
+            grid-column: span 2; 
+            background: #ff00ff; 
+            color: white; 
+            font-size: 16px; 
+            height: 45px; 
+            margin-top: 5px; 
+        }
         
         .row-line { background: var(--card); border-radius: 12px; padding: 12px; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; border: 1px solid #333; }
         .num-container { display: flex; gap: 5px; flex-grow: 1; justify-content: center; }
@@ -346,11 +366,9 @@
         <button class="btn-sub" onclick="openGamePopup()">🎮 게임센터</button>
         <button class="btn-sub" onclick="clearStorage()">초기화</button>
         <button class="btn-sub btn-reset" onclick="location.reload()">새로고침</button>
-    </div>
-
-    <!-- 복기 버튼 (게임 버튼 아래) -->
-    <div style="text-align: center; margin: 5px 0 15px 0;">
-        <button class="btn-sub" onclick="openReviewPopup()" style="width: 200px;">📊 복기</button>
+        
+        <!-- 복기 버튼 (게임센터 아래 빈 공간에 배치) -->
+        <button class="btn-review" onclick="openReviewPopup()">📊 복기</button>
     </div>
 
     <div id="console"></div>
