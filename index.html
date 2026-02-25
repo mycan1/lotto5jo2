@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SHIN-UI-SON - 1213회 (게임 2종)</title>
+    <title>SHIN-UI-SON - 1213회 (완전판)</title>
     <style>
         :root { --gold: #ffd700; --bg: #0b0b0b; --card: #1a1a1a; --accent: #00ffcc; --save: #ff00ff; --danger: #ff4444; }
         body { background-color: var(--bg); color: var(--gold); font-family: 'Malgun Gothic', sans-serif; padding: 10px; margin: 0; }
@@ -18,11 +18,38 @@
         }
         
         .round-text {
-            font-size: 32px;
+            font-size: 24px;
             font-weight: 900;
             color: #ffd700;
             text-shadow: 0 0 15px #ffd700;
             margin: 0 0 5px 0;
+        }
+        
+        .base-info {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            justify-content: center;
+            align-items: center;
+            margin: 8px 0;
+        }
+        .base-num-box {
+            width: 28px;
+            height: 28px;
+            line-height: 28px;
+            text-align: center;
+            font-size: 12px;
+            font-weight: 900;
+            border-radius: 50%;
+            background: #000000;
+            color: var(--gold);
+            border: 1px solid var(--gold);
+            display: inline-block;
+        }
+        .bonus-label {
+            color: #888;
+            font-size: 10px;
+            margin: 0 2px;
         }
         
         .status-info { 
@@ -255,6 +282,7 @@
     <div class="header-box">
         <div class="next-episode">SHIN-UI-SON + 2번코드</div>
         <div class="round-text">예상 1213회차</div>
+        <div class="base-info" id="baseRoundInfo"></div>
         <div id="userDisplay" class="user-info"></div>
         <div id="status" class="status-info">엔진 초기화 중...</div>
     </div>
@@ -287,13 +315,11 @@
         <button class="popup-close" onclick="closeGamePopup()" ontouchstart="event.stopPropagation(); closeGamePopup();">&times;</button>
         <div class="popup-title">🎮 게임센터</div>
         
-        <!-- 게임 선택 탭 (터치 개선) -->
         <div class="game-tabs">
             <button class="game-tab active" data-game="touch" onclick="switchGame('touch')" ontouchstart="event.stopPropagation(); switchGame('touch');">터치 러쉬</button>
             <button class="game-tab" data-game="reaction" onclick="switchGame('reaction')" ontouchstart="event.stopPropagation(); switchGame('reaction');">반응속도</button>
         </div>
 
-        <!-- 터치 러쉬 게임 패널 -->
         <div id="touchGame" class="game-panel active">
             <canvas id="gameCanvas" class="game-canvas"></canvas>
             <div class="selected-numbers" id="selectedNumbersContainer"></div>
@@ -303,7 +329,6 @@
             </div>
         </div>
 
-        <!-- 반응속도 게임 패널 -->
         <div id="reactionGame" class="game-panel">
             <div style="text-align: center; margin: 20px 0;">
                 <div class="reaction-box" id="reactionBox" onclick="handleReactionClick()" ontouchstart="event.stopPropagation(); handleReactionClick();">
@@ -488,6 +513,15 @@
         });
         if (sums.length > 0) dynamicAvgSum = Math.round(sums.reduce((a,b)=>a+b,0) / sums.length);
         else dynamicAvgSum = 145;
+
+        // 1212회차 본번호 + 보너스 분리 표시
+        const baseNums = FULL_DATA[0].slice(1, 7);
+        const bonus = FULL_DATA[0][7];
+        let ballHtml = baseNums.map(n => `<span class="base-num-box">${n}</span>`).join('');
+        ballHtml += `<span class="bonus-label">보너스</span>`;
+        ballHtml += `<span class="base-num-box">${bonus}</span>`;
+        document.getElementById('baseRoundInfo').innerHTML = ballHtml;
+
         document.getElementById('status').innerHTML = `
             <div><span class="highlight-gold">★ 2번코드 통합 엔진</span></div>
             <div>AI 추천 17수: ${basket.join(', ')}</div>
@@ -586,16 +620,14 @@
     let touchGame = null;
     let touchInterval = null;
     let touchSelected = [];
-    // 반응속도 게임 변수
     let reactionState = 'idle';
     let reactionTimer = null;
     let reactionStartTime = 0;
 
-    // 게임 팝업 열기
     function openGamePopup() {
-        analyze(); // 최신 17수 가져오기
+        analyze();
         document.getElementById('gamePopup').style.display = 'flex';
-        switchGame('touch'); // 기본값 터치 게임
+        switchGame('touch');
     }
     function closeGamePopup() {
         document.getElementById('gamePopup').style.display = 'none';
@@ -606,19 +638,16 @@
         clearTimeout(reactionTimer);
     }
 
-    // ===== 게임 탭 전환 =====
     function switchGame(game) {
         document.querySelectorAll('.game-tab').forEach(tab => tab.classList.remove('active'));
         document.querySelectorAll('.game-panel').forEach(panel => panel.classList.remove('active'));
-
         if (game === 'touch') {
             document.querySelector('[data-game="touch"]').classList.add('active');
             document.getElementById('touchGame').classList.add('active');
             startTouchGame();
-        } else if (game === 'reaction') {
+        } else {
             document.querySelector('[data-game="reaction"]').classList.add('active');
             document.getElementById('reactionGame').classList.add('active');
-            // 반응속도 게임 초기화
             const box = document.getElementById('reactionBox');
             if (box) {
                 box.style.background = '#222';
@@ -758,7 +787,7 @@
         box.style.background = '#222';
         box.innerText = '기다리세요...';
         result.innerText = '';
-        const delay = Math.random() * 2000 + 1000; // 1~3초
+        const delay = Math.random() * 2000 + 1000;
         clearTimeout(reactionTimer);
         reactionTimer = setTimeout(() => {
             if (reactionState === 'waiting') {
@@ -769,7 +798,6 @@
             }
         }, delay);
     }
-
     function handleReactionClick() {
         const box = document.getElementById('reactionBox');
         const result = document.getElementById('reactionResult');
