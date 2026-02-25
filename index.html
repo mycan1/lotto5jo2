@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SHIN-UI-SON - 1213회 (완전판 + 누적번호)</title>
+    <title>SHIN-UI-SON - 1213회 (완전판 + 복기 + 보너스)</title>
     <style>
         :root { --gold: #ffd700; --bg: #0b0b0b; --card: #1a1a1a; --accent: #00ffcc; --save: #ff00ff; --danger: #ff4444; }
         body { background-color: var(--bg); color: var(--gold); font-family: 'Malgun Gothic', sans-serif; padding: 10px; margin: 0; }
@@ -286,6 +286,42 @@
             color: var(--gold);
             text-align: center;
         }
+
+        /* 복기 입력 스타일 */
+        .winning-input {
+            display: flex;
+            gap: 5px;
+            justify-content: center;
+            margin: 15px 0;
+            flex-wrap: wrap;
+        }
+        .winning-input input {
+            width: 40px;
+            height: 40px;
+            text-align: center;
+            background: #222;
+            border: 1px solid #444;
+            color: #fff;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        .result-box {
+            background: #222;
+            border: 1px solid #444;
+            border-radius: 8px;
+            padding: 10px;
+            margin: 10px 0;
+        }
+        .match-count {
+            font-size: 18px;
+            color: var(--gold);
+        }
+        .combo-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px;
+            border-bottom: 1px solid #333;
+        }
     </style>
 </head>
 <body>
@@ -312,6 +348,11 @@
         <button class="btn-sub btn-reset" onclick="location.reload()">새로고침</button>
     </div>
 
+    <!-- 복기 버튼 (게임 버튼 아래) -->
+    <div style="text-align: center; margin: 5px 0 15px 0;">
+        <button class="btn-sub" onclick="openReviewPopup()" style="width: 200px;">📊 복기</button>
+    </div>
+
     <div id="console"></div>
     <div class="small-note">※ 9,10번 조합에 미출수 포함 (최대 4개) | 🎯 1213회차 예상</div>
 </div>
@@ -336,7 +377,6 @@
             <button class="game-tab" data-game="reaction" onclick="switchGame('reaction')" ontouchstart="event.stopPropagation(); switchGame('reaction');">반응속도</button>
         </div>
 
-        <!-- 터치 러쉬 게임 패널 -->
         <div id="touchGame" class="game-panel active">
             <canvas id="gameCanvas" class="game-canvas"></canvas>
             <div class="selected-numbers" id="selectedNumbersContainer"></div>
@@ -346,7 +386,6 @@
             </div>
         </div>
 
-        <!-- 반응속도 게임 패널 (번호 누적 기능 추가) -->
         <div id="reactionGame" class="game-panel">
             <div style="text-align: center; margin: 20px 0;">
                 <div class="reaction-box" id="reactionBox" onclick="handleReactionClick()" ontouchstart="event.stopPropagation(); handleReactionClick();">
@@ -360,6 +399,37 @@
                     <button class="game-btn" onclick="startReaction()" ontouchstart="event.stopPropagation(); startReaction();">새 게임</button>
                 </div>
             </div>
+        </div>
+    </div>
+</div>
+
+<!-- 복기 팝업 (보너스 포함) -->
+<div id="reviewPopup" class="popup-overlay" style="display:none;">
+    <div class="popup-content">
+        <button class="popup-close" onclick="closeReviewPopup()">&times;</button>
+        <div class="popup-title">📊 복기 (보너스 포함)</div>
+        <div style="text-align: center; margin-bottom: 10px;">당첨 번호 6개 + 보너스 번호를 입력하세요</div>
+        <div class="winning-input">
+            <input type="number" id="win1" min="1" max="45" step="1" placeholder="1">
+            <input type="number" id="win2" min="1" max="45" step="1" placeholder="2">
+            <input type="number" id="win3" min="1" max="45" step="1" placeholder="3">
+            <input type="number" id="win4" min="1" max="45" step="1" placeholder="4">
+            <input type="number" id="win5" min="1" max="45" step="1" placeholder="5">
+            <input type="number" id="win6" min="1" max="45" step="1" placeholder="6">
+        </div>
+        <div style="text-align: center; margin: 5px 0;">보너스 번호</div>
+        <div class="winning-input">
+            <input type="number" id="bonus" min="1" max="45" step="1" placeholder="보너스">
+        </div>
+        <div style="text-align: center; margin: 10px 0;">
+            <button class="game-btn" onclick="compareNumbers()">비교하기</button>
+        </div>
+        <div id="reviewResult" class="result-box">
+            <div>AI 추천 17수와 비교:</div>
+            <div id="aiMatch" class="match-count">-</div>
+            <div id="aiBonus" style="font-size: 14px; color: #aaa;"></div>
+            <div style="margin-top: 10px;">보관함 조합 비교:</div>
+            <div id="savedMatch" style="max-height: 200px; overflow-y: auto;"></div>
         </div>
     </div>
 </div>
@@ -822,7 +892,6 @@
         box.style.background = '#222';
         box.innerText = '기다리세요...';
         if (result) result.innerText = '';
-        // 선택 번호는 초기화하지 않음 (리셋 버튼에서만 초기화)
         const delay = Math.random() * 2000 + 1000;
         clearTimeout(reactionTimer);
         reactionTimer = setTimeout(() => {
@@ -845,7 +914,6 @@
             const randomNum = Math.floor(Math.random() * 45) + 1;
             result.innerText = `반응속도: ${reactionTime.toFixed(0)}ms`;
             
-            // 중복 방지: 이미 선택된 번호는 추가하지 않음
             if (!reactionSelected.includes(randomNum)) {
                 reactionSelected.push(randomNum);
                 updateReactionSelectedDisplay();
@@ -878,6 +946,81 @@
             reactionSelected = [];
             updateReactionSelectedDisplay();
             startReaction();
+        }
+    }
+
+    // ===== 복기 팝업 함수 =====
+    function openReviewPopup() {
+        analyze(); // 최신 basket 갱신
+        // 입력 필드 초기화
+        document.getElementById('win1').value = '';
+        document.getElementById('win2').value = '';
+        document.getElementById('win3').value = '';
+        document.getElementById('win4').value = '';
+        document.getElementById('win5').value = '';
+        document.getElementById('win6').value = '';
+        document.getElementById('bonus').value = '';
+        document.getElementById('aiMatch').innerText = '-';
+        document.getElementById('aiBonus').innerText = '';
+        document.getElementById('savedMatch').innerHTML = '';
+        document.getElementById('reviewPopup').style.display = 'flex';
+    }
+
+    function closeReviewPopup() {
+        document.getElementById('reviewPopup').style.display = 'none';
+    }
+
+    function compareNumbers() {
+        // 당첨번호 읽기
+        const win = [
+            parseInt(document.getElementById('win1').value),
+            parseInt(document.getElementById('win2').value),
+            parseInt(document.getElementById('win3').value),
+            parseInt(document.getElementById('win4').value),
+            parseInt(document.getElementById('win5').value),
+            parseInt(document.getElementById('win6').value)
+        ];
+        const bonus = parseInt(document.getElementById('bonus').value);
+
+        // 유효성 검사
+        if (win.some(isNaN) || isNaN(bonus)) {
+            alert('모든 번호를 입력해주세요.');
+            return;
+        }
+        if (new Set(win).size !== 6) {
+            alert('당첨번호는 중복 없이 6개를 입력해야 합니다.');
+            return;
+        }
+
+        const winSet = new Set(win);
+
+        // 1. AI 추천 17수와 비교
+        const aiMatchCount = basket.filter(n => winSet.has(n)).length;
+        const aiBonusMatch = basket.includes(bonus);
+        document.getElementById('aiMatch').innerText = `${aiMatchCount}개 일치`;
+        document.getElementById('aiBonus').innerHTML = aiBonusMatch ? '(보너스 번호 포함)' : '';
+
+        // 2. 보관함 조합과 비교
+        const savedDiv = document.getElementById('savedMatch');
+        if (savedNumbers.length === 0) {
+            savedDiv.innerHTML = '저장된 조합이 없습니다.';
+        } else {
+            let html = '';
+            savedNumbers.forEach(combo => {
+                const nums = combo.split(',').map(Number);
+                const matchCount = nums.filter(n => winSet.has(n)).length;
+                const hasBonus = nums.includes(bonus);
+                let rankInfo = '';
+                if (matchCount === 6) rankInfo = '🥇 1등';
+                else if (matchCount === 5 && hasBonus) rankInfo = '🥈 2등';
+                else if (matchCount === 5) rankInfo = '🥉 3등';
+                else if (matchCount === 4) rankInfo = '4등';
+                else if (matchCount === 3) rankInfo = '5등';
+                else rankInfo = '낙첨';
+
+                html += `<div class="combo-item"><span>${combo}</span><span>${matchCount}개 ${rankInfo}</span></div>`;
+            });
+            savedDiv.innerHTML = html;
         }
     }
 
