@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SHIN-UI-SON - 1213회 (완전판 + 랜덤번호)</title>
+    <title>SHIN-UI-SON - 1213회 (완전판 + 누적번호)</title>
     <style>
         :root { --gold: #ffd700; --bg: #0b0b0b; --card: #1a1a1a; --accent: #00ffcc; --save: #ff00ff; --danger: #ff4444; }
         body { background-color: var(--bg); color: var(--gold); font-family: 'Malgun Gothic', sans-serif; padding: 10px; margin: 0; }
@@ -292,10 +292,13 @@
 
 <div class="outer-border">
     <div class="header-box">
+        <!-- 1212 당첨번호 레이블 + 번호 공 (맨 위) -->
         <div class="prev-win-label">📌 1212 당첨번호</div>
+        <div class="base-info" id="baseRoundInfo"></div>
+        
+        <!-- 그 아래에 기존 내용 -->
         <div class="next-episode">SHIN-UI-SON + 2번코드</div>
         <div class="round-text">예상 1213회차</div>
-        <div class="base-info" id="baseRoundInfo"></div>
         <div id="userDisplay" class="user-info"></div>
         <div id="status" class="status-info">엔진 초기화 중...</div>
     </div>
@@ -333,6 +336,7 @@
             <button class="game-tab" data-game="reaction" onclick="switchGame('reaction')" ontouchstart="event.stopPropagation(); switchGame('reaction');">반응속도</button>
         </div>
 
+        <!-- 터치 러쉬 게임 패널 -->
         <div id="touchGame" class="game-panel active">
             <canvas id="gameCanvas" class="game-canvas"></canvas>
             <div class="selected-numbers" id="selectedNumbersContainer"></div>
@@ -342,14 +346,19 @@
             </div>
         </div>
 
+        <!-- 반응속도 게임 패널 (번호 누적 기능 추가) -->
         <div id="reactionGame" class="game-panel">
             <div style="text-align: center; margin: 20px 0;">
                 <div class="reaction-box" id="reactionBox" onclick="handleReactionClick()" ontouchstart="event.stopPropagation(); handleReactionClick();">
                     시작하려면 누르세요
                 </div>
                 <div class="reaction-result" id="reactionResult"></div>
-                <div class="random-number" id="randomNumberDisplay"></div>
-                <button class="game-btn" onclick="startReaction()" ontouchstart="event.stopPropagation(); startReaction();" style="margin-top:10px;">새 게임</button>
+                <div class="selected-numbers" id="reactionSelectedContainer"></div>
+                <div class="game-btn-group">
+                    <button class="game-btn" onclick="resetReactionGame()" ontouchstart="event.stopPropagation(); resetReactionGame();">리셋</button>
+                    <button class="game-btn" id="saveReactionBtn" onclick="saveReactionCombo()" ontouchstart="event.stopPropagation(); saveReactionCombo();" disabled>조합 저장</button>
+                    <button class="game-btn" onclick="startReaction()" ontouchstart="event.stopPropagation(); startReaction();">새 게임</button>
+                </div>
             </div>
         </div>
     </div>
@@ -634,6 +643,7 @@
     let touchGame = null;
     let touchInterval = null;
     let touchSelected = [];
+    let reactionSelected = [];
     let reactionState = 'idle';
     let reactionTimer = null;
     let reactionStartTime = 0;
@@ -668,7 +678,9 @@
                 box.innerText = '시작하려면 누르세요';
             }
             document.getElementById('reactionResult').innerText = '';
-            document.getElementById('randomNumberDisplay').innerText = '';
+            // 선택 번호 초기화 (원하면 주석 해제)
+            // reactionSelected = [];
+            // updateReactionSelectedDisplay();
             reactionState = 'idle';
             clearTimeout(reactionTimer);
         }
@@ -793,17 +805,24 @@
         }
     }
 
-    // ===== 반응속도 게임 (랜덤 번호 표시 추가) =====
+    // ===== 반응속도 게임 (번호 누적 기능) =====
+    function updateReactionSelectedDisplay() {
+        const container = document.getElementById('reactionSelectedContainer');
+        const html = reactionSelected.map(n => `<div class="selected-ball">${n}</div>`).join('');
+        container.innerHTML = html || '<div style="color:#666;">터치해서 번호를 뽑으세요</div>';
+        const saveBtn = document.getElementById('saveReactionBtn');
+        saveBtn.disabled = reactionSelected.length !== 6;
+    }
+
     function startReaction() {
         const box = document.getElementById('reactionBox');
         const result = document.getElementById('reactionResult');
-        const randomDisplay = document.getElementById('randomNumberDisplay');
         if (!box) return;
         reactionState = 'waiting';
         box.style.background = '#222';
         box.innerText = '기다리세요...';
         if (result) result.innerText = '';
-        if (randomDisplay) randomDisplay.innerText = '';
+        // 선택 번호는 초기화하지 않음 (리셋 버튼에서만 초기화)
         const delay = Math.random() * 2000 + 1000;
         clearTimeout(reactionTimer);
         reactionTimer = setTimeout(() => {
@@ -819,25 +838,46 @@
     function handleReactionClick() {
         const box = document.getElementById('reactionBox');
         const result = document.getElementById('reactionResult');
-        const randomDisplay = document.getElementById('randomNumberDisplay');
-        if (!box || !result || !randomDisplay) return;
+        if (!box || !result) return;
         
         if (reactionState === 'ready') {
             const reactionTime = performance.now() - reactionStartTime;
             const randomNum = Math.floor(Math.random() * 45) + 1;
             result.innerText = `반응속도: ${reactionTime.toFixed(0)}ms`;
-            randomDisplay.innerText = `🎲 뽑은 번호: ${randomNum}`;
+            
+            // 중복 방지: 이미 선택된 번호는 추가하지 않음
+            if (!reactionSelected.includes(randomNum)) {
+                reactionSelected.push(randomNum);
+                updateReactionSelectedDisplay();
+            }
+            
             box.style.background = '#222';
             box.innerText = '다시 하려면 새 게임 버튼';
             reactionState = 'idle';
             clearTimeout(reactionTimer);
         } else if (reactionState === 'waiting') {
             result.innerText = '너무 빨랐어요! 다시 시작하세요.';
-            randomDisplay.innerText = '';
             box.style.background = '#222';
             box.innerText = '시작 버튼 누르기';
             reactionState = 'idle';
             clearTimeout(reactionTimer);
+        }
+    }
+
+    function resetReactionGame() {
+        reactionSelected = [];
+        updateReactionSelectedDisplay();
+        startReaction();
+    }
+
+    function saveReactionCombo() {
+        if (reactionSelected.length === 6) {
+            const sorted = [...reactionSelected].sort((a,b)=>a-b);
+            const key = sorted.join(',');
+            saveToBox(key);
+            reactionSelected = [];
+            updateReactionSelectedDisplay();
+            startReaction();
         }
     }
 
