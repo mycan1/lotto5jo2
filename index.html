@@ -3,12 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SHIN-UI-SON - 1213회 (완전판)</title>
+    <title>SHIN-UI-SON - 1213회 (완전판 + 랜덤번호)</title>
     <style>
         :root { --gold: #ffd700; --bg: #0b0b0b; --card: #1a1a1a; --accent: #00ffcc; --save: #ff00ff; --danger: #ff4444; }
         body { background-color: var(--bg); color: var(--gold); font-family: 'Malgun Gothic', sans-serif; padding: 10px; margin: 0; }
         .outer-border { border: 2px solid var(--gold); border-radius: 20px; padding: 15px; max-width: 480px; margin: 0 auto; }
         .header-box { text-align: center; margin-bottom: 10px; }
+        
+        .prev-win-label {
+            font-size: 12px;
+            color: #aaa;
+            margin-bottom: 2px;
+        }
         
         .next-episode { 
             font-size: 22px; 
@@ -274,12 +280,19 @@
             color: var(--gold);
             text-align: center;
         }
+        .random-number {
+            font-size: 20px;
+            margin-top: 10px;
+            color: var(--gold);
+            text-align: center;
+        }
     </style>
 </head>
 <body>
 
 <div class="outer-border">
     <div class="header-box">
+        <div class="prev-win-label">📌 1212 당첨번호</div>
         <div class="next-episode">SHIN-UI-SON + 2번코드</div>
         <div class="round-text">예상 1213회차</div>
         <div class="base-info" id="baseRoundInfo"></div>
@@ -335,6 +348,7 @@
                     시작하려면 누르세요
                 </div>
                 <div class="reaction-result" id="reactionResult"></div>
+                <div class="random-number" id="randomNumberDisplay"></div>
                 <button class="game-btn" onclick="startReaction()" ontouchstart="event.stopPropagation(); startReaction();" style="margin-top:10px;">새 게임</button>
             </div>
         </div>
@@ -654,6 +668,7 @@
                 box.innerText = '시작하려면 누르세요';
             }
             document.getElementById('reactionResult').innerText = '';
+            document.getElementById('randomNumberDisplay').innerText = '';
             reactionState = 'idle';
             clearTimeout(reactionTimer);
         }
@@ -778,15 +793,17 @@
         }
     }
 
-    // ===== 반응속도 게임 =====
+    // ===== 반응속도 게임 (랜덤 번호 표시 추가) =====
     function startReaction() {
         const box = document.getElementById('reactionBox');
         const result = document.getElementById('reactionResult');
+        const randomDisplay = document.getElementById('randomNumberDisplay');
         if (!box) return;
         reactionState = 'waiting';
         box.style.background = '#222';
         box.innerText = '기다리세요...';
-        result.innerText = '';
+        if (result) result.innerText = '';
+        if (randomDisplay) randomDisplay.innerText = '';
         const delay = Math.random() * 2000 + 1000;
         clearTimeout(reactionTimer);
         reactionTimer = setTimeout(() => {
@@ -798,19 +815,25 @@
             }
         }, delay);
     }
+
     function handleReactionClick() {
         const box = document.getElementById('reactionBox');
         const result = document.getElementById('reactionResult');
-        if (!box || !result) return;
+        const randomDisplay = document.getElementById('randomNumberDisplay');
+        if (!box || !result || !randomDisplay) return;
+        
         if (reactionState === 'ready') {
             const reactionTime = performance.now() - reactionStartTime;
+            const randomNum = Math.floor(Math.random() * 45) + 1;
             result.innerText = `반응속도: ${reactionTime.toFixed(0)}ms`;
+            randomDisplay.innerText = `🎲 뽑은 번호: ${randomNum}`;
             box.style.background = '#222';
             box.innerText = '다시 하려면 새 게임 버튼';
             reactionState = 'idle';
             clearTimeout(reactionTimer);
         } else if (reactionState === 'waiting') {
             result.innerText = '너무 빨랐어요! 다시 시작하세요.';
+            randomDisplay.innerText = '';
             box.style.background = '#222';
             box.innerText = '시작 버튼 누르기';
             reactionState = 'idle';
