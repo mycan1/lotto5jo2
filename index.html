@@ -3,879 +3,1806 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SHIN-UI-SON - 10수 (4회차, 상위6+하위4, 특수규칙)</title>
+    <title>SHIN-UI-SON · 교집합 상위 압축</title>
     <style>
-        :root { --gold: #ffd700; --bg: #0b0b0b; --card: #1a1a1a; --accent: #00ffcc; --save: #ff00ff; --danger: #ff4444; }
-        body { background-color: var(--bg); color: var(--gold); font-family: 'Malgun Gothic', sans-serif; padding: 8px; margin: 0; }
-        .outer-border { border: 2px solid var(--gold); border-radius: 20px; padding: 12px; max-width: 480px; margin: 0 auto; }
-        .header-box { text-align: center; margin-bottom: 8px; }
-        
-        .prev-win-label { font-size: 10px; color: #aaa; margin-bottom: 2px; }
-        .next-episode { font-size: 18px; font-weight: 900; color: #fff; text-shadow: 0 0 8px rgba(255,215,0,0.5); margin-bottom: 2px; }
-        .round-text { font-size: 20px; font-weight: 900; color: #ffd700; text-shadow: 0 0 12px #ffd700; margin: 0 0 2px 0; }
-        
-        .base-info { display: flex; flex-wrap: wrap; gap: 3px; justify-content: center; align-items: center; margin: 5px 0; }
-        .base-num-box { width: 24px; height: 24px; line-height: 24px; text-align: center; font-size: 10px; font-weight: 900; border-radius: 50%; background: #000000; color: var(--gold); border: 1px solid var(--gold); display: inline-block; }
-        .bonus-label { color: #888; font-size: 8px; margin: 0 2px; }
-        
-        .status-info { font-size: 10px; color: var(--accent); line-height: 1.3; min-height: 65px; width: 100%; background: rgba(255,255,255,0.05); border-radius: 12px; padding: 6px; box-sizing: border-box; margin-top: 5px; text-align: left; border: 1px solid #333; overflow-y: auto; }
-        .highlight-gold { color: var(--gold); font-weight: bold; }
-        .highlight-blue { color: #00ccff; font-weight: bold; }
-        .replaced-in { color: #ff6666 !important; font-weight: bold; }
-        .replaced-out { color: #66aaff !important; font-weight: bold; }
-        
-        .btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin: 3px 0; }
-        button { border-radius: 8px; font-weight: bold; cursor: pointer; border: none; height: 40px; transition: 0.2s; font-size: 14px; }
-        button:active { transform: scale(0.95); opacity: 0.8; }
-        .btn-5set { background: linear-gradient(135deg, #00ffcc, #00a884); color: #000; }
-        .btn-main { background: linear-gradient(135deg, #ffd700, #b8860b); color: #000; }
-        .btn-sub { background: #222; color: #fff; border: 1px solid #444; }
-        .btn-reset { grid-column: span 2; background: #333; color: #aaa; height: 34px; margin-top: 3px; font-size: 13px; }
-        .btn-review { grid-column: span 2; background: #ff00ff; color: white; height: 38px; margin-top: 3px; }
-        
-        .round-selector { margin: 3px 0 0 0; text-align: center; border-top: 1px solid #333; padding-top: 5px; }
-        .round-selector label { display: block; font-size: 12px; color: var(--accent); margin-bottom: 3px; font-weight: bold; }
-        .base-round-input { display: flex; justify-content: center; align-items: center; gap: 5px; }
-        .base-round-input input { width: 70px; height: 34px; text-align: center; background: #222; border: 2px solid var(--gold); color: #fff; border-radius: 8px; font-size: 14px; font-weight: bold; }
-        .base-round-input button { background: var(--accent); color: #000; border: none; border-radius: 8px; padding: 0 10px; height: 34px; font-weight: bold; font-size: 13px; cursor: pointer; box-shadow: 0 0 6px rgba(0,255,204,0.3); }
-        .round-desc { font-size: 9px; color: #888; margin-top: 2px; }
-        
-        .row-line { background: var(--card); border-radius: 10px; padding: 8px; margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between; border: 1px solid #333; cursor: pointer; transition: 0.2s; }
-        .row-line:hover { border-color: var(--accent); }
-        .num-container { display: flex; gap: 4px; flex-grow: 1; justify-content: center; }
-        
-        .num-box { width: 28px; height: 28px; line-height: 28px; text-align: center; font-size: 11px; font-weight: 900; border-radius: 50%; background: #000000 !important; color: var(--gold) !important; border: 1px solid var(--gold) !important; }
-        .num-box.eliminated { border-color: #ff8888 !important; color: #ff8888 !important; }
-        .num-box.replaced-in { border-color: #ff6666 !important; color: #ff6666 !important; background: #330000 !important; }
-        .num-box.replaced-out { border-color: #66aaff !important; color: #66aaff !important; background: #001a33 !important; }
-        
-        .combo-label { font-size: 13px; font-weight: bold; color: var(--accent); margin-right: 6px; min-width: 40px; }
-        .save-btn { font-size: 10px; background: var(--save); color: white; padding: 4px 6px; border-radius: 5px; cursor: pointer; margin-left: 6px; }
-        .badge { font-size: 9px; background: #333; padding: 2px 4px; border-radius: 8px; margin-left: 4px; color: #aaa; }
-        
-        .popup-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; z-index: 1000; }
-        .popup-content { background: var(--card); border: 2px solid var(--gold); border-radius: 18px; padding: 15px; max-width: 420px; width: 90%; max-height: 90vh; overflow-y: auto; position: relative; }
-        .popup-close { position: absolute; top: 8px; right: 12px; font-size: 24px; background: transparent; border: none; color: var(--gold); cursor: pointer; z-index: 1100; padding: 5px 10px; }
-        .popup-title { font-size: 17px; font-weight: bold; margin-bottom: 12px; text-align: center; color: var(--gold); }
-        
-        .user-info { background: #333; color: var(--accent); padding: 2px 6px; border-radius: 16px; font-size: 10px; margin-bottom: 5px; text-align: center; display: inline-block; }
-        .change-name-btn { background: #00ccff; color: white; border: none; border-radius: 4px; padding: 2px 5px; font-size: 9px; margin-left: 4px; cursor: pointer; }
-        
-        .small-note { margin-top: 2px; color: #888; font-size: 8px; text-align: center; }
-        *:focus, *:active { outline: none; -webkit-tap-highlight-color: transparent; }
-        
-        .game-tabs { display: flex; gap: 4px; margin-bottom: 10px; border-bottom: 1px solid #444; padding-bottom: 4px; }
-        .game-tab { flex: 1; background: #222; color: #aaa; border: 1px solid #444; border-radius: 5px; padding: 5px 0; font-size: 12px; cursor: pointer; }
-        .game-tab.active { background: var(--accent); color: #000; font-weight: bold; border-color: var(--accent); }
-        .game-panel { display: none; }
-        .game-panel.active { display: block; }
-        .game-canvas { width: 100%; height: 220px; background: #1a1a1a; border-radius: 10px; border: 1px solid #444; margin: 5px 0; touch-action: none; }
-        .selected-numbers { display: flex; gap: 5px; justify-content: center; margin: 6px 0; flex-wrap: wrap; }
-        .selected-ball { width: 32px; height: 32px; border-radius: 50%; background: #000; border: 2px solid var(--gold); color: var(--gold); display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 13px; }
-        .game-btn-group { display: flex; gap: 6px; justify-content: center; margin-top: 6px; }
-        .game-btn { background: var(--accent); color: #000; border: none; border-radius: 6px; padding: 6px 12px; font-weight: bold; cursor: pointer; font-size: 13px; height: auto; }
-        .game-btn:disabled { opacity: 0.5; background: #444; color: #aaa; cursor: not-allowed; transform: none; }
-        .reaction-box { width: 100%; height: 130px; background: #222; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 15px; cursor: pointer; margin: 8px 0; }
-        .reaction-result { margin-top: 6px; font-size: 13px; color: var(--gold); text-align: center; }
-        
-        .winning-input { display: flex; gap: 4px; justify-content: center; margin: 10px 0; flex-wrap: wrap; }
-        .winning-input input { width: 36px; height: 36px; text-align: center; background: #222; border: 1px solid #444; color: #fff; border-radius: 5px; font-size: 13px; }
-        .result-box { background: #222; border: 1px solid #444; border-radius: 8px; padding: 8px; margin: 8px 0; font-size: 12px; }
-        .match-count { font-size: 15px; color: var(--gold); }
-        .combo-item { display: flex; justify-content: space-between; padding: 4px; border-bottom: 1px solid #333; font-size: 11px; }
-        .winning-display { font-size: 12px; color: #ffd700; margin-bottom: 8px; text-align: center; }
-        
-        .section-row { display: flex; align-items: center; margin: 4px 0; padding: 4px; background: #1a1a1a; border-radius: 5px; }
-        .section-label { width: 45px; color: var(--accent); font-size: 11px; }
-        .section-nums { display: flex; gap: 3px; flex-wrap: wrap; }
-        
-        .combo-list { max-height: 350px; overflow-y: auto; }
-        .combo-item-row { display: flex; justify-content: space-between; align-items: center; padding: 5px; border-bottom: 1px solid #333; }
-        .combo-item-row:last-child { border-bottom: none; }
-        .combo-nums { display: flex; gap: 3px; }
-        .combo-save-btn { background: var(--save); color: white; border: none; border-radius: 4px; padding: 3px 6px; font-size: 9px; cursor: pointer; }
-        .combo-save-btn:active { transform: scale(0.95); opacity: 0.8; }
+        /* ===== 모바일 최적화 + 폰트 업 ===== */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #0a0a0a;
+            color: #f0f0f0;
+            font-family: 'Segoe UI', 'Malgun Gothic', sans-serif;
+            padding: 2px;
+            min-height: 100vh;
+        }
+        .outer-border {
+            border: 1px solid #ffd700;
+            border-radius: 14px;
+            padding: 6px;
+            max-width: 480px;
+            margin: 0 auto;
+            background: #0a0a0a;
+        }
+        .header-line {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #1a1a1a;
+            border-radius: 30px;
+            padding: 8px 12px;
+            margin-bottom: 4px;
+            font-size: 13px;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+        .prev-info {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            color: #aaa;
+            flex-shrink: 0;
+        }
+        .prev-num {
+            display: inline-block;
+            color: white;
+            font-size: 12px;
+            margin: 0 2px;
+        }
+        .title-main {
+            font-weight: 800;
+            background: linear-gradient(135deg, #fff8e0, #ffe68f);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-size: 16px;
+            white-space: nowrap;
+        }
+        .round-text {
+            color: #ffd700;
+            font-weight: 900;
+            font-size: 14px;
+            white-space: nowrap;
+        }
+        .user-info {
+            background: #222;
+            color: #00e6b8;
+            padding: 4px 8px;
+            border-radius: 30px;
+            font-size: 11px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            white-space: nowrap;
+            flex: 0 1 auto;
+            min-width: 140px;
+            max-width: 200px;
+            justify-content: flex-end;
+        }
+        .user-info span {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            max-width: 70px;
+        }
+        .change-name-btn {
+            background: #00e6b8;
+            color: #000;
+            border: none;
+            border-radius: 30px;
+            padding: 3px 6px;
+            font-size: 9px;
+            cursor: pointer;
+            height: 24px;
+            white-space: nowrap;
+            flex-shrink: 0;
+            min-width: 36px;
+            transition: all 0.2s ease;
+        }
+        .change-name-btn:hover { transform: scale(1.05); background: #00ffcc; }
+        .change-name-btn:active { transform: scale(0.95); }
 
-        /* 복기 팝업 내 AI 정보 영역 */
-        .ai-info-box { background: #1a1a1a; border-radius: 6px; padding: 6px; margin: 8px 0; font-size: 11px; border: 1px solid #444; }
-        .ai-info-box div { margin: 2px 0; }
-        /* 일치하는 번호 강조 스타일 */
-        .matched { color: #00ff00 !important; font-weight: bold; }
+        .target-win-container {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: #2ecc71;
+            font-weight: bold;
+            font-size: 13px;
+            white-space: nowrap;
+            overflow-x: auto;
+            flex: 1 1 auto;
+            min-width: 0;
+            justify-content: flex-end;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+        .target-win-container::-webkit-scrollbar { display: none; }
+        .target-win-label { color: #ffd700; font-size: 12px; font-weight: normal; }
+        .target-win-numbers { color: #2ecc71; font-size: 13px; font-weight: bold; }
+
+        .mode-toggle {
+            background: #333;
+            border-radius: 30px;
+            display: flex;
+            padding: 2px;
+            margin: 5px 0;
+        }
+        .mode-btn {
+            flex: 1;
+            padding: 7px;
+            border: none;
+            border-radius: 30px;
+            background: transparent;
+            color: #aaa;
+            font-weight: bold;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .mode-btn.active { background: #ffd700; color: #000; }
+        .mode-btn:hover:not(.active) { background: #444; color: #fff; transform: scale(1.02); }
+        .mode-btn:active { transform: scale(0.98); }
+
+        .compress-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #1a1a1a;
+            border-radius: 30px;
+            padding: 6px 10px;
+            margin: 5px 0;
+            border: 1px solid #333;
+        }
+        .compress-label {
+            color: #ffd700;
+            font-size: 13px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        .compress-value {
+            color: #00e6b8;
+            font-size: 16px;
+            font-weight: bold;
+            min-width: 30px;
+            text-align: center;
+        }
+        .slider-wrapper {
+            flex: 1;
+            margin: 0 8px;
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        .compress-slider {
+            width: 100%;
+            height: 6px;
+            -webkit-appearance: none;
+            background: #333;
+            border-radius: 10px;
+            outline: none;
+        }
+        .compress-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            background: #ffd700;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid #00e6b8;
+            transition: transform 0.1s ease;
+        }
+        .compress-slider::-webkit-slider-thumb:hover { transform: scale(1.2); }
+        .range-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 2px;
+            font-size: 10px;
+            color: #ffd700;
+            padding: 0 2px;
+        }
+        .apply-btn {
+            background: #00e6b8;
+            color: #000;
+            border: none;
+            border-radius: 30px;
+            padding: 4px 10px;
+            font-weight: bold;
+            cursor: pointer;
+            height: 32px;
+            font-size: 11px;
+            transition: all 0.2s ease;
+        }
+        .apply-btn:hover { background: #00ffcc; transform: scale(1.05); }
+        .apply-btn:active { transform: scale(0.95); }
+
+        .status-info {
+            background: #1a1a1a;
+            border-radius: 12px;
+            padding: 8px 10px;
+            margin: 5px 0;
+            border: 1px solid #333;
+            font-size: 11px;
+            line-height: 1.3;
+            max-height: 320px;
+            overflow-y: auto;
+            scrollbar-width: thin;
+        }
+        .stat-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 4px;
+            margin: 4px 0;
+            flex-wrap: wrap;
+        }
+        .stat-label {
+            color: #00e6b8;
+            font-weight: 600;
+            min-width: 45px;
+            font-size: 11px;
+            white-space: nowrap;
+        }
+        .number-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1px;
+            font-weight: 500;
+        }
+        .number-group span {
+            margin-right: 2px;
+            font-size: 13px;
+            line-height: 1.4;
+            white-space: nowrap;
+        }
+        .winning-num {
+            color: #2ecc71 !important;
+            font-weight: bold;
+        }
+        .bonus-num {
+            color: #ff9933 !important;
+            font-weight: bold;
+        }
+        .basket-large {
+            background: rgba(255,215,0,0.1);
+            border-left: 3px solid #ffd700;
+            padding: 4px 8px;
+            margin-top: 5px;
+            border-radius: 6px;
+            font-weight: bold;
+            color: #ffd700;
+            font-size: 10px;
+            line-height: 1.3;
+        }
+
+        .control-panel {
+            background: rgba(255,255,255,0.02);
+            border-radius: 30px;
+            padding: 6px 8px;
+            margin: 5px 0;
+            border: 1px solid #333;
+        }
+        .setting-row {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .setting-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            background: #222;
+            padding: 4px 10px;
+            border-radius: 30px;
+        }
+        .setting-item span { color: #ffd700; font-size: 12px; font-weight: 600; }
+        .setting-item input {
+            width: 45px;
+            height: 32px;
+            background: #333;
+            border: 1px solid #00e6b8;
+            color: white;
+            border-radius: 30px;
+            text-align: center;
+            font-size: 13px;
+            font-weight: bold;
+            pointer-events: none;
+        }
+        .step-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #333;
+            border: 2px solid #ffd700;
+            color: #ffd700;
+            font-weight: bold;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 18px;
+            user-select: none;
+            transition: all 0.2s ease;
+        }
+        .step-btn:hover { background: #ffd700; color: #000; transform: scale(1.1); }
+        .step-btn:active { transform: scale(0.9); }
+
+        .round-selector {
+            margin: 5px 0;
+            text-align: center;
+        }
+        .base-round-input {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        .round-control {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            background: #222;
+            padding: 4px 12px;
+            border-radius: 30px;
+        }
+        .round-control input {
+            width: 65px;
+            height: 34px;
+            background: #333;
+            border: 1px solid #ffd700;
+            color: white;
+            border-radius: 30px;
+            text-align: center;
+            font-size: 13px;
+            font-weight: bold;
+            pointer-events: none;
+        }
+        .round-control .step-btn {
+            width: 34px;
+            height: 34px;
+            font-size: 20px;
+        }
+        .base-round-input button {
+            background: #00e6b8;
+            color: #000;
+            border: none;
+            border-radius: 30px;
+            padding: 0 14px;
+            height: 34px;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .base-round-input button:hover { background: #00ffcc; transform: scale(1.05); }
+        .base-round-input button:active { transform: scale(0.95); }
+
+        .btn-group {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 4px;
+            margin: 6px 0 4px;
+        }
+        button {
+            border-radius: 30px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            height: 42px;
+            font-size: 12px;
+            padding: 0 4px;
+            transition: all 0.2s ease;
+            word-break: keep-all;
+        }
+        button:hover { transform: scale(1.02); filter: brightness(1.2); }
+        button:active { transform: scale(0.98); }
+        .btn-1set { background: linear-gradient(145deg, #00e6b8, #00a884); color: #000; }
+        .btn-5set { background: linear-gradient(145deg, #00e6b8, #00a884); color: #000; }
+        .btn-main { background: linear-gradient(145deg, #ffd700, #b8860b); color: #000; }
+        .btn-basket { background: linear-gradient(145deg, #ff9933, #cc7a00); color: #000; }
+        .btn-sub { background: #2a2a2a; color: #ddd; border: 1px solid #444; }
+        .btn-reset { grid-column: span 5; background: #333; color: #aaa; height: 38px; }
+        .btn-review { background: linear-gradient(145deg, #ff69b4, #c71585); color: white; }
+        .btn-trade { background: #ffaa00; color: #000; font-weight: bold; }
+        .btn-trade.active { background: #ff5500; color: #fff; }
+        .btn-integrated { background: linear-gradient(145deg, #aa88ff, #7744cc); color: white; }
+        .btn-help { background: #888; color: #000; font-weight: bold; }
+
+        .fixed-numbers {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 6px;
+            margin: 5px 0;
+            background: #1a1a1a;
+            border-radius: 30px;
+            padding: 6px 10px;
+            border: 1px solid #333;
+            flex-wrap: wrap;
+        }
+        .fixed-left {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            flex-wrap: wrap;
+            flex: 1 1 auto;
+        }
+        .fixed-left span { color: #ffd700; font-size: 13px; font-weight: 600; }
+        #fixedExtra { color: #00e6b8; font-size: 11px; margin-left: 3px; white-space: nowrap; }
+        .fixed-right {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            flex-shrink: 0;
+        }
+        .fixed-right button {
+            background: #00e6b8;
+            color: #000;
+            border: none;
+            border-radius: 30px;
+            padding: 4px 10px;
+            height: 34px;
+            font-size: 11px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .fixed-right button:hover { background: #00ffcc; transform: scale(1.05); }
+        .fixed-right button:active { transform: scale(0.95); }
+
+        .small-note { color: #aaa; font-size: 10px; text-align: center; margin-top: 4px; }
+
+        .popup-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.95);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 8px;
+        }
+        .popup-content {
+            background: #1a1a1a;
+            border: 2px solid #ffd700;
+            border-radius: 16px;
+            padding: 16px;
+            max-width: 420px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+        }
+        .popup-close {
+            position: absolute;
+            top: 8px;
+            right: 12px;
+            font-size: 24px;
+            background: transparent;
+            border: none;
+            color: #ffd700;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+        .popup-close:hover { transform: scale(1.2); color: #fff; }
+        .popup-title { font-size: 16px; font-weight: bold; margin-bottom: 12px; text-align: center; color: #ffd700; }
+
+        .help-item {
+            margin-bottom: 12px;
+            border-bottom: 1px solid #333;
+            padding-bottom: 8px;
+        }
+        .help-item strong {
+            color: #ffd700;
+            display: inline-block;
+            width: 100px;
+        }
+        .help-item span {
+            color: #ddd;
+            font-size: 12px;
+        }
+
+        .number-grid {
+            display: grid;
+            grid-template-columns: repeat(9, 1fr);
+            gap: 4px;
+            margin: 12px 0;
+        }
+        .num-ball {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: #000;
+            border: 2px solid #444;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.1s ease;
+        }
+        .num-ball:hover { border-color: #ffd700; transform: scale(1.1); }
+        .num-ball.selected { border-color: #ffd700; background: #333; color: #ffd700; }
+
+        .winning-input { display: flex; gap: 3px; justify-content: center; margin: 8px 0; flex-wrap: wrap; }
+        .winning-input input {
+            width: 38px; height: 38px;
+            text-align: center;
+            background: #222;
+            border: 1px solid #444;
+            color: #fff;
+            border-radius: 30px;
+            font-size: 13px;
+        }
+        .combo-item-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 6px;
+            border-bottom: 1px solid #333;
+        }
+        .selected-ball {
+            width: 36px; height: 36px; border-radius: 50%; background: #000; border: 2px solid #ffd700; color: #ffd700; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px;
+        }
+        .saved-combo-item {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #222;
+            border-radius: 30px;
+            padding: 8px 12px;
+            margin-bottom: 6px;
+            border: 1px solid #444;
+            cursor: pointer;
+        }
+        .saved-combo-item .selected-ball { width: 30px; height: 30px; font-size: 11px; margin: 2px; }
+        .toast {
+            position: fixed; bottom: 20px; left: 0; width: 100%; text-align: center; z-index: 9999; display: none; pointer-events: none;
+        }
+        .toast span {
+            background: #333; color: #ffd700; padding: 6px 16px; border-radius: 30px; font-size: 12px;
+        }
+
+        .storage-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+        .storage-check-all {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: #ffd700;
+            font-size: 12px;
+        }
+        .storage-actions {
+            display: flex;
+            gap: 4px;
+        }
+        .storage-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px;
+            border-bottom: 1px solid #333;
+        }
+        .storage-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: #ffd700;
+        }
+        .delete-selected-btn, .delete-all-btn {
+            background: #ff4444;
+            color: white;
+            border: none;
+            border-radius: 30px;
+            padding: 5px 10px;
+            font-size: 11px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .delete-selected-btn:hover, .delete-all-btn:hover { background: #ff6666; transform: scale(1.05); }
+        .delete-selected-btn:active, .delete-all-btn:active { transform: scale(0.95); }
+        .delete-all-btn { background: #ff8888; color: #000; }
+        .delete-all-btn:hover { background: #ffaaaa; }
     </style>
 </head>
 <body>
 <div class="outer-border">
-    <div class="header-box">
-        <div class="prev-win-label" id="prevWinLabel">📌 기준 이전회차 당첨번호</div>
-        <div class="base-info" id="baseRoundInfo"></div>
-        <div class="next-episode">SHIN-UI-SON + 10수 (4회차, 상위6+하위4)</div>
-        <div class="round-text" id="roundDisplay">예상 회차</div>
-        <div id="userDisplay" class="user-info"></div>
-        <div id="status" class="status-info">엔진 초기화 중...</div>
-    </div>
-
-    <div class="round-selector">
-        <label>🎯 분석할 회차 선택</label>
-        <div class="base-round-input">
-            <input type="number" id="baseRoundInput" min="901" max="1300" value="1213" step="1">
-            <button onclick="setBaseRound()">설정</button>
+    <!-- 헤더 -->
+    <div class="header-line">
+        <div class="prev-info">
+            <span id="prevWinLabel">📌 1213회</span>
+            <span id="baseRoundInfo"></span>
         </div>
-        <div class="round-desc">(900~1212 데이터 기반)</div>
+        <span class="title-main">SHIN-UI-SON</span>
+        <span class="round-text" id="roundDisplay">-(1214회)예상설정</span>
+        <span id="userDisplay" class="user-info"></span>
     </div>
 
+    <!-- 상태창 -->
+    <div id="status" class="status-info">분석 중...</div>
+
+    <!-- 압축 슬라이더 -->
+    <div class="compress-row">
+        <span class="compress-label">🔢 압축 개수</span>
+        <span class="compress-value" id="compressValue">14</span>
+        <div class="slider-wrapper">
+            <input type="range" id="compressSlider" class="compress-slider" min="1" max="14" value="14" step="1" oninput="updateCompressValue(this.value)">
+            <div class="range-labels">
+                <span>1</span>
+                <span>14</span>
+            </div>
+        </div>
+        <button class="apply-btn" onclick="applyCompress()">적용</button>
+    </div>
+
+    <!-- 모드 토글 -->
+    <div class="mode-toggle">
+        <button class="mode-btn active" onclick="setMode('ai')" id="modeAiBtn">🤖 AI 모드</button>
+        <button class="mode-btn" onclick="setMode('exclude')" id="modeExcludeBtn">🎯 제외수 모드</button>
+    </div>
+
+    <!-- 간격/회차/교환 설정 -->
+    <div class="control-panel">
+        <div class="setting-row">
+            <div class="setting-item">
+                <span>간격</span>
+                <button class="step-btn" onclick="changeInterval(-1)">−</button>
+                <input type="number" id="intervalWeeks" min="1" max="30" value="1" step="1" readonly>
+                <button class="step-btn" onclick="changeInterval(1)">+</button>
+                <span>주</span>
+            </div>
+            <div class="setting-item">
+                <span>회차</span>
+                <button class="step-btn" onclick="changeCount(-1)">−</button>
+                <input type="number" id="refCount" min="1" max="30" value="10" step="1" readonly>
+                <button class="step-btn" onclick="changeCount(1)">+</button>
+                <span>개</span>
+            </div>
+            <div class="setting-item">
+                <span>교환</span>
+                <button class="step-btn" onclick="changeTradeCount(-1)">−</button>
+                <input type="number" id="tradeCountInput" min="1" max="8" value="7" step="1" readonly>
+                <button class="step-btn" onclick="changeTradeCount(1)">+</button>
+                <span>개</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 회차 설정 + 트레이드 버튼 (이동 버튼 옆) -->
+    <div class="round-selector">
+        <div class="base-round-input">
+            <div class="round-control">
+                <button class="step-btn" onclick="stepBaseRound(-1)">−</button>
+                <input type="number" id="baseRoundInput" min="901" max="1300" value="1214" step="1" readonly>
+                <button class="step-btn" onclick="stepBaseRound(1)">+</button>
+            </div>
+            <button onclick="setBaseRound()">이동</button>
+            <button class="btn-trade" id="tradeBtn" onclick="toggleTrade()">🔄 트레이드</button>
+        </div>
+    </div>
+
+    <!-- 고정수 + 보관함 버튼 (설정/초기화 옆) - 설정에 톱니바퀴 아이콘 -->
+    <div class="fixed-numbers">
+        <div class="fixed-left">
+            <span>🔑 고정수</span>
+            <span id="fixedExtra"></span>
+        </div>
+        <div class="fixed-right">
+            <button onclick="openFixedPopup()">⚙️ 설정</button>
+            <button onclick="clearFixed()">초기화</button>
+            <button class="btn-sub" onclick="openPopup()">📦 보관함</button>
+        </div>
+    </div>
+
+    <!-- ===== 하단 버튼 그룹 (통합5/통합10 5조합/10조합 옆 배치) ===== -->
     <div class="btn-group">
-        <button class="btn-5set" onclick="process(5)">5조합 추출</button>
-        <button class="btn-main" onclick="process(10)">10조합 추출</button>
-        <button class="btn-sub" onclick="openPopup()">보관함</button>
-        <button class="btn-sub" onclick="openGamePopup()">🎮 게임센터</button>
+        <button class="btn-1set" onclick="processPattern(1)">1조합</button>
+        <button class="btn-5set" onclick="processPattern(5)">5조합</button>
+        <button class="btn-integrated" onclick="processIntegrated(5)">🔷 통합5</button>
+        <button class="btn-main" onclick="processPattern(10)">10조합</button>
+        <button class="btn-integrated" onclick="processIntegrated(10)">🔷 통합10</button>
+    </div>
+    <div class="btn-group">
+        <button class="btn-basket" onclick="processBasket(5)">B바구니</button>
         <button class="btn-sub" onclick="clearStorage()">초기화</button>
-        <button class="btn-sub btn-reset" onclick="location.reload()">새로고침</button>
-        <button class="btn-review" onclick="openReviewPopup()">📊 복기</button>
-        <button class="btn-sub" onclick="showComboList()">📋 조합 목록</button>
+        <button class="btn-sub" onclick="location.reload()">새로고침</button>
+        <button class="btn-review" onclick="openReviewPopup()">📊 당첨확인</button>
+        <button class="btn-sub" onclick="showComboList()">📋 생성조합</button>
+    </div>
+    <div class="btn-group">
+        <button class="btn-sub" onclick="openGamePopup()">🎮 게임</button>
+        <button class="btn-sub" onclick="openComparisonPopup()">📊 비교</button>
+        <button class="btn-help" onclick="openHelpPopup()">❓ 도움말</button>
+        <!-- 빈칸 2개 자동 생성 -->
     </div>
 
-    <div id="console"></div>
-    <div class="small-note">※ 10조합: 홀수조합(1,3,5,7,9) 14수, 짝수조합(2,4,6,8,10) 10수 | 5조합: 10수 가중치 랜덤 | 🎯 <span id="targetRound">1213</span>회차 예상</div>
+    <div class="small-note">🎯 <span id="targetRound">1214</span> 예상</div>
 </div>
 
 <!-- 토스트 메시지 -->
-<div id="toast" style="position:fixed; bottom:20px; left:0; width:100%; text-align:center; z-index:9999; display:none; pointer-events:none;">
-    <span style="background:#333; color:#ffd700; padding:5px 10px; border-radius:18px; font-size:11px; box-shadow:0 2px 6px rgba(0,0,0,0.3); display:inline-block;">✅ 저장되었습니다</span>
-</div>
+<div class="toast" id="toast"><span>✅ 저장됨</span></div>
 
-<!-- 팝업들 -->
-<div id="popup" class="popup-overlay" style="display:none;">
+<!-- 보관함 팝업 -->
+<div id="popup" class="popup-overlay" style="display:none;" onclick="if(event.target===this) closePopup()">
     <div class="popup-content">
         <button class="popup-close" onclick="closePopup()">&times;</button>
         <div class="popup-title">📦 보관함</div>
+        <div class="storage-header">
+            <div class="storage-check-all">
+                <input type="checkbox" id="checkAllStorage" onclick="toggleCheckAll()">
+                <label for="checkAllStorage">전체 선택</label>
+            </div>
+            <div class="storage-actions">
+                <button class="delete-selected-btn" onclick="deleteSelectedItems()">선택 삭제</button>
+                <button class="delete-all-btn" onclick="clearStorage()">모두 삭제</button>
+            </div>
+        </div>
         <div id="storage"></div>
     </div>
 </div>
 
-<div id="gamePopup" class="popup-overlay" style="display:none;">
-    <div class="popup-content" style="max-width: 420px;">
-        <button class="popup-close" onclick="closeGamePopup()" ontouchstart="event.stopPropagation(); closeGamePopup();">&times;</button>
+<!-- 고정수 선택 팝업 -->
+<div id="fixedPopup" class="popup-overlay" style="display:none;" onclick="if(event.target===this) closeFixedPopup()">
+    <div class="popup-content">
+        <button class="popup-close" onclick="closeFixedPopup()">&times;</button>
+        <div class="popup-title">🔒 고정수 선택 (최대 14개)</div>
+        <div id="fixedNumberGrid" class="number-grid"></div>
+        <div style="text-align:center; margin-top:8px;"><span id="fixedCountDisplay">0/14</span></div>
+        <div style="display:flex; gap:5px; justify-content:center; margin-top:10px;">
+            <button class="apply-btn" onclick="confirmFixedSelection()">확인</button>
+            <button class="apply-btn" onclick="resetFixedSelection()">초기화</button>
+            <button class="apply-btn" onclick="closeFixedPopup()">취소</button>
+        </div>
+    </div>
+</div>
+
+<!-- 게임 팝업 (간략) -->
+<div id="gamePopup" class="popup-overlay" style="display:none;" onclick="if(event.target===this) closeGamePopup()">
+    <div class="popup-content">
+        <button class="popup-close" onclick="closeGamePopup()">&times;</button>
         <div class="popup-title">🎮 게임센터</div>
-        <div class="game-tabs">
-            <button class="game-tab active" data-game="touch" onclick="switchGame('touch')" ontouchstart="event.stopPropagation(); switchGame('touch');">터치 러쉬</button>
-            <button class="game-tab" data-game="reaction" onclick="switchGame('reaction')" ontouchstart="event.stopPropagation(); switchGame('reaction');">반응속도</button>
+        <div class="game-tabs" style="display:flex; gap:5px; margin-bottom:8px;">
+            <button class="game-tab active" data-game="touch" onclick="switchGame('touch')">터치 러쉬</button>
+            <button class="game-tab" data-game="reaction" onclick="switchGame('reaction')">반응속도</button>
         </div>
         <div id="touchGame" class="game-panel active">
-            <canvas id="gameCanvas" class="game-canvas"></canvas>
+            <canvas id="gameCanvas" class="game-canvas" width="400" height="200"></canvas>
             <div class="selected-numbers" id="selectedNumbersContainer"></div>
-            <div style="font-size:8px; color:#888; text-align:center;">* 6개를 선택하면 저장 버튼이 활성화됩니다</div>
-            <div class="game-btn-group">
-                <button class="game-btn" onclick="resetTouchGame()" ontouchstart="event.stopPropagation(); resetTouchGame();">리셋</button>
-                <button class="game-btn" id="saveComboBtn" onclick="saveTouchCombo()" ontouchstart="event.stopPropagation(); saveTouchCombo();" disabled>조합 저장</button>
+            <div style="font-size:10px; color:#888;">* 6개 선택</div>
+            <div style="display:flex; gap:8px; justify-content:center;">
+                <button class="game-btn" style="background:#00e6b8; color:#000; border-radius:30px; padding:6px 12px;" onclick="resetTouchGame()">리셋</button>
+                <button class="game-btn" id="saveComboBtn" style="background:#00e6b8; color:#000; border-radius:30px; padding:6px 12px;" onclick="saveTouchCombo()" disabled>저장</button>
             </div>
         </div>
-        <div id="reactionGame" class="game-panel">
-            <div style="text-align: center; margin: 8px 0;">
-                <div class="reaction-box" id="reactionBox" onclick="handleReactionClick()" ontouchstart="event.stopPropagation(); handleReactionClick();">시작하려면 누르세요</div>
-                <div class="reaction-result" id="reactionResult"></div>
-                <div class="selected-numbers" id="reactionSelectedContainer"></div>
-                <div style="font-size:8px; color:#888; text-align:center;">* 6개를 선택하면 저장 버튼이 활성화됩니다</div>
-                <div class="game-btn-group">
-                    <button class="game-btn" onclick="resetReactionGame()" ontouchstart="event.stopPropagation(); resetReactionGame();">리셋</button>
-                    <button class="game-btn" id="saveReactionBtn" onclick="saveReactionCombo()" ontouchstart="event.stopPropagation(); saveReactionCombo();" disabled>조합 저장</button>
-                    <button class="game-btn" onclick="startReaction()" ontouchstart="event.stopPropagation(); startReaction();">새 게임</button>
-                </div>
-            </div>
+        <div id="reactionGame" class="game-panel" style="display:none;">
+            <!-- 반응속도 게임 생략 -->
         </div>
     </div>
 </div>
 
-<div id="reviewPopup" class="popup-overlay" style="display:none;">
+<!-- 당첨 확인 팝업 -->
+<div id="reviewPopup" class="popup-overlay" style="display:none;" onclick="if(event.target===this) closeReviewPopup()">
     <div class="popup-content">
         <button class="popup-close" onclick="closeReviewPopup()">&times;</button>
-        <div class="popup-title" id="reviewTitle">📊 1213회 복기</div>
-        <div class="winning-display" id="winningDisplay"></div>
-        
-        <!-- 현재 AI 10수 및 생존자 정보 표시 영역 (동적으로 업데이트됨) -->
-        <div class="ai-info-box" id="reviewAIInfo">
-            <!-- analyze()에서 채움 (비교하기 누르면 업데이트) -->
+        <div class="popup-title" id="reviewTitle">📊 1214회 복기</div>
+        <div id="reviewAIInfo"></div>
+        <div class="winning-input" style="display:flex; gap:2px; justify-content:center; margin:8px 0;">
+            <input type="number" id="win1" min="1" max="45" placeholder="1">
+            <input type="number" id="win2" min="1" max="45" placeholder="2">
+            <input type="number" id="win3" min="1" max="45" placeholder="3">
+            <input type="number" id="win4" min="1" max="45" placeholder="4">
+            <input type="number" id="win5" min="1" max="45" placeholder="5">
+            <input type="number" id="win6" min="1" max="45" placeholder="6">
         </div>
-
-        <div style="text-align: center; margin-bottom: 8px;" id="reviewDesc">당첨번호 6개 + 보너스를 입력하세요</div>
-        <div class="winning-input">
-            <input type="number" id="win1" min="1" max="45" step="1" placeholder="1">
-            <input type="number" id="win2" min="1" max="45" step="1" placeholder="2">
-            <input type="number" id="win3" min="1" max="45" step="1" placeholder="3">
-            <input type="number" id="win4" min="1" max="45" step="1" placeholder="4">
-            <input type="number" id="win5" min="1" max="45" step="1" placeholder="5">
-            <input type="number" id="win6" min="1" max="45" step="1" placeholder="6">
+        <div style="text-align:center; margin:3px 0;">보너스 번호</div>
+        <div class="winning-input"><input type="number" id="bonus" min="1" max="45" placeholder="보너스"></div>
+        <div style="display:flex; gap:5px; margin-top:8px;">
+            <button class="apply-btn" onclick="compareNumbers()">비교하기</button>
+            <button class="apply-btn" onclick="saveWinningNumbers()">저장</button>
         </div>
-        <div style="text-align: center; margin: 5px 0;">보너스 번호</div>
-        <div class="winning-input">
-            <input type="number" id="bonus" min="1" max="45" step="1" placeholder="보너스">
-        </div>
-        <div style="text-align: center; margin: 8px 0;">
-            <button class="game-btn" onclick="compareNumbers()">비교하기</button>
-        </div>
-        <div id="reviewResult" class="result-box">
-            <div>AI 추천 10수와 비교:</div>
-            <div id="aiMatch" class="match-count">-</div>
-            <div id="aiMatchedList" style="font-size: 12px; color: #ffd700;"></div>
-            <div id="aiBonus" style="font-size: 12px; color: #aaa;"></div>
-            <div style="margin-top: 6px;">보관함 조합 비교:</div>
-            <div id="savedMatch" style="max-height: 140px; overflow-y: auto;"></div>
-        </div>
+        <div id="reviewResult" style="margin-top:8px;"></div>
+        <div id="savedMatch" style="margin-top:8px;"></div>
     </div>
 </div>
 
-<div id="comboDetailPopup" class="popup-overlay" style="display:none;">
-    <div class="popup-content">
-        <button class="popup-close" onclick="closeComboDetailPopup()">&times;</button>
-        <div class="popup-title" id="comboDetailTitle">조합 상세</div>
-        <div id="comboDetailContent"></div>
-    </div>
-</div>
-
-<!-- 조합 목록 팝업 (모두 저장 버튼 포함) -->
-<div id="comboListPopup" class="popup-overlay" style="display:none;">
+<!-- 생성 조합 목록 팝업 -->
+<div id="comboListPopup" class="popup-overlay" style="display:none;" onclick="if(event.target===this) closeComboListPopup()">
     <div class="popup-content">
         <button class="popup-close" onclick="closeComboListPopup()">&times;</button>
-        <div class="popup-title">📋 생성된 조합</div>
-        <div style="text-align: right; margin-bottom: 8px;">
-            <button class="combo-save-btn" onclick="saveAllCombos()" style="background:#00ccff; color:#000; font-size:10px; padding:4px 8px;">📥 모두 저장</button>
+        <div class="popup-title">📋 생성 조합</div>
+        <div style="text-align:right; margin-bottom:6px;"><button class="apply-btn" onclick="saveAllCombos()">📥 모두 저장</button></div>
+        <div id="comboListContent"></div>
+    </div>
+</div>
+
+<!-- 도움말 팝업 (상세 설명 포함) -->
+<div id="helpPopup" class="popup-overlay" style="display:none;" onclick="if(event.target===this) closeHelpPopup()">
+    <div class="popup-content">
+        <button class="popup-close" onclick="closeHelpPopup()">&times;</button>
+        <div class="popup-title">❓ 버튼 기능 설명</div>
+        <div class="help-item"><strong>🔢 압축 개수</strong> <span>선택된 회차들의 데이터를 분석하여 상위 N개 숫자를 추출합니다. 슬라이더로 1~14까지 조절 가능하며, 숫자가 작을수록 핵심 숫자만 남깁니다.</span></div>
+        <div class="help-item"><strong>🤖 AI 모드 / 🎯 제외수 모드</strong> <span>AI 모드는 패턴 분석 기반, 제외수 모드는 최근 출현 빈도 기반으로 숫자를 추천합니다. 트레이드 기능으로 두 모드를 결합할 수 있습니다.</span></div>
+        <div class="help-item"><strong>1조합</strong> <span>현재 모드(AI/제외수)의 추천수에서 황금비율 필터로 생성된 조합 중 상위 1개 선택</span></div>
+        <div class="help-item"><strong>5조합</strong> <span>현재 모드(AI/제외수)의 추천수에서 황금비율 필터로 생성된 조합 중 무작위로 5개 선택 (완전 랜덤)</span></div>
+        <div class="help-item"><strong>10조합</strong> <span>현재 모드(AI/제외수)의 추천수에서 황금비율 필터로 생성된 조합 중 상위 10개 선택</span></div>
+        <div class="help-item"><strong>B바구니</strong> <span>생존수 + 트레이드 후 유실된 당첨번호를 포함, 황금비율 필터로 조합 생성 (B바구니 조합)</span></div>
+        <div class="help-item"><strong>보관함</strong> <span>저장한 조합 목록 보기/삭제</span></div>
+        <div class="help-item"><strong>초기화</strong> <span>보관함 전체 삭제</span></div>
+        <div class="help-item">
+            <strong>🔄 트레이드</strong> 
+            <span style="display:block; margin-left:0; margin-top:4px;">
+                AI 모드와 제외수 모드가 서로 숫자를 교환하여 두 모드의 장점을 결합합니다.<br>
+                • <b>교환 개수</b>: 설정 패널에서 1~8개까지 조절 가능 (현재 7개)<br>
+                • <b>실행</b>: 트레이드 버튼을 누르면 켜지고(노란색→주황색), 다시 누르면 꺼집니다.<br>
+                • <b>영향</b>: 각 모드의 숫자 구성이 바뀌고, 통합 14수가 새로 계산됩니다.<br>
+                • <b>유실 번호</b>: 교환 과정에서 빠진 당첨번호는 B바구니에 자동 저장됩니다.<br>
+                • <b>통합 14수</b>: AI와 제외수의 합집합에서 교집합에 보너스를 주어 뽑은 숫자들입니다. 교환 개수가 클수록 교집합이 커져 당첨번호 포함률이 높아집니다.
+            </span>
         </div>
-        <div id="comboListContent" class="combo-list"></div>
+        <div class="help-item"><strong>새로고침</strong> <span>페이지 새로고침</span></div>
+        <div class="help-item"><strong>📊 당첨확인</strong> <span>저장된 조합과 당첨번호 비교</span></div>
+        <div class="help-item"><strong>🔷 통합5/통합10</strong> <span>트레이드 후 생성된 통합 14수로 조합 생성</span></div>
+        <div class="help-item"><strong>🎮 게임</strong> <span>터치 게임으로 번호 선택</span></div>
+        <div class="help-item"><strong>📋 생성조합</strong> <span>마지막으로 생성한 조합 목록 보기</span></div>
+        <div class="help-item"><strong>📊 비교</strong> <span>회차별 비교 (준비중)</span></div>
+        <div class="help-item"><strong>❓ 도움말</strong> <span>이 도움말</span></div>
     </div>
 </div>
 
 <script>
-    // ===== 900~1212회차 전체 데이터 =====
-    const FULL_DATA = [ [1212,5,8,25,31,41,44,45], [1211,23,26,27,35,38,40,10], [1210,1,7,9,17,27,38,31], [1209,2,17,20,35,37,39,24], [1208,6,27,30,36,38,42,25], [1207,10,22,24,27,38,45,11], [1206,1,3,17,26,27,42,23], [1205,1,4,16,23,31,41,2], [1204,8,16,28,30,31,44,27], [1203,3,6,18,29,35,39,24], [1202,5,12,21,33,37,40,7], [1201,7,9,24,27,35,36,37], [1200,1,2,4,16,20,32,45], [1199,16,24,25,30,31,32,7], [1198,26,30,33,38,39,41,21], [1197,1,5,7,26,28,43,30], [1196,8,12,15,29,40,45,14], [1195,3,15,27,33,34,36,37], [1194,3,13,15,24,33,37,2], [1193,6,9,16,19,24,28,17], [1192,10,16,23,36,39,40,11], [1191,1,4,11,12,20,41,2], [1190,7,9,19,23,26,45,33], [1189,9,19,29,35,37,38,31], [1188,3,4,12,19,22,27,9], [1187,5,13,26,29,37,40,42], [1186,2,8,13,16,23,28,35], [1185,6,17,22,28,29,32,38], [1184,14,16,23,25,31,37,42], [1183,4,15,17,23,27,36,31], [1182,1,13,21,25,28,31,22], [1181,8,10,14,20,33,41,28], [1180,6,12,18,37,40,41,3], [1179,3,16,18,24,40,44,21], [1178,5,6,11,27,43,44,17], [1177,3,7,15,16,19,43,21], [1176,7,9,11,21,30,35,29], [1175,3,4,6,8,32,42,31], [1174,8,11,14,17,36,39,22], [1173,1,5,18,20,30,35,3], [1172,7,9,24,40,42,44,45], [1171,3,6,7,11,12,17,19], [1170,3,13,28,34,38,42,25], [1169,5,12,24,26,39,42,20], [1168,9,21,24,30,33,37,29], [1167,8,23,31,35,39,40,24], [1166,14,23,25,27,29,42,16], [1165,6,7,27,29,38,45,17], [1164,17,18,23,25,38,39,22], [1163,2,13,15,16,33,43,4], [1162,20,21,22,25,28,29,6], [1161,2,12,20,24,34,42,37], [1160,7,13,18,36,39,45,19], [1159,3,9,27,28,38,39,7], [1158,21,25,27,32,37,38,20], [1157,5,7,12,20,25,26,28], [1156,30,31,34,39,41,45,7], [1155,10,16,19,27,37,38,13], [1154,4,8,22,26,32,38,27], [1153,1,9,10,13,35,44,5], [1152,30,31,32,35,36,37,5], [1151,2,3,9,15,27,29,8], [1150,8,9,18,35,39,45,25], [1149,8,15,19,21,32,36,38], [1148,3,6,13,15,16,22,32], [1147,7,11,24,26,27,37,32], [1146,6,11,17,19,40,43,28], [1145,2,11,31,33,37,44,32], [1144,3,4,12,15,26,34,6], [1143,10,16,17,27,28,36,6], [1142,2,8,28,30,37,41,22], [1141,7,11,12,21,26,35,20], [1140,7,10,22,29,31,38,15], [1139,5,12,15,30,37,40,18], [1138,14,16,19,20,29,34,35], [1137,4,9,12,15,33,45,26], [1136,21,33,35,38,42,44,1], [1135,1,6,13,19,21,33,4], [1134,3,7,9,13,19,24,23], [1133,13,14,20,28,29,34,23], [1132,6,7,19,28,34,41,5], [1131,1,2,6,14,27,38,33], [1130,15,19,21,25,27,28,40], [1129,5,10,11,17,28,34,22], [1128,1,5,8,16,28,33,45], [1127,10,15,24,30,31,37,32], [1126,4,5,9,11,37,40,7], [1125,6,14,25,33,40,44,30], [1124,3,8,17,30,33,34,28], [1123,13,19,21,24,34,35,26], [1122,3,6,21,30,34,35,22], [1121,6,24,31,32,38,44,8], [1120,2,19,26,31,38,41,34], [1119,1,9,12,13,20,45,3], [1118,11,13,14,15,16,45,3], [1117,3,4,9,30,33,36,7], [1116,15,16,17,25,30,31,32], [1115,7,12,23,32,34,36,8], [1114,10,16,19,32,33,38,3], [1113,11,13,20,21,32,44,8], [1112,16,20,26,36,42,44,24], [1111,3,13,30,33,43,45,4], [1110,3,7,11,20,22,41,24], [1109,10,12,13,19,33,40,2], [1108,7,19,26,37,39,44,27], [1107,6,14,30,31,40,41,29], [1106,1,3,4,29,42,45,36], [1105,6,16,34,37,39,40,11], [1104,1,7,21,30,35,38,2], [1103,10,12,29,31,40,44,2], [1102,13,14,22,26,37,38,20], [1101,6,7,13,28,36,42,41], [1100,17,26,29,30,31,43,12], [1099,3,20,28,38,40,43,4], [1098,12,16,21,24,41,43,15], [1097,14,33,34,35,37,40,4], [1096,1,12,16,19,23,43,34], [1095,8,14,28,29,34,40,12], [1094,6,7,15,22,26,40,41], [1093,10,17,22,30,35,43,44], [1092,7,18,19,26,33,45,37], [1091,6,20,23,24,28,30,44], [1090,12,19,21,29,40,45,1], [1089,4,18,31,37,42,43,40], [1088,11,21,22,30,39,44,31], [1087,13,14,18,21,34,44,16], [1086,11,16,25,27,35,36,37], [1085,4,7,17,18,38,44,36], [1084,8,12,13,29,33,42,5], [1083,3,7,14,15,22,38,17], [1082,21,26,27,32,34,42,31], [1081,1,9,16,23,24,38,17], [1080,13,16,23,31,36,44,38], [1079,4,8,18,24,37,45,6], [1078,6,10,11,14,36,38,43], [1077,4,8,17,30,40,43,34], [1076,3,7,9,33,36,37,10], [1075,1,23,24,35,44,45,10], [1074,1,6,20,27,28,41,15], [1073,6,18,28,30,32,38,15], [1072,16,18,20,23,32,43,27], [1071,1,2,11,21,30,35,39], [1070,3,6,14,22,30,41,36], [1069,1,10,18,22,28,31,44], [1068,4,7,19,26,33,35,3], [1067,7,10,19,23,28,33,18], [1066,6,11,16,19,21,32,45], [1065,3,18,19,23,32,45,24], [1064,3,6,9,18,22,35,14], [1063,3,6,22,23,24,38,30], [1062,20,31,32,40,41,45,12], [1061,4,24,27,35,37,45,15], [1060,3,10,24,33,38,45,36], [1059,7,10,22,25,34,40,27], [1058,11,23,25,30,32,40,42], [1057,8,13,19,27,40,45,12], [1056,13,20,24,32,36,45,29], [1055,4,7,12,14,22,33,31], [1054,14,19,27,28,30,45,33], [1053,22,26,29,30,34,45,15], [1052,5,17,26,27,35,38,1], [1051,21,26,30,32,33,35,44], [1050,6,12,31,35,38,43,17], [1049,3,5,13,20,21,37,17], [1048,6,12,17,21,32,39,30], [1047,2,20,33,40,42,44,32], [1046,7,16,25,29,35,36,28], [1045,6,14,15,19,21,41,37], [1044,12,17,20,26,28,36,4], [1043,3,5,12,22,26,31,19], [1042,5,14,15,23,34,43,4], [1041,6,7,9,11,17,18,45], [1040,8,16,26,29,31,36,11], [1039,2,3,6,19,36,39,26], [1038,7,16,24,27,37,44,2], [1037,2,14,15,22,27,33,31], [1036,2,5,22,32,34,45,39], [1035,9,14,34,35,41,42,2], [1034,26,31,32,33,38,40,11], [1033,3,11,15,20,35,44,10], [1032,1,6,12,19,36,42,28], [1031,6,7,22,32,35,36,19], [1030,2,5,11,17,24,29,9], [1029,12,30,32,37,39,41,24], [1028,5,7,12,13,18,35,23], [1027,14,16,27,35,39,45,5], [1026,5,12,13,31,32,41,34], [1025,8,9,20,25,29,33,7], [1024,9,18,20,22,38,44,10], [1023,10,14,16,18,29,35,25], [1022,5,6,11,29,42,45,28], [1021,12,15,17,24,29,45,16], [1020,12,27,29,38,41,45,6], [1019,1,4,13,17,34,39,6], [1018,3,19,21,25,37,45,35], [1017,12,18,22,23,30,34,32], [1016,15,26,28,34,41,42,44], [1015,14,23,31,33,37,40,44], [1014,3,11,14,18,26,27,21], [1013,21,22,26,34,36,41,32], [1012,5,11,18,20,35,45,3], [1011,1,9,12,26,35,38,42], [1010,9,12,15,25,34,36,3], [1009,15,23,29,34,40,44,20], [1008,9,11,30,31,41,44,33], [1007,8,11,16,19,21,25,40], [1006,8,11,15,16,17,37,36], [1005,8,13,18,24,27,29,17], [1004,7,15,30,37,39,44,18], [1003,1,4,29,39,43,45,31], [1002,17,25,33,35,38,45,15], [1001,6,10,12,14,20,42,15], [1000,2,8,19,22,32,42,39], [999,1,3,9,14,18,28,34], [998,13,17,18,20,42,45,41], [997,4,7,14,16,24,44,20], [996,6,11,15,24,32,39,28], [995,1,4,13,29,38,39,7], [994,1,3,8,24,27,35,28], [993,6,14,16,18,24,42,44], [992,12,20,26,33,44,45,24], [991,13,18,25,31,33,44,38], [990,2,4,25,26,36,37,28], [989,17,18,21,27,29,33,26], [988,2,13,20,30,31,41,27], [987,2,4,15,23,29,38,7], [986,7,10,16,28,41,42,40], [985,17,21,23,30,34,44,19], [984,3,10,23,35,36,37,18], [983,13,23,26,31,35,43,15], [982,5,7,13,20,21,44,33], [981,27,36,37,41,43,45,32], [980,3,13,16,23,24,35,14], [979,7,11,16,21,27,33,24], [978,1,7,15,32,34,42,8], [977,2,9,10,14,22,44,16], [976,4,12,14,25,35,37,2], [975,7,8,9,17,22,24,5], [974,1,2,11,16,39,44,32], [973,22,26,31,37,41,42,24], [972,3,6,17,23,37,39,26], [971,2,6,17,18,21,26,7], [970,9,11,16,21,28,36,5], [969,3,9,10,29,40,45,7], [968,2,5,12,14,24,39,33], [967,1,6,13,37,38,40,9], [966,1,21,25,29,34,37,36], [965,2,13,25,28,29,36,34], [964,6,21,36,38,39,43,30], [963,6,12,19,23,34,42,35], [962,1,18,28,31,34,43,40], [961,11,20,29,31,33,42,43], [960,2,18,24,30,32,45,14], [959,1,14,15,24,40,41,35], [958,2,9,10,16,35,37,1], [957,4,15,24,35,36,40,1], [956,10,11,20,21,25,41,40], [955,4,9,23,26,29,33,8], [954,1,9,26,28,30,41,32], [953,7,9,22,27,37,42,34], [952,4,12,22,24,33,41,38], [951,2,12,30,31,39,43,38], [950,3,4,15,22,28,40,10], [949,14,21,35,36,40,44,30], [948,13,18,30,31,38,41,5], [947,3,8,17,20,27,35,26], [946,9,18,19,30,34,40,20], [945,9,10,15,30,33,37,26], [944,2,13,16,19,32,33,42], [943,1,8,13,36,44,45,39], [942,10,12,18,35,42,43,39], [941,12,14,25,27,39,40,35], [940,3,15,20,22,24,41,11], [939,4,11,28,39,42,45,6], [938,4,8,10,16,31,36,9], [937,2,10,13,22,29,40,26], [936,7,11,13,17,18,29,43], [935,4,10,20,32,38,44,18], [934,1,3,30,33,36,39,12], [933,23,27,29,31,36,45,37], [932,1,6,15,36,37,38,5], [931,14,15,23,25,35,43,32], [930,8,21,25,38,39,44,28], [929,7,9,12,15,19,23,4], [928,3,4,10,20,28,44,30], [927,4,15,22,38,41,43,26], [926,10,16,18,20,25,31,6], [925,13,24,32,34,39,42,4], [924,3,11,34,42,43,44,13], [923,3,17,18,23,36,41,26], [922,2,6,13,17,27,43,36], [921,5,7,12,22,28,41,1], [920,2,3,26,33,34,43,29], [919,9,14,17,18,42,44,35], [918,7,11,12,31,33,38,5], [917,1,3,23,24,27,43,34], [916,6,21,22,32,35,36,17], [915,2,6,11,13,22,37,14], [914,16,19,24,33,42,44,27], [913,6,14,16,21,27,37,40], [912,5,8,18,21,22,38,10], [911,4,5,12,14,32,42,35], [910,1,11,17,27,35,39,31], [909,7,24,29,30,34,35,33], [908,3,16,21,22,23,44,30], [907,21,27,29,38,40,44,37], [906,2,5,14,28,31,32,20], [905,3,4,16,27,38,40,20], [904,2,6,8,26,43,45,11], [903,2,15,16,21,22,28,45], [902,7,19,23,24,36,39,30], [901,5,18,20,23,30,34,21], [900,7,13,16,18,35,38,14] ];
+    // 전체 데이터 (900~1213)
+    const FULL_DATA = [
+        [1213,5,11,25,27,36,38,2],[1212,23,26,27,35,38,40,10],[1211,1,7,9,17,27,38,31],[1210,2,17,20,35,37,39,24],[1209,6,27,30,36,38,42,25],
+        [1208,10,22,24,27,38,45,11],[1207,1,3,17,26,27,42,23],[1206,1,4,16,23,31,41,2],[1205,8,16,28,30,31,44,27],[1204,3,6,18,29,35,39,24],
+        [1203,5,12,21,33,37,40,7],[1202,7,9,24,27,35,36,37],[1201,1,2,4,16,20,32,45],[1200,16,24,25,30,31,32,7],[1199,26,30,33,38,39,41,21],
+        [1198,1,5,7,26,28,43,30],[1197,8,12,15,29,40,45,14],[1196,3,15,27,33,34,36,37],[1195,3,13,15,24,33,37,2],[1194,6,9,16,19,24,28,17],
+        [1193,10,16,23,36,39,40,11],[1192,1,4,11,12,20,41,2],[1191,7,9,19,23,26,45,33],[1190,9,19,29,35,37,38,31],[1189,3,4,12,19,22,27,9],
+        [1188,5,13,26,29,37,40,42],[1187,2,8,13,16,23,28,35],[1186,6,17,22,28,29,32,38],[1185,14,16,23,25,31,37,42],[1184,4,15,17,23,27,36,31],
+        [1183,1,13,21,25,28,31,22],[1182,8,10,14,20,33,41,28],[1181,6,12,18,37,40,41,3],[1180,3,16,18,24,40,44,21],[1179,5,6,11,27,43,44,17],
+        [1178,3,7,15,16,19,43,21],[1177,7,9,11,21,30,35,29],[1176,3,4,6,8,32,42,31],[1175,8,11,14,17,36,39,22],[1174,1,5,18,20,30,35,3],
+        [1173,7,9,24,40,42,44,45],[1172,3,6,7,11,12,17,19],[1171,3,13,28,34,38,42,25],[1170,5,12,24,26,39,42,20],[1169,9,21,24,30,33,37,29],
+        [1168,8,23,31,35,39,40,24],[1167,14,23,25,27,29,42,16],[1166,6,7,27,29,38,45,17],[1165,17,18,23,25,38,39,22],[1164,2,13,15,16,33,43,4],
+        [1163,20,21,22,25,28,29,6],[1162,2,12,20,24,34,42,37],[1161,7,13,18,36,39,45,19],[1160,3,9,27,28,38,39,7],[1159,21,25,27,32,37,38,20],
+        [1158,5,7,12,20,25,26,28],[1157,30,31,34,39,41,45,7],[1156,10,16,19,27,37,38,13],[1155,4,8,22,26,32,38,27],[1154,1,9,10,13,35,44,5],
+        [1153,30,31,32,35,36,37,5],[1152,2,3,9,15,27,29,8],[1151,8,9,18,35,39,45,25],[1150,8,15,19,21,32,36,38],[1149,3,6,13,15,16,22,32],
+        [1148,7,11,24,26,27,37,32],[1147,6,11,17,19,40,43,28],[1146,2,11,31,33,37,44,32],[1145,3,4,12,15,26,34,6],[1144,10,16,17,27,28,36,6],
+        [1143,2,8,28,30,37,41,22],[1142,7,11,12,21,26,35,20],[1141,7,10,22,29,31,38,15],[1140,5,12,15,30,37,40,18],[1139,14,16,19,20,29,34,35],
+        [1138,4,9,12,15,33,45,26],[1137,21,33,35,38,42,44,1],[1136,1,6,13,19,21,33,4],[1135,3,7,9,13,19,24,23],[1134,13,14,20,28,29,34,23],
+        [1133,6,7,19,28,34,41,5],[1132,1,2,6,14,27,38,33],[1131,15,19,21,25,27,28,40],[1130,5,10,11,17,28,34,22],[1129,1,5,8,16,28,33,45],
+        [1128,10,15,24,30,31,37,32],[1127,4,5,9,11,37,40,7],[1126,6,14,25,33,40,44,30],[1125,3,8,17,30,33,34,28],[1124,13,19,21,24,34,35,26],
+        [1123,3,6,21,30,34,35,22],[1122,6,24,31,32,38,44,8],[1121,2,19,26,31,38,41,34],[1120,1,9,12,13,20,45,3],[1119,11,13,14,15,16,45,3],
+        [1118,3,4,9,30,33,36,7],[1117,15,16,17,25,30,31,32],[1116,7,12,23,32,34,36,8],[1115,10,16,19,32,33,38,3],[1114,11,13,20,21,32,44,8],
+        [1113,16,20,26,36,42,44,24],[1112,3,13,30,33,43,45,4],[1111,3,7,11,20,22,41,24],[1110,10,12,13,19,33,40,2],[1109,7,19,26,37,39,44,27],
+        [1108,6,14,30,31,40,41,29],[1107,1,3,4,29,42,45,36],[1106,6,16,34,37,39,40,11],[1105,1,7,21,30,35,38,2],[1104,10,12,29,31,40,44,2],
+        [1103,13,14,22,26,37,38,20],[1102,6,7,13,28,36,42,41],[1101,17,26,29,30,31,43,12],[1100,3,20,28,38,40,43,4],[1099,12,16,21,24,41,43,15],
+        [1098,14,33,34,35,37,40,4],[1097,1,12,16,19,23,43,34],[1096,8,14,28,29,34,40,12],[1095,6,7,15,22,26,40,41],[1094,10,17,22,30,35,43,44],
+        [1093,7,18,19,26,33,45,37],[1092,6,20,23,24,28,30,44],[1091,12,19,21,29,40,45,1],[1090,4,18,31,37,42,43,40],[1089,11,21,22,30,39,44,31],
+        [1088,13,14,18,21,34,44,16],[1087,11,16,25,27,35,36,37],[1086,4,7,17,18,38,44,36],[1085,8,12,13,29,33,42,5],[1084,3,7,14,15,22,38,17],
+        [1083,21,26,27,32,34,42,31],[1082,1,9,16,23,24,38,17],[1081,13,16,23,31,36,44,38],[1080,4,8,18,24,37,45,6],[1079,6,10,11,14,36,38,43],
+        [1078,4,8,17,30,40,43,34],[1077,3,7,9,33,36,37,10],[1076,1,23,24,35,44,45,10],[1075,1,6,20,27,28,41,15],[1074,6,18,28,30,32,38,15],
+        [1073,16,18,20,23,32,43,27],[1072,1,2,11,21,30,35,39],[1071,3,6,14,22,30,41,36],[1070,1,10,18,22,28,31,44],[1069,4,7,19,26,33,35,3],
+        [1068,7,10,19,23,28,33,18],[1067,6,11,16,19,21,32,45],[1066,3,18,19,23,32,45,24],[1065,3,6,9,18,22,35,14],[1064,3,6,22,23,24,38,30],
+        [1063,20,31,32,40,41,45,12],[1062,4,24,27,35,37,45,15],[1061,3,10,24,33,38,45,36],[1060,7,10,22,25,34,40,27],[1059,11,23,25,30,32,40,42],
+        [1058,8,13,19,27,40,45,12],[1057,13,20,24,32,36,45,29],[1056,4,7,12,14,22,33,31],[1055,14,19,27,28,30,45,33],[1054,22,26,29,30,34,45,15],
+        [1053,5,17,26,27,35,38,1],[1052,21,26,30,32,33,35,44],[1051,6,12,31,35,38,43,17],[1050,3,5,13,20,21,37,17],[1049,6,12,17,21,32,39,30],
+        [1048,2,20,33,40,42,44,32],[1047,7,16,25,29,35,36,28],[1046,6,14,15,19,21,41,37],[1045,12,17,20,26,28,36,4],[1044,3,5,12,22,26,31,19],
+        [1043,5,14,15,23,34,43,4],[1042,6,7,9,11,17,18,45],[1041,8,16,26,29,31,36,11],[1040,2,3,6,19,36,39,26],[1039,7,16,24,27,37,44,2],
+        [1038,2,14,15,22,27,33,31],[1037,2,5,22,32,34,45,39],[1036,9,14,34,35,41,42,2],[1035,26,31,32,33,38,40,11],[1034,3,11,15,20,35,44,10],
+        [1033,1,6,12,19,36,42,28],[1032,6,7,22,32,35,36,19],[1031,2,5,11,17,24,29,9],[1030,12,30,32,37,39,41,24],[1029,5,7,12,13,18,35,23],
+        [1028,14,16,27,35,39,45,5],[1027,5,12,13,31,32,41,34],[1026,8,9,20,25,29,33,7],[1025,9,18,20,22,38,44,10],[1024,10,14,16,18,29,35,25],
+        [1023,5,6,11,29,42,45,28],[1022,12,15,17,24,29,45,16],[1021,12,27,29,38,41,45,6],[1020,1,4,13,17,34,39,6],[1019,3,19,21,25,37,45,35],
+        [1018,12,18,22,23,30,34,32],[1017,15,26,28,34,41,42,44],[1016,14,23,31,33,37,40,44],[1015,3,11,14,18,26,27,21],[1014,21,22,26,34,36,41,32],
+        [1013,5,11,18,20,35,45,3],[1012,1,9,12,26,35,38,42],[1011,9,12,15,25,34,36,3],[1010,15,23,29,34,40,44,20],[1009,9,11,30,31,41,44,33],
+        [1008,8,11,16,19,21,25,40],[1007,8,11,15,16,17,37,36],[1006,8,13,18,24,27,29,17],[1005,7,15,30,37,39,44,18],[1004,1,4,29,39,43,45,31],
+        [1003,17,25,33,35,38,45,15],[1002,6,10,12,14,20,42,15],[1001,2,8,19,22,32,42,39],[1000,1,3,9,14,18,28,34],[999,13,17,18,20,42,45,41],
+        [998,4,7,14,16,24,44,20],[997,6,11,15,24,32,39,28],[996,1,4,13,29,38,39,7],[995,1,3,8,24,27,35,28],[994,6,14,16,18,24,42,44],
+        [993,12,20,26,33,44,45,24],[992,13,18,25,31,33,44,38],[991,2,4,25,26,36,37,28],[990,17,18,21,27,29,33,26],[989,2,13,20,30,31,41,27],
+        [988,2,4,15,23,29,38,7],[987,7,10,16,28,41,42,40],[986,17,21,23,30,34,44,19],[985,3,10,23,35,36,37,18],[984,13,23,26,31,35,43,15],
+        [983,5,7,13,20,21,44,33],[982,27,36,37,41,43,45,32],[981,3,13,16,23,24,35,14],[980,7,11,16,21,27,33,24],[979,1,7,15,32,34,42,8],
+        [978,2,9,10,14,22,44,16],[977,4,12,14,25,35,37,2],[976,7,8,9,17,22,24,5],[975,1,2,11,16,39,44,32],[974,22,26,31,37,41,42,24],
+        [973,3,6,17,23,37,39,26],[972,2,6,17,18,21,26,7],[971,9,11,16,21,28,36,5],[970,3,9,10,29,40,45,7],[969,2,5,12,14,24,39,33],
+        [968,1,6,13,37,38,40,9],[967,1,21,25,29,34,37,36],[966,2,13,25,28,29,36,34],[965,6,21,36,38,39,43,30],[964,6,12,19,23,34,42,35],
+        [963,1,18,28,31,34,43,40],[962,11,20,29,31,33,42,43],[961,2,18,24,30,32,45,14],[960,1,14,15,24,40,41,35],[959,2,9,10,16,35,37,1],
+        [958,4,15,24,35,36,40,1],[957,10,11,20,21,25,41,40],[956,4,9,23,26,29,33,8],[955,1,9,26,28,30,41,32],[954,7,9,22,27,37,42,34],
+        [953,4,12,22,24,33,41,38],[952,2,12,30,31,39,43,38],[951,3,4,15,22,28,40,10],[950,14,21,35,36,40,44,30],[949,13,18,30,31,38,41,5],
+        [948,3,8,17,20,27,35,26],[947,9,18,19,30,34,40,20],[946,9,10,15,30,33,37,26],[945,2,13,16,19,32,33,42],[944,1,8,13,36,44,45,39],
+        [943,10,12,18,35,42,43,39],[942,12,14,25,27,39,40,35],[941,3,15,20,22,24,41,11],[940,4,11,28,39,42,45,6],[939,4,8,10,16,31,36,9],
+        [938,2,10,13,22,29,40,26],[937,7,11,13,17,18,29,43],[936,4,10,20,32,38,44,18],[935,1,3,30,33,36,39,12],[934,23,27,29,31,36,45,37],
+        [933,1,6,15,36,37,38,5],[932,14,15,23,25,35,43,32],[931,8,21,25,38,39,44,28],[930,7,9,12,15,19,23,4],[929,3,4,10,20,28,44,30],
+        [928,4,15,22,38,41,43,26],[927,10,16,18,20,25,31,6],[926,13,24,32,34,39,42,4],[925,3,11,34,42,43,44,13],[924,3,17,18,23,36,41,26],
+        [923,2,6,13,17,27,43,36],[922,5,7,12,22,28,41,1],[921,2,3,26,33,34,43,29],[920,9,14,17,18,42,44,35],[919,7,11,12,31,33,38,5],
+        [918,1,3,23,24,27,43,34],[917,6,21,22,32,35,36,17],[916,2,6,11,13,22,37,14],[915,16,19,24,33,42,44,27],[914,6,14,16,21,27,37,40],
+        [913,5,8,18,21,22,38,10],[912,4,5,12,14,32,42,35],[911,1,11,17,27,35,39,31],[910,7,24,29,30,34,35,33],[909,3,16,21,22,23,44,30],
+        [908,21,27,29,38,40,44,37],[907,2,5,14,28,31,32,20],[906,3,4,16,27,38,40,20],[905,2,6,8,26,43,45,11],[904,2,15,16,21,22,28,45],
+        [903,7,19,23,24,36,39,30],[902,5,18,20,23,30,34,21],[901,7,13,16,18,35,38,14],[900,7,13,16,18,35,38,14]
+    ];
 
-    // ===== 전역 변수 =====
-    let basket = []; // 10수
-    let survivors = []; // 생존자 목록
-    let zeroFreqNums = [], machineFixed = [];
-    let dynamicAvgSum = 145;
-    let userName = "";
-    let savedNumbers = [];
-    let currentBaseRound = 1213;
-    let generatedCombos = []; // 생성된 조합 목록 (임시 저장)
-    let weightedScore = {}; // 가중치 점수 (조합 생성 시 사용)
-    let middle = []; // B bag (교체당한 번호들이 여기로 감)
-    let bonusNums = []; // 보너스 번호 목록
-    let compressedOut4 = []; // 14수에서 10수로 줄면서 빠진 4개 번호 (교체 후 남은 2개)
-    let full14 = []; // 14수 (전체)
+    // 전역 변수
+    let currentMode = 'ai';
+    let full14 = [];
+    let full14_ai = [];
+    let full14_exclude = [];
+    let integrated14 = [];
+    let survivors = [];
+    let currentCompress = 14;
+    let userName = "", savedNumbers = [], currentBaseRound = 1214, generatedCombos = [];
+    let fixedNumbers = [];
+    let intervalWeeks = 1, referenceCount = 10;
+    let touchGame = null, touchInterval = null, touchSelected = [], reactionSelected = [], reactionState = 'idle', reactionTimer = null, reactionStartTime = 0;
 
-    // 교체 관련 변수 (시각화용)
-    let replacedIn = [];    // 교체된 번호 (빠진4 → 10수로 들어온 2개) - 빨간색
-    let replacedOut = [];   // 교체당한 번호 (10수에서 빠져나간 2개) - 파란색
+    let tradeActive = false;
+    let original_ai = [];
+    let original_exclude = [];
+    let lostWinningNumbers = [];
+    let patternScores = [];
+    let excludeScores = {};
+    let pairFrequency = {};
 
-    // ===== 사용자 관리 =====
+    // 사용자 조절 가능한 트레이드 개수 (기본 7)
+    let tradeCount = 7;
+
+    function initUser() {
+        let s = localStorage.getItem('lottoUserName');
+        if (s) userName = s;
+        else {
+            userName = "guest_" + Math.random().toString(36).substring(2,6);
+            localStorage.setItem('lottoUserName', userName);
+        }
+        savedNumbers = JSON.parse(localStorage.getItem(`lottoSave_${userName}`)) || [];
+        updateUserDisplay();
+    }
     function updateUserDisplay() {
-        const userDisplay = document.getElementById('userDisplay');
-        userDisplay.innerHTML = `👤 ${userName} 
-            <button class="change-name-btn" onclick="changeName()">이름변경</button>
-            <button class="change-name-btn" style="background:#ff4444;" onclick="deleteUser()">삭제</button>`;
+        document.getElementById('userDisplay').innerHTML = `👤 <span>${userName}</span> <button class="change-name-btn" onclick="changeName()">변경</button> <button class="change-name-btn" style="background:#ff4444;" onclick="deleteUser()">삭제</button>`;
     }
     function changeName() {
-        const newName = prompt("새로운 이름을 입력하세요:", userName);
-        if (newName && newName.trim() !== "") {
-            userName = newName.trim();
+        let n = prompt("이름", userName);
+        if (n && n.trim()) {
+            userName = n.trim();
             localStorage.setItem('lottoUserName', userName);
-            const storageKey = `lottoSave_${userName}`;
-            savedNumbers = JSON.parse(localStorage.getItem(storageKey)) || [];
+            savedNumbers = JSON.parse(localStorage.getItem(`lottoSave_${userName}`)) || [];
             updateUserDisplay();
-            showToast(`이름이 ${userName}(으)로 변경되었습니다`);
+            showToast('이름 변경');
         }
     }
     function deleteUser() {
-        if(confirm(`정말 ${userName}님의 모든 기록을 삭제하시겠습니까?`)) {
+        if(confirm("삭제?")) {
             localStorage.removeItem(`lottoSave_${userName}`);
-            userName = "guest_" + Math.random().toString(36).substring(2, 6);
+            userName = "guest_" + Math.random().toString(36).substring(2,6);
             localStorage.setItem('lottoUserName', userName);
             savedNumbers = [];
             updateUserDisplay();
-            showToast(`새로운 손님 계정(${userName})으로 시작합니다`);
+            showToast('새 계정');
         }
     }
-    function initUser() {
-        const savedName = localStorage.getItem('lottoUserName');
-        if (savedName) userName = savedName;
-        else {
-            userName = "guest_" + Math.random().toString(36).substring(2, 6);
-            localStorage.setItem('lottoUserName', userName);
+    function showToast(msg) {
+        let t = document.getElementById('toast');
+        t.querySelector('span').innerText = msg;
+        t.style.display = 'block';
+        setTimeout(() => t.style.display = 'none', 800);
+    }
+
+    function analyzeExcelVisual(pastData) {
+        let scores = Array(46).fill(0);
+        let grid = Array.from({ length: pastData.length }, () => Array(46).fill(0));
+        pastData.forEach((row, rIdx) => {
+            row.slice(1, 7).forEach(n => grid[rIdx][n] = 1);
+        });
+        for (let n = 1; n <= 45; n++) {
+            for (let r = 0; r < pastData.length; r++) {
+                if (grid[r][n] === 1) {
+                    if (r < pastData.length-1 && (grid[r+1][n-1] === 1 || grid[r+1][n+1] === 1)) scores[n] += 25;
+                    if (grid[r][n-1] === 1 || grid[r][n+1] === 1) scores[n] += 15;
+                    if (r < pastData.length-1 && grid[r+1][n] === 1) scores[n] += 20;
+                }
+            }
+            let isGap = true;
+            for(let r=0; r<pastData.length; r++) { if(grid[r][n] === 1) isGap = false; }
+            if(isGap) scores[n] += 18;
         }
-        const storageKey = `lottoSave_${userName}`;
-        savedNumbers = JSON.parse(localStorage.getItem(storageKey)) || [];
-        updateUserDisplay();
+        return scores;
     }
 
-    // 토스트 표시 함수
-    function showToast(message, duration = 1500) {
-        const toast = document.getElementById('toast');
-        const span = toast.querySelector('span');
-        span.innerText = message;
-        toast.style.display = 'block';
-        setTimeout(() => {
-            toast.style.display = 'none';
-        }, duration);
+    function analyze() {
+        let pastData = FULL_DATA.filter(round => round[0] < currentBaseRound);
+        let collectedRounds = [];
+        for (let i = 0; i < referenceCount; i++) {
+            let targetRound = currentBaseRound - 1 - intervalWeeks * i;
+            let found = pastData.find(r => r[0] === targetRound);
+            if (found) collectedRounds.push(found);
+        }
+        if (collectedRounds.length === 0) {
+            alert("더 이상 분석할 데이터가 없습니다. 기준 회차를 낮추거나 간격/회차 수를 조정하세요.");
+            document.getElementById('status').innerHTML = `<div class="stat-row">❌ 수집된 데이터가 없습니다. 간격/회차를 조정하세요.</div>`;
+            return;
+        }
+
+        let allNumbers = [];
+        collectedRounds.forEach(round => allNumbers.push(...round.slice(1, 7)));
+        let freq = {};
+        allNumbers.forEach(n => freq[n] = (freq[n] || 0) + 1);
+        let sortedByFreq = Object.entries(freq)
+            .map(([num, cnt]) => ({ num: parseInt(num), cnt }))
+            .sort((a, b) => b.cnt - a.cnt || a.num - b.num);
+        survivors = sortedByFreq.slice(0, 16).map(x => x.num).sort((a,b)=>a-b);
+
+        let past10 = collectedRounds.slice(0, 10);
+        let past15 = collectedRounds.slice(0, 15);
+        excludeScores = {};
+        survivors.forEach(num => {
+            let score = 0;
+            let freqRecent10 = past10.filter(r => r.slice(1,7).includes(num)).length;
+            score += freqRecent10 * 2.0;
+            if (!past15.some(r => r.slice(1,7).includes(num))) score += 7.0;
+            if (num >= 20 && num <= 35) score += 1.5;
+            excludeScores[num] = score;
+        });
+
+        let scoredExclude = survivors.map(num => ({ num, score: excludeScores[num] }));
+        scoredExclude.sort((a, b) => b.score - a.score);
+        original_exclude = scoredExclude.slice(0, currentCompress).map(x => x.num).sort((a,b)=>a-b);
+
+        patternScores = analyzeExcelVisual(collectedRounds);
+
+        let excludeSet = new Set(original_exclude);
+        let candidates = [];
+        for (let i = 1; i <= 45; i++) {
+            if (!excludeSet.has(i)) {
+                candidates.push({ num: i, score: patternScores[i] });
+            }
+        }
+        candidates.sort((a, b) => b.score - a.score);
+        original_ai = candidates.slice(0, currentCompress).map(x => x.num).sort((a,b)=>a-b);
+
+        pairFrequency = {};
+        collectedRounds.forEach(round => {
+            let nums = round.slice(1, 7);
+            for (let i = 0; i < nums.length; i++) {
+                for (let j = i+1; j < nums.length; j++) {
+                    let a = Math.min(nums[i], nums[j]);
+                    let b = Math.max(nums[i], nums[j]);
+                    let key = a + ',' + b;
+                    pairFrequency[key] = (pairFrequency[key] || 0) + 1;
+                }
+            }
+        });
+
+        tradeActive = false;
+        document.getElementById('tradeBtn').classList.remove('active');
+        integrated14 = [];
+        lostWinningNumbers = [];
+        applyCurrentState();
     }
 
-    // 저장 함수 (피드백 추가)
+    function applyCurrentState() {
+        if (tradeActive) {
+        } else {
+            full14_ai = original_ai.slice();
+            full14_exclude = original_exclude.slice();
+        }
+
+        if (currentMode === 'ai') {
+            full14 = full14_ai.slice();
+        } else {
+            full14 = full14_exclude.slice();
+        }
+
+        let intersection = full14_ai.filter(n => full14_exclude.includes(n));
+        let intersectionWithScore = [];
+
+        let aiRankMap = {};
+        let excludeRankMap = {};
+        if (tradeActive) {
+            let aiRanking = [];
+            for (let i = 1; i <= 45; i++) {
+                aiRanking.push({ num: i, score: patternScores[i] });
+            }
+            aiRanking.sort((a, b) => b.score - a.score);
+            aiRanking.forEach((item, idx) => { aiRankMap[item.num] = idx + 1; });
+
+            let excludeRanking = survivors.map(num => ({ num, score: excludeScores[num] }));
+            excludeRanking.sort((a, b) => b.score - a.score);
+            excludeRanking.forEach((item, idx) => { excludeRankMap[item.num] = idx + 1; });
+        } else {
+            let aiRanking = [];
+            for (let i = 1; i <= 45; i++) {
+                aiRanking.push({ num: i, score: patternScores[i] });
+            }
+            aiRanking.sort((a, b) => b.score - a.score);
+            aiRanking.forEach((item, idx) => { aiRankMap[item.num] = idx + 1; });
+
+            let excludeRanking = survivors.map(num => ({ num, score: excludeScores[num] }));
+            excludeRanking.sort((a, b) => b.score - a.score);
+            excludeRanking.forEach((item, idx) => { excludeRankMap[item.num] = idx + 1; });
+        }
+
+        intersection.forEach(num => {
+            let aiRank = aiRankMap[num] || 45;
+            let exRank = excludeRankMap[num] || 17;
+            let totalRank = aiRank + exRank;
+            intersectionWithScore.push({ num, score: totalRank });
+        });
+
+        intersectionWithScore.sort((a, b) => a.score - b.score);
+        let sortedIntersection = intersectionWithScore.map(x => x.num);
+        let topIntersection = sortedIntersection.slice(0, currentCompress);
+
+        let integratedHtml = '';
+        if (tradeActive && integrated14.length > 0) {
+            let winData = FULL_DATA.find(r => r[0] === currentBaseRound);
+            let winNumbers = winData ? winData.slice(1, 7) : [];
+            let bonus = winData ? winData[7] : null;
+            function formatNumber(num) {
+                if (winNumbers.includes(num)) return `<span class="winning-num">${num}</span>`;
+                else if (bonus === num) return `<span class="bonus-num">${num}</span>`;
+                else return `<span>${num}</span>`;
+            }
+            let integratedMatches = integrated14.filter(n => winNumbers.includes(n)).length;
+            let integratedHtmlContent = integrated14.map(formatNumber).join(' ') + ` <span style="color:#ffffff; font-size:0.8em;">(${integratedMatches}개 일치)</span>`;
+            integratedHtml = `<div class="stat-row"><span class="stat-label">🔷 통합 14수</span> <div class="number-group"><b>${integratedHtmlContent}</b></div></div>`;
+        }
+
+        let topIntersectionHtml = '';
+        if (topIntersection.length > 0) {
+            let winData = FULL_DATA.find(r => r[0] === currentBaseRound);
+            let winNumbers = winData ? winData.slice(1, 7) : [];
+            let bonus = winData ? winData[7] : null;
+            function formatNumber(num) {
+                if (winNumbers.includes(num)) return `<span class="winning-num">${num}</span>`;
+                else if (bonus === num) return `<span class="bonus-num">${num}</span>`;
+                else return `<span>${num}</span>`;
+            }
+            let matches = topIntersection.filter(n => winNumbers.includes(n)).length;
+            let content = topIntersection.map(formatNumber).join(' ') + ` <span style="color:#ffffff; font-size:0.8em;">(${matches}개 일치)</span>`;
+            topIntersectionHtml = `<div class="stat-row"><span class="stat-label">🤝 교집합 상위 ${currentCompress}</span> <div class="number-group"><b style="color:#ffaa00">${content}</b></div></div>`;
+        }
+
+        let winData = FULL_DATA.find(r => r[0] === currentBaseRound);
+        let winNumbers = winData ? winData.slice(1, 7) : [];
+        let bonus = winData ? winData[7] : null;
+
+        function formatNumber(num) {
+            if (winNumbers.includes(num)) return `<span class="winning-num">${num}</span>`;
+            else if (bonus === num) return `<span class="bonus-num">${num}</span>`;
+            else return `<span>${num}</span>`;
+        }
+
+        let aiMatches = full14_ai.filter(n => winNumbers.includes(n)).length;
+        let excludeMatches = full14_exclude.filter(n => winNumbers.includes(n)).length;
+        let unionSet = new Set([...full14_ai, ...full14_exclude]);
+        let union14 = Array.from(unionSet).sort((a,b)=>a-b);
+        let unionMatches = union14.filter(n => winNumbers.includes(n)).length;
+
+        let survivorsHtml = survivors.map(formatNumber).join(' ');
+        let full14Html = full14.map(formatNumber).join(' ');
+        let aiHtml = full14_ai.map(formatNumber).join(' ') + ` <span style="color:#00e6b8; font-size:0.8em;">(${aiMatches}개 일치)</span>`;
+        let excludeHtml = full14_exclude.map(formatNumber).join(' ') + ` <span style="color:#00e6b8; font-size:0.8em;">(${excludeMatches}개 일치)</span>`;
+        let unionHtml = union14.map(formatNumber).join(' ') + ` <span style="color:#ffffff; font-size:0.8em;">(${unionMatches}개 일치)</span>`;
+
+        let winHtml = winData ? `<div class="stat-row"><span class="stat-label">🏆 당첨번호</span> <div class="number-group">${winData.slice(1,7).map(n => `<span class="winning-num">${n}</span>`).join(' ')} + <span class="bonus-num">${winData[7]}</span></div></div>` : `<div class="stat-row"><span class="stat-label">🏆 당첨번호</span> <div class="number-group">데이터 없음</div></div>`;
+
+        let modeDisplay = currentMode === 'ai' ? '🤖 AI 모드' : '🎯 제외수 모드';
+        let tradeDisplay = tradeActive ? ' · 트레이드 ON' : '';
+
+        document.getElementById('status').innerHTML = `
+            ${winHtml}
+            <div class="stat-row"><span class="stat-label">👥 생존</span> <div class="number-group">${survivorsHtml}</div></div>
+            <div class="stat-row"><span class="stat-label">🔗 합집합</span> <div class="number-group"><b>${unionHtml}</b></div></div>
+            <div class="stat-row"><span class="stat-label">🤖 AI</span> <div class="number-group">${aiHtml}</div></div>
+            <div class="stat-row"><span class="stat-label">🎯 제외</span> <div class="number-group">${excludeHtml}</div></div>
+            <div class="stat-row"><span class="stat-label">🔢 현재모드 추천수</span> <div class="number-group"><b>${full14Html}</b></div></div>
+            ${topIntersectionHtml}
+            ${integratedHtml}
+            <div class="basket-large">⭐ ${modeDisplay} · 간격 ${intervalWeeks}주, ${referenceCount}개 회차 (${currentBaseRound}회)${tradeDisplay}</div>
+        `;
+
+        let prevData = FULL_DATA.find(r => r[0] === currentBaseRound - 1);
+        if (prevData) {
+            document.getElementById('baseRoundInfo').innerHTML = prevData.slice(1, 7).map(n => `<span class="prev-num">${n}</span>`).join('') + '<span class="bonus-label">보너스</span>' + `<span class="prev-num">${prevData[7]}</span>`;
+            document.getElementById('prevWinLabel').innerHTML = `📌 ${prevData[0]}회`;
+        } else {
+            document.getElementById('baseRoundInfo').innerHTML = '';
+            document.getElementById('prevWinLabel').innerHTML = `📌 데이터 없음`;
+        }
+
+        document.getElementById('roundDisplay').innerHTML = `-(${currentBaseRound}회)예상설정`;
+        document.getElementById('targetRound').innerText = currentBaseRound;
+
+        let targetWinContainer = document.getElementById('targetWinContainer');
+        if (!targetWinContainer) {
+            targetWinContainer = document.createElement('div');
+            targetWinContainer.id = 'targetWinContainer';
+            targetWinContainer.className = 'target-win-container';
+            document.querySelector('.header-line').appendChild(targetWinContainer);
+        }
+        targetWinContainer.style.display = 'flex';
+        if (winData) {
+            targetWinContainer.innerHTML = `<span class="target-win-label">${currentBaseRound}회 당첨번호:</span><span class="target-win-numbers">${winData.slice(1, 7).join(',')},+${winData[7]}</span>`;
+        } else {
+            targetWinContainer.innerHTML = `<span class="target-win-label">${currentBaseRound}회 당첨번호:</span><span class="target-win-numbers">데이터 없음</span>`;
+        }
+    }
+
+    function changeInterval(delta) {
+        let newVal = intervalWeeks + delta;
+        if (newVal < 1) newVal = 1;
+        if (newVal > 30) newVal = 30;
+        intervalWeeks = newVal;
+        document.getElementById('intervalWeeks').value = intervalWeeks;
+        analyze();
+        showToast(`간격 ${intervalWeeks}주 적용`);
+    }
+    function changeCount(delta) {
+        let newVal = referenceCount + delta;
+        if (newVal < 1) newVal = 1;
+        if (newVal > 30) newVal = 30;
+        referenceCount = newVal;
+        document.getElementById('refCount').value = referenceCount;
+        analyze();
+        showToast(`회차 수 ${referenceCount}개 적용`);
+    }
+    function changeTradeCount(delta) {
+        let newVal = tradeCount + delta;
+        if (newVal < 1) newVal = 1;
+        if (newVal > 8) newVal = 8;
+        tradeCount = newVal;
+        document.getElementById('tradeCountInput').value = tradeCount;
+        showToast(`교환 개수 ${tradeCount}개 설정`);
+        if (tradeActive) {
+            toggleTrade();
+        }
+    }
+    function updateCompressValue(val) {
+        currentCompress = parseInt(val);
+        document.getElementById('compressValue').innerText = currentCompress;
+        if (tradeActive) {
+            applyCurrentState();
+        }
+    }
+    function applyCompress() {
+        if (tradeActive) {
+            analyze();
+            toggleTrade();
+        } else {
+            analyze();
+        }
+        showToast(`압축수 ${currentCompress} 적용`);
+    }
+    function setMode(mode) {
+        currentMode = mode;
+        document.getElementById('modeAiBtn').classList.toggle('active', mode === 'ai');
+        document.getElementById('modeExcludeBtn').classList.toggle('active', mode === 'exclude');
+        applyCurrentState();
+    }
+
+    // ===== 트레이드 토글 함수 =====
+    function toggleTrade() {
+        if (tradeActive) {
+            tradeActive = false;
+            document.getElementById('tradeBtn').classList.remove('active');
+            full14_ai = original_ai.slice();
+            full14_exclude = original_exclude.slice();
+            integrated14 = [];
+            lostWinningNumbers = [];
+        } else {
+            let beforeSet = new Set([...original_ai, ...original_exclude]);
+            let winData = FULL_DATA.find(r => r[0] === currentBaseRound);
+            let winNumbers = winData ? winData.slice(1, 7) : [];
+
+            let tc = tradeCount;
+
+            let aiRanking = [];
+            for (let i = 1; i <= 45; i++) {
+                aiRanking.push({ num: i, score: patternScores[i] });
+            }
+            aiRanking.sort((a, b) => b.score - a.score);
+            let aiRankMap = {};
+            aiRanking.forEach((item, idx) => { aiRankMap[item.num] = idx + 1; });
+
+            let excludeRanking = survivors.map(num => ({ num, score: excludeScores[num] }));
+            excludeRanking.sort((a, b) => b.score - a.score);
+            let excludeRankMap = {};
+            excludeRanking.forEach((item, idx) => { excludeRankMap[item.num] = idx + 1; });
+
+            let aiWants = original_exclude
+                .map(num => ({ num, rank: aiRankMap[num] || 45 }))
+                .sort((a, b) => a.rank - b.rank)
+                .slice(0, tc)
+                .map(x => x.num);
+
+            let excludeWants = original_ai
+                .map(num => ({ num, rank: excludeRankMap[num] || 20 }))
+                .sort((a, b) => a.rank - b.rank)
+                .slice(0, tc)
+                .map(x => x.num);
+
+            let aiGives = original_ai
+                .map(num => ({ num, rank: excludeRankMap[num] || 20 }))
+                .sort((a, b) => b.rank - a.rank)
+                .slice(0, tc)
+                .map(x => x.num);
+
+            let excludeGives = original_exclude
+                .map(num => ({ num, rank: aiRankMap[num] || 45 }))
+                .sort((a, b) => b.rank - a.rank)
+                .slice(0, tc)
+                .map(x => x.num);
+
+            let newAI = new Set(original_ai);
+            aiGives.forEach(num => newAI.delete(num));
+            aiWants.forEach(num => newAI.add(num));
+            let newExclude = new Set(original_exclude);
+            excludeGives.forEach(num => newExclude.delete(num));
+            excludeWants.forEach(num => newExclude.add(num));
+
+            full14_ai = Array.from(newAI).sort((a,b)=>a-b);
+            full14_exclude = Array.from(newExclude).sort((a,b)=>a-b);
+
+            // 통합 14수 계산 (교집합 보너스 -20)
+            let unionSet = new Set([...full14_ai, ...full14_exclude]);
+            let union = Array.from(unionSet).sort((a,b)=>a-b);
+
+            let scored = union.map(num => {
+                let aiRank = aiRankMap[num] || 45;
+                let exRank = excludeRankMap[num] || 17;
+                let bonus = (full14_ai.includes(num) && full14_exclude.includes(num)) ? -20 : 0;
+                return {
+                    num,
+                    score: aiRank + exRank + bonus
+                };
+            });
+
+            scored.sort((a, b) => a.score - b.score);
+            integrated14 = scored.slice(0, currentCompress).map(x => x.num).sort((a,b)=>a-b);
+
+            let afterSet = new Set([...full14_ai, ...full14_exclude]);
+            let lostNumbers = Array.from(beforeSet).filter(n => !afterSet.has(n));
+            lostWinningNumbers = lostNumbers.filter(n => winNumbers.includes(n));
+
+            tradeActive = true;
+            document.getElementById('tradeBtn').classList.add('active');
+            showToast(`🔄 강화 트레이드 ON (${tc}개씩 교환, 유실된 당첨번호 ${lostWinningNumbers.length}개 B바구니 이동)`);
+        }
+
+        applyCurrentState();
+    }
+
+    // ===== 수정된 processPattern 함수 (5조합은 랜덤, 1/10조합은 기존 순차 선택) =====
+    function processPattern(limit) {
+        if (full14.length < 6) {
+            alert('압축된 숫자가 부족합니다.');
+            return;
+        }
+
+        let fixed = fixedNumbers.slice();
+        if (fixed.length > 6) {
+            alert('고정수는 6개 이하여야 합니다.');
+            return;
+        }
+
+        let poolSet = new Set(full14);
+        fixed.forEach(f => poolSet.add(f));
+        let pool = Array.from(poolSet).sort((a,b)=>a-b);
+
+        let fixedSet = new Set(fixed);
+        let others = pool.filter(n => !fixedSet.has(n));
+        let need = 6 - fixed.length;
+        if (others.length < need) {
+            alert('조합을 만들 수 있는 숫자가 부족합니다.');
+            return;
+        }
+
+        function combinations(arr, k) {
+            if (k === 0) return [[]];
+            if (arr.length < k) return [];
+            if (k === 1) return arr.map(x => [x]);
+            let result = [];
+            for (let i = 0; i <= arr.length - k; i++) {
+                let head = arr[i];
+                let tail = arr.slice(i+1);
+                let subCombos = combinations(tail, k-1);
+                for (let combo of subCombos) {
+                    result.push([head, ...combo]);
+                }
+            }
+            return result;
+        }
+
+        let otherCombos = combinations(others, need);
+        let candidates = [];
+
+        for (let combo of otherCombos) {
+            let fullCombo = [...fixed, ...combo].sort((a,b)=>a-b);
+
+            let sum = fullCombo.reduce((a,b)=>a+b,0);
+            let odd = fullCombo.filter(n => n % 2 === 1).length;
+            if (sum < 100 || sum > 170 || odd < 2 || odd > 4) continue;
+
+            let consecutive = 0;
+            for (let i = 1; i < fullCombo.length; i++) {
+                if (fullCombo[i] === fullCombo[i-1] + 1) {
+                    consecutive++;
+                    if (consecutive >= 2) {
+                        consecutive = 0;
+                        break;
+                    }
+                } else {
+                    consecutive = 0;
+                }
+            }
+            if (consecutive >= 2) continue;
+
+            candidates.push(fullCombo);
+        }
+
+        let seen = new Set();
+        let unique = [];
+        for (let combo of candidates) {
+            let key = combo.join(',');
+            if (!seen.has(key)) {
+                seen.add(key);
+                unique.push({ numbers: combo, key: key });
+            }
+        }
+
+        // limit에 따라 동작 변경
+        if (limit === 5) {
+            // 5조합: 완전 랜덤 선택 (Fisher-Yates 셔플 후 상위 limit개)
+            for (let i = unique.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [unique[i], unique[j]] = [unique[j], unique[i]];
+            }
+            generatedCombos = unique.slice(0, limit);
+        } else {
+            // 1조합, 10조합: 기존 방식 (랜덤 셔플 후 상위 limit개) -> 사실상 랜덤이지만, 5조합과 통일성을 위해 동일하게 처리
+            // (어차피 셔플 후 slice라서 랜덤이지만, limit=1이면 첫 번째, limit=10이면 상위 10개)
+            for (let i = unique.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [unique[i], unique[j]] = [unique[j], unique[i]];
+            }
+            generatedCombos = unique.slice(0, limit);
+        }
+
+        showComboList('황금비율 필터링');
+    }
+
+    function processIntegrated(limit) {
+        if (!tradeActive || integrated14.length === 0) {
+            alert('트레이드를 먼저 실행해야 합니다.');
+            return;
+        }
+        if (integrated14.length < 6) {
+            alert('통합 14수의 숫자가 부족합니다.');
+            return;
+        }
+        let fixed = fixedNumbers.slice();
+        if (fixed.length > 6) {
+            alert('고정수는 6개 이하여야 합니다.');
+            return;
+        }
+
+        let poolSet = new Set(integrated14);
+        fixed.forEach(f => poolSet.add(f));
+        let pool = Array.from(poolSet).sort((a,b)=>a-b);
+        let fixedSet = new Set(fixed);
+        let others = pool.filter(n => !fixedSet.has(n));
+        let need = 6 - fixed.length;
+        if (others.length < need) {
+            alert('조합을 만들 수 있는 숫자가 부족합니다.');
+            return;
+        }
+
+        function combinations(arr, k) {
+            if (k === 0) return [[]];
+            if (arr.length < k) return [];
+            if (k === 1) return arr.map(x => [x]);
+            let result = [];
+            for (let i = 0; i <= arr.length - k; i++) {
+                let head = arr[i];
+                let tail = arr.slice(i+1);
+                let subCombos = combinations(tail, k-1);
+                for (let combo of subCombos) {
+                    result.push([head, ...combo]);
+                }
+            }
+            return result;
+        }
+
+        let otherCombos = combinations(others, need);
+        let candidates = [];
+
+        for (let combo of otherCombos) {
+            let fullCombo = [...fixed, ...combo].sort((a,b)=>a-b);
+            let sum = fullCombo.reduce((a,b)=>a+b,0);
+            let odd = fullCombo.filter(n => n % 2 === 1).length;
+            if (sum < 100 || sum > 170 || odd < 2 || odd > 4) continue;
+
+            let consecutive = 0;
+            for (let i = 1; i < fullCombo.length; i++) {
+                if (fullCombo[i] === fullCombo[i-1] + 1) {
+                    consecutive++;
+                    if (consecutive >= 2) {
+                        consecutive = 0;
+                        break;
+                    }
+                } else {
+                    consecutive = 0;
+                }
+            }
+            if (consecutive >= 2) continue;
+
+            candidates.push({
+                numbers: fullCombo,
+                key: fullCombo.join(',')
+            });
+        }
+
+        let seen = new Set();
+        let unique = [];
+        for (let c of candidates) {
+            if (!seen.has(c.key)) {
+                seen.add(c.key);
+                unique.push(c);
+            }
+        }
+
+        for (let i = unique.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [unique[i], unique[j]] = [unique[j], unique[i]];
+        }
+
+        generatedCombos = unique.slice(0, limit).map(c => ({ numbers: c.numbers, key: c.key }));
+        showComboList('통합 14수 기반 (완전탐색)');
+    }
+
+    function processBasket(limit) {
+        analyze();
+
+        let poolSet = new Set(survivors);
+        lostWinningNumbers.forEach(n => poolSet.add(n));
+        let pool = Array.from(poolSet).sort((a,b)=>a-b);
+        if (pool.length < 6) {
+            alert('B바구니에 숫자가 부족합니다.');
+            return;
+        }
+
+        let fixed = fixedNumbers.slice();
+        if (fixed.length > 6) {
+            alert('고정수는 6개 이하여야 합니다.');
+            return;
+        }
+
+        let fixedSet = new Set(fixed);
+        let others = pool.filter(n => !fixedSet.has(n));
+        let need = 6 - fixed.length;
+        if (others.length < need) {
+            alert('조합을 만들 수 있는 숫자가 부족합니다.');
+            return;
+        }
+
+        function combinations(arr, k) {
+            if (k === 0) return [[]];
+            if (arr.length < k) return [];
+            if (k === 1) return arr.map(x => [x]);
+            let result = [];
+            for (let i = 0; i <= arr.length - k; i++) {
+                let head = arr[i];
+                let tail = arr.slice(i+1);
+                let subCombos = combinations(tail, k-1);
+                for (let combo of subCombos) {
+                    result.push([head, ...combo]);
+                }
+            }
+            return result;
+        }
+
+        let otherCombos = combinations(others, need);
+        let candidates = [];
+
+        for (let combo of otherCombos) {
+            let fullCombo = [...fixed, ...combo].sort((a,b)=>a-b);
+
+            let sum = fullCombo.reduce((a,b)=>a+b,0);
+            let odd = fullCombo.filter(n => n % 2 === 1).length;
+            if (sum < 100 || sum > 170 || odd < 2 || odd > 4) continue;
+
+            let consecutive = 0;
+            for (let i = 1; i < fullCombo.length; i++) {
+                if (fullCombo[i] === fullCombo[i-1] + 1) {
+                    consecutive++;
+                    if (consecutive >= 2) {
+                        consecutive = 0;
+                        break;
+                    }
+                } else {
+                    consecutive = 0;
+                }
+            }
+            if (consecutive >= 2) continue;
+
+            candidates.push({ numbers: fullCombo, key: fullCombo.join(',') });
+        }
+
+        let seen = new Set();
+        let unique = [];
+        for (let c of candidates) {
+            if (!seen.has(c.key)) {
+                seen.add(c.key);
+                unique.push(c);
+            }
+        }
+
+        for (let i = unique.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [unique[i], unique[j]] = [unique[j], unique[i]];
+        }
+        generatedCombos = unique.slice(0, limit);
+
+        let lostMsg = lostWinningNumbers.length ? ` (유실번호 ${lostWinningNumbers.join(',')} 포함)` : '';
+        showComboList(`B바구니(조합법 적용)${lostMsg}`);
+    }
+
+    function showComboList(source = '압축 기반') {
+        let c = document.getElementById('comboListContent');
+        if (generatedCombos.length === 0) {
+            c.innerHTML = '<div style="text-align:center;">조합 없음</div>';
+            document.getElementById('comboListPopup').style.display = 'flex';
+            return;
+        }
+        document.querySelector('#comboListPopup .popup-title').innerHTML = `📋 생성 조합 (${source})`;
+        let winData = FULL_DATA.find(r => r[0] === currentBaseRound);
+        let winNumbers = winData ? winData.slice(1, 7) : [];
+        let bonus = winData ? winData[7] : null;
+        let html = '';
+        generatedCombos.forEach(c => {
+            let numsHtml = c.numbers.map(n => {
+                if (winNumbers.includes(n)) return `<span class="winning-num" style="font-size:11px; margin-right:3px;">${n}</span>`;
+                if (bonus === n) return `<span class="bonus-num" style="font-size:11px; margin-right:3px;">${n}</span>`;
+                return `<span style="font-size:11px; margin-right:3px;">${n}</span>`;
+            }).join('');
+            let match = c.numbers.filter(n => winNumbers.includes(n)).length;
+            let hasBonus = c.numbers.includes(bonus);
+            let matchText = match > 0 ? `${match}개 일치` : '0개 일치';
+            if (hasBonus) matchText += ' + 보너스';
+            html += `<div class="combo-item-row" style="display:flex; justify-content:space-between; align-items:center; padding:4px; border-bottom:1px solid #333;">${numsHtml}<span class="match-badge" style="font-size:9px;">${matchText}</span><button class="change-name-btn" onclick="saveComboFromList('${c.key}')">저장</button></div>`;
+        });
+        c.innerHTML = html;
+        document.getElementById('comboListPopup').style.display = 'flex';
+    }
+    function saveComboFromList(k) { saveToBox(k); }
+    function closeComboListPopup() { document.getElementById('comboListPopup').style.display = 'none'; }
+
+    function openFixedPopup() { 
+        renderFixedGrid(); 
+        document.getElementById('fixedPopup').style.display = 'flex'; 
+    }
+    function closeFixedPopup() { document.getElementById('fixedPopup').style.display = 'none'; }
+    function renderFixedGrid() {
+        const grid = document.getElementById('fixedNumberGrid');
+        grid.innerHTML = '';
+        for (let i = 1; i <= 45; i++) {
+            const ball = document.createElement('div');
+            ball.className = 'num-ball' + (fixedNumbers.includes(i) ? ' selected' : '');
+            ball.textContent = i;
+            ball.onclick = () => toggleFixedNumber(i);
+            grid.appendChild(ball);
+        }
+        document.getElementById('fixedCountDisplay').innerText = fixedNumbers.length + '/14';
+    }
+    function toggleFixedNumber(num) {
+        if (fixedNumbers.includes(num)) {
+            fixedNumbers = fixedNumbers.filter(n => n !== num);
+        } else {
+            if (fixedNumbers.length < 14) {
+                fixedNumbers.push(num);
+                fixedNumbers.sort((a,b)=>a-b);
+            } else {
+                showToast('최대 14개까지 선택 가능합니다.');
+                return;
+            }
+        }
+        renderFixedGrid();
+    }
+    function resetFixedSelection() { fixedNumbers = []; renderFixedGrid(); }
+    function confirmFixedSelection() { updateFixedDisplay(); closeFixedPopup(); showToast(`고정수 ${fixedNumbers.length}개 설정됨`); }
+    function clearFixed() { fixedNumbers = []; updateFixedDisplay(); showToast('고정수 초기화'); }
+    function updateFixedDisplay() {
+        let extra = fixedNumbers.slice(0);
+        let extraSpan = document.getElementById('fixedExtra');
+        if (extra.length > 0) {
+            extraSpan.innerText = ` ${extra.join(', ')}`;
+        } else {
+            extraSpan.innerText = '';
+        }
+    }
+
     function saveToBox(s) {
         if (!savedNumbers.includes(s)) {
             savedNumbers.push(s);
             localStorage.setItem(`lottoSave_${userName}`, JSON.stringify(savedNumbers));
-            showToast('✅ 저장되었습니다');
-        } else {
-            showToast('⚠️ 이미 저장된 조합입니다');
-        }
-    }
-
-    // 모든 조합 한 번에 저장
-    function saveAllCombos() {
-        if (generatedCombos.length === 0) {
-            showToast('저장할 조합이 없습니다');
-            return;
-        }
-        let savedCount = 0;
-        generatedCombos.forEach(combo => {
-            if (!savedNumbers.includes(combo.key)) {
-                savedNumbers.push(combo.key);
-                savedCount++;
-            }
-        });
-        if (savedCount > 0) {
-            localStorage.setItem(`lottoSave_${userName}`, JSON.stringify(savedNumbers));
-            showToast(`📦 ${savedCount}개 조합 저장됨`);
-        } else {
-            showToast('모두 이미 저장된 조합입니다');
-        }
-    }
-
-    function deleteSingleItem(index) {
-        if(confirm("이 조합을 삭제할까요?")) {
-            savedNumbers.splice(index, 1);
-            localStorage.setItem(`lottoSave_${userName}`, JSON.stringify(savedNumbers));
-            renderStorage();
-            showToast('🗑️ 삭제되었습니다');
-        }
-    }
-    function loadFromStorage(nums) {
-        alert(`선택된 번호: ${nums.split(',').join(', ')}`);
-        closePopup();
+            showToast('✅ 저장');
+        } else showToast('⚠️ 중복');
     }
     function renderStorage() {
-        const st = document.getElementById('storage');
-        if(savedNumbers.length === 0) { 
-            st.innerHTML = "<div style='text-align:center; padding:12px; opacity:0.5;'>저장된 조합이 없습니다.</div>"; 
-            return; 
-        }
-        st.innerHTML = savedNumbers.map((n, index) => {
-            const numbers = n.split(',');
-            return `
-                <div class="row-line" style="margin-bottom:6px; background:#2a2a2a; padding:6px;">
-                    <div class="num-container">
-                        ${numbers.map(v=>`<span class="num-box" style="width:24px; height:24px; line-height:24px; font-size:10px;">${v}</span>`).join('')}
-                    </div>
-                    <div style="display:flex; gap:4px;">
-                        <button onclick="loadFromStorage('${n}')" 
-                                style="background:#00ccff; color:white; border:none; border-radius:4px; padding:3px 5px; font-size:9px; cursor:pointer;">불러오기</button>
-                        <button onclick="deleteSingleItem(${index})" 
-                                style="background:#ff4444; color:white; border:none; border-radius:4px; padding:3px 5px; font-size:9px; cursor:pointer;">삭제</button>
-                    </div>
-                </div>
-            `;
-        }).join('');
-        document.querySelector('.popup-title').innerHTML = `📦 ${userName}의 보관함 (${savedNumbers.length}개)`;
-    }
-
-    // ===== 10수 생성 알고리즘 (4회차 51주간격, 상위6+하위4) =====
-    function lottoSystem00001212Final(allData, lastWinning) {
-        const targetRound = currentBaseRound;
-        const targetRounds = [];
-        // targetRound는 제외하고 그 이전 4개 회차만 사용
-        for (let i = 1; i <= 4; i++) {
-            targetRounds.push(targetRound - 51 * i);
-        }
-        const weights = [1.6, 1.5, 1.4, 1.3];
-
-        let mainPool = [];
-        let bonusPool = [];
-        let mainWithRound = [];
-
-        targetRounds.forEach((r, idx) => {
-            const row = FULL_DATA.find(x => x[0] === r);
-            if (row) {
-                const mainNums = row.slice(1, 7);
-                const bonusNum = row[7];
-                mainNums.forEach(n => {
-                    mainPool.push(n);
-                    mainWithRound.push({ num: n, round: r, weight: weights[idx] });
-                });
-                bonusPool.push(bonusNum);
-            }
-        });
-
-        let mainSet = new Set(mainPool);
-        let mainNumbers = Array.from(mainSet);
-
-        let wScore = {};
-        mainWithRound.forEach(item => {
-            wScore[item.num] = (wScore[item.num] || 0) + item.weight;
-        });
-
-        zeroFreqNums.forEach(num => {
-            if (wScore[num] !== undefined) {
-                wScore[num] += 0.2;
-            }
-        });
-
-        let rankedMain = mainNumbers.sort((a, b) => {
-            let aScore = wScore[a] || 0;
-            let bScore = wScore[b] || 0;
-            if (aScore > bScore) return -1;
-            if (aScore < bScore) return 1;
-            return a - b;
-        });
-
-        // 14수 (상위8 + 하위6) - 빠진 4개 계산용
-        let top8 = rankedMain.slice(0, 8);
-        let bottom6 = rankedMain.slice(-6);
-        let full14Set = new Set([...top8, ...bottom6]);
-        let full14 = Array.from(full14Set).sort((a,b)=>a-b);
-
-        // 10수 (상위6 + 하위4)
-        let top6 = rankedMain.slice(0, 6);
-        let bottom4 = rankedMain.slice(-4);
-        let basketSet = new Set([...top6, ...bottom4]);
-        let basket = Array.from(basketSet).sort((a, b) => a - b);
-
-        // 중간 그룹
-        let middleBag = rankedMain.filter(num => !basketSet.has(num));
-
-        // 생존자 (본번호 + 보너스)
-        let survivorsSet = new Set([...mainPool, ...bonusPool]);
-        let survivors = Array.from(survivorsSet).sort((a,b)=>a-b);
-        let bonusNumbers = Array.from(new Set(bonusPool)).sort((a, b) => a - b);
-
-        // 빠진 4개 번호 (14수 - 10수)
-        let compressedOut = full14.filter(num => !basketSet.has(num));
-
-        return {
-            survivors: survivors,
-            basket: basket,
-            middleBag: middleBag,
-            bonusNumbers: bonusNumbers,
-            weightedScore: wScore,
-            compressedOut: compressedOut,
-            full14: full14,
-            rankedMain: rankedMain
-        };
-    }
-
-    // ===== 분석 함수 (교체 로직 추가) =====
-    function analyze() {
-        const targetRound = currentBaseRound;
-        const prevRound = targetRound - 1;
-        
-        const prevData = FULL_DATA.find(row => row[0] === prevRound);
-        if (!prevData) {
-            alert(`경고: ${prevRound}회차 데이터가 없습니다.`);
-            return;
-        }
-        const lastWinning = prevData.slice(1, 7);
-        
-        // targetRound는 제외하고 그 이전 회차만 수집 (i=1부터 시작)
-        const targetRounds = [];
-        for (let i = 1; i <= 4; i++) {
-            targetRounds.push(targetRound - 51 * i);
-        }
-        
-        let mainPool = [], bonusPool = [];
-        targetRounds.forEach(r => {
-            const row = FULL_DATA.find(x => x[0] === r);
-            if (row) {
-                mainPool.push(...row.slice(1, 7));
-                bonusPool.push(row[7]);
-            }
-        });
-        
-        if (mainPool.length === 0) {
-            alert('4회차 데이터가 충분하지 않습니다.');
-            return;
-        }
-        
-        // 미출수 계산 (최근 22회차 - targetRound 제외)
-        let freq22 = {};
-        for(let i=1; i<=45; i++) freq22[i] = 0;
-        
-        // targetRound 이후의 데이터는 제외하고 최근 22회차 계산
-        const recentData = FULL_DATA.filter(row => row[0] < targetRound).slice(0, 22);
-        recentData.forEach(row => {
-            for(let j=1; j<=7; j++) if(row[j]) freq22[row[j]]++;
-        });
-        zeroFreqNums = Object.keys(freq22).filter(n => freq22[n]===0).map(Number).sort((a,b)=>a-b);
-        
-        const result = lottoSystem00001212Final(FULL_DATA, lastWinning);
-        survivors = result.survivors;
-        basket = result.basket; // 초기 10수
-        middle = result.middleBag || []; // 기존 B bag (나중에 교체당한 번호 추가)
-        bonusNums = result.bonusNumbers || [];
-        weightedScore = result.weightedScore || {};
-        let originalCompressedOut = result.compressedOut || []; // 교체 전 빠진 4개
-        full14 = result.full14 || [];
-        machineFixed = basket.slice(0, 3);
-        
-        // ===== 교체 로직 시작 =====
-        // originalCompressedOut 중에서 직전 당첨번호와 일치하는 번호를 우선 선택
-        let candidates = originalCompressedOut.filter(num => lastWinning.includes(num));
-        if (candidates.length < 2) {
-            // 가중치 높은 순으로 추가
-            let sortedOut = [...originalCompressedOut].sort((a, b) => (weightedScore[b] || 0) - (weightedScore[a] || 0));
-            for (let num of sortedOut) {
-                if (!candidates.includes(num) && candidates.length < 2) {
-                    candidates.push(num);
-                }
-            }
-        }
-        candidates = [...new Set(candidates)].slice(0, 2); // 최대 2개
-
-        let lowestTwo = [];
-        if (candidates.length > 0) {
-            // 현재 basket에서 가중치 가장 낮은 2개 찾기
-            let basketWithScore = basket.map(num => ({ num, score: weightedScore[num] || 0 }));
-            basketWithScore.sort((a, b) => a.score - b.score);
-            lowestTwo = basketWithScore.slice(0, candidates.length).map(item => item.num);
-
-            // 교체
-            let newBasket = [...basket];
-            for (let i = 0; i < candidates.length; i++) {
-                let idx = newBasket.indexOf(lowestTwo[i]);
-                if (idx !== -1) {
-                    newBasket[idx] = candidates[i];
-                }
-            }
-            // 중복 제거 및 정렬
-            newBasket = [...new Set(newBasket)].sort((a, b) => a - b);
-            if (newBasket.length === basket.length) {
-                basket = newBasket;
-                // 교체 후 남은 4개 = 원본 compressedOut에서 candidates 제외
-                compressedOut4 = originalCompressedOut.filter(num => !candidates.includes(num));
-                // 교체당한 번호(lowestTwo)는 middle(B bag)에 추가
-                middle = [...middle, ...lowestTwo].filter((v, i, a) => a.indexOf(v) === i).sort((a,b)=>a-b);
-                // 교체된 번호 기록
-                replacedIn = candidates;
-                replacedOut = lowestTwo;
-            } else {
-                // 교체 실패 시 원본 유지
-                compressedOut4 = originalCompressedOut;
-                replacedIn = [];
-                replacedOut = [];
-            }
-        } else {
-            compressedOut4 = originalCompressedOut;
-            replacedIn = [];
-            replacedOut = [];
-        }
-        // ===== 교체 로직 끝 =====
-
-        // 합계 계산 (참고용) - targetRound 제외한 회차들만
-        let sums = [];
-        targetRounds.forEach(r => {
-            let row = FULL_DATA.find(x => x[0] === r);
-            if (row) sums.push(row.slice(1,7).reduce((a,b)=>a+b,0));
-        });
-        if (sums.length > 0) dynamicAvgSum = Math.round(sums.reduce((a,b)=>a+b,0) / sums.length);
-        else dynamicAvgSum = 145;
-        
-        const baseNums = prevData.slice(1, 7);
-        const bonus = prevData[7];
-        let ballHtml = baseNums.map(n => `<span class="base-num-box">${n}</span>`).join('');
-        ballHtml += `<span class="bonus-label">보너스</span>`;
-        ballHtml += `<span class="base-num-box">${bonus}</span>`;
-        document.getElementById('baseRoundInfo').innerHTML = ballHtml;
-        document.getElementById('prevWinLabel').innerHTML = `📌 ${prevRound}회 당첨번호`;
-        
-        document.getElementById('roundDisplay').innerHTML = `예상 ${targetRound}회차`;
-        document.getElementById('targetRound').innerText = targetRound;
-        
-        // 상태창 표시 (교체 정보 추가)
-        let replacedInHtml = replacedIn.length ? replacedIn.map(n => `<span class="replaced-in">${n}</span>`).join(', ') : '없음';
-        let replacedOutHtml = replacedOut.length ? replacedOut.map(n => `<span class="replaced-out">${n}</span>`).join(', ') : '없음';
-        let compressedOutHtml = compressedOut4.map(n => 
-            replacedIn.includes(n) ? `<span class="replaced-in">${n}</span>` : n
-        ).join(', ');
-
-        document.getElementById('status').innerHTML = `
-            <div><span class="highlight-gold">★ 10수 엔진 (4회차 51주간격, 상위6+하위4 + 교체)</span></div>
-            <div>생존자 ${survivors.length}수: ${survivors.join(', ')}</div>
-            <div>AI 추천 10수: ${basket.join(', ')}</div>
-            <div>🔻 14수에서 빠진 ${compressedOut4.length}개 (교체 후 남은): ${compressedOutHtml}</div>
-            <div style="margin-top:4px;">
-                <span style="color:#ff6666;">▶ 교체된 번호: ${replacedInHtml}</span><br>
-                <span style="color:#66aaff;">◀ 교체당한 번호: ${replacedOutHtml}</span><br>
-                <span style="color:#aaa;">📦 B bag: ${middle.join(', ') || '없음'}</span>
-            </div>
-            <div><span class="highlight-blue">📊 기준 합계 (4회차 평균):</span> ${dynamicAvgSum} (참고용)</div>
-            <div style="margin-top:4px; border-top:1px solid #333; padding-top:3px; font-size:9px; white-space:nowrap; overflow-x:auto; -webkit-overflow-scrolling:touch;">
-                🎯 보너스: ${bonusNums.join(', ') || '없음'}
-            </div>
-        `;
-        
-        document.getElementById('reviewTitle').innerHTML = `📊 ${targetRound}회 복기`;
-        document.getElementById('reviewDesc').innerHTML = `${targetRound}회 당첨번호 6개 + 보너스 번호를 입력하세요`;
-        
-        // 복기 팝업 내 AI 정보 초기화 (교체 정보 포함)
-        const reviewAIInfo = document.getElementById('reviewAIInfo');
-        if (reviewAIInfo) {
-            reviewAIInfo.innerHTML = `
-                <div><span class="highlight-blue">생존자 ${survivors.length}수:</span> ${survivors.join(', ')}</div>
-                <div><span class="highlight-gold">AI 추천 10수:</span> ${basket.join(', ')}</div>
-                <div><span class="highlight-blue">🔻 14수에서 빠진 ${compressedOut4.length}개 (교체 후 남은):</span> ${compressedOutHtml}</div>
-                <div><span style="color:#ff6666;">▶ 교체된 번호: ${replacedInHtml}</span></div>
-                <div><span style="color:#66aaff;">◀ 교체당한 번호: ${replacedOutHtml}</span></div>
-                <div><span style="color:#aaa;">📦 B bag: ${middle.join(', ') || '없음'}</span></div>
-            `;
-        }
-    }
-
-    function setBaseRound() {
-        const input = document.getElementById('baseRoundInput').value;
-        const round = parseInt(input);
-        if (isNaN(round) || round < 901 || round > 1300) {
-            alert('901~1300 사이의 회차를 입력하세요.');
-            return;
-        }
-        currentBaseRound = round;
-        analyze();
-    }
-
-    // ===== 조합 생성 =====
-    function process(limit) {
-        analyze(); // 최신 데이터 반영 (교체된 basket, compressedOut4 등)
-        generatedCombos = [];
-        let used = new Set();
-        
-        if (limit === 10) {
-            // 10조합: 홀수 인덱스(0,2,4,6,8) → 14수 사용, 짝수 인덱스(1,3,5,7,9) → 10수 사용
-            // 각 조합에 교체 후 남은 2개(compressedOut4) 중 하나를 반드시 포함시킴
-            let b10 = [...basket];
-            let all14 = [...full14]; // full14 사용
-            
-            for (let i = 0; i < limit; i++) {
-                let combo = new Set();
-                let pool = (i % 2 === 0) ? all14 : b10; // i=0,2,4,6,8 → 14수, i=1,3,5,7,9 → 10수
-                let available = [...pool];
-                
-                // compressedOut4에서 랜덤으로 하나 선택 (남은 2개 중)
-                let special = null;
-                if (compressedOut4.length > 0) {
-                    special = compressedOut4[Math.floor(Math.random() * compressedOut4.length)];
-                    combo.add(special);
-                    available = available.filter(n => n !== special); // 중복 방지
-                }
-                
-                // 나머지 5개를 available에서 랜덤 선택
-                let shuffled = available.sort(() => Math.random() - 0.5);
-                for (let n of shuffled) {
-                    if (combo.size < 6) combo.add(n);
-                }
-                
-                // 혹시 모자라면 전체 풀에서 보충
-                if (combo.size < 6) {
-                    let all = [...new Set([...pool, ...compressedOut4])];
-                    let shuffledAll = all.sort(() => Math.random() - 0.5);
-                    for (let n of shuffledAll) {
-                        combo.add(n);
-                        if (combo.size === 6) break;
-                    }
-                }
-                
-                let finalArr = Array.from(combo).sort((a,b)=>a-b);
-                let key = finalArr.join(',');
-                
-                if (!used.has(key)) {
-                    used.add(key);
-                    generatedCombos.push({
-                        numbers: finalArr,
-                        key: key,
-                        mark: '',
-                        comboNumber: i + 1
-                    });
-                } else {
-                    // 중복 시 재시도
-                    if (i < limit) limit++;
-                    if (limit > 100) break;
-                }
-            }
-        } else {
-            // 5조합: 10수에서 가중치 기반 랜덤 (교체된 basket 사용)
-            let count = 0, safety = 0;
-            while (count < limit && safety < 50000) {
-                safety++;
-                let res = new Set();
-                // 가중치 기반 선택
-                let weightedItems = basket.map(n => ({ num: n, weight: weightedScore[n] || 1 }));
-                let weightedOrder = [];
-                while (weightedItems.length > 0) {
-                    let total = weightedItems.reduce((sum, item) => sum + item.weight, 0);
-                    let rand = Math.random() * total;
-                    let cum = 0;
-                    for (let i = 0; i < weightedItems.length; i++) {
-                        cum += weightedItems[i].weight;
-                        if (rand < cum) {
-                            weightedOrder.push(weightedItems[i].num);
-                            weightedItems.splice(i, 1);
-                            break;
-                        }
-                    }
-                }
-                for (let n of weightedOrder) {
-                    if (res.size < 6) res.add(n);
-                }
-                // 혹시 모자라면 랜덤 보충
-                while (res.size < 6) {
-                    let rand = basket[Math.floor(Math.random() * basket.length)];
-                    res.add(rand);
-                }
-                let finalArr = Array.from(res).sort((a,b)=>a-b);
-                let key = finalArr.join(',');
-                if (!used.has(key)) {
-                    used.add(key);
-                    count++;
-                    generatedCombos.push({
-                        numbers: finalArr,
-                        key: key,
-                        mark: '',
-                        comboNumber: count
-                    });
-                }
-            }
-        }
-        
-        showComboList();
-    }
-
-    function showComboList() {
-        const content = document.getElementById('comboListContent');
-        if (generatedCombos.length === 0) {
-            content.innerHTML = '<div style="text-align:center; padding:12px;">생성된 조합이 없습니다.</div>';
-            document.getElementById('comboListPopup').style.display = 'flex';
-            return;
-        }
-        let html = '';
-        generatedCombos.forEach(combo => {
-            // 각 번호에 맞는 클래스 부여
-            const numberSpans = combo.numbers.map(n => {
-                let className = 'num-box';
-                if (replacedIn.includes(n)) className += ' replaced-in';
-                else if (replacedOut.includes(n)) className += ' replaced-out';
-                else if (survivors.includes(n) && !basket.includes(n)) className += ' eliminated';
-                return `<span class="${className}" style="width:24px; height:24px; line-height:24px; font-size:10px;">${n}</span>`;
-            }).join('');
-            html += `<div class="combo-item-row">
-                <div class="combo-nums">${numberSpans}</div>
-                <div>
-                    <button class="combo-save-btn" onclick="saveComboFromList('${combo.key}')">저장</button>
-                </div>
+        let st = document.getElementById('storage');
+        if (savedNumbers.length === 0) { st.innerHTML = '<div style="text-align:center;">저장 없음</div>'; return; }
+        st.innerHTML = savedNumbers.map((n, i) => {
+            let nums = n.split(',');
+            return `<div class="storage-item">
+                <input type="checkbox" class="storage-checkbox" value="${i}">
+                <div style="display:flex; gap:2px; flex-wrap:wrap;">${nums.map(v=>`<span class="num-ball" style="width:28px; height:28px;">${v}</span>`).join('')}</div>
             </div>`;
-        });
-        content.innerHTML = html;
-        document.getElementById('comboListPopup').style.display = 'flex';
+        }).join('');
     }
-
-    function saveComboFromList(key) {
-        saveToBox(key);
+    function toggleCheckAll() {
+        let checkAll = document.getElementById('checkAllStorage').checked;
+        document.querySelectorAll('.storage-checkbox').forEach(cb => cb.checked = checkAll);
     }
-
-    function closeComboListPopup() {
-        document.getElementById('comboListPopup').style.display = 'none';
-    }
-
-    // ===== 팝업 함수 =====
-    function openPopup() {
-        document.getElementById('popup').style.display = 'flex';
-        renderStorage();
-    }
-    function closePopup() {
-        document.getElementById('popup').style.display = 'none';
-    }
-
-    // ===== 보관함 초기화 (생성된 조합 목록도 함께 초기화) =====
-    function clearStorage() {
-        if(confirm("보관함을 초기화할까요?")) {
-            savedNumbers = [];
-            generatedCombos = [];
-            localStorage.removeItem(`lottoSave_${userName}`);
+    function deleteSelectedItems() {
+        let selectedIndices = [];
+        document.querySelectorAll('.storage-checkbox:checked').forEach(cb => selectedIndices.push(parseInt(cb.value)));
+        if (selectedIndices.length === 0) { alert('선택된 항목이 없습니다.'); return; }
+        if (confirm(`${selectedIndices.length}개 항목을 삭제하시겠습니까?`)) {
+            selectedIndices.sort((a,b)=>b-a).forEach(idx => savedNumbers.splice(idx, 1));
+            localStorage.setItem(`lottoSave_${userName}`, JSON.stringify(savedNumbers));
             renderStorage();
-            showToast('🗑️ 보관함이 초기화되었습니다');
+            document.getElementById('checkAllStorage').checked = false;
+            showToast('✅ 선택 삭제 완료');
         }
     }
-
-    // ===== 게임 관련 함수 (기존과 동일) =====
-    let touchGame = null;
-    let touchInterval = null;
-    let touchSelected = [];
-    let reactionSelected = [];
-    let reactionState = 'idle';
-    let reactionTimer = null;
-    let reactionStartTime = 0;
+    function clearStorage() {
+        if (confirm('모두 삭제?')) {
+            savedNumbers = [];
+            localStorage.setItem(`lottoSave_${userName}`, JSON.stringify(savedNumbers));
+            showToast('초기화');
+            if (document.getElementById('popup').style.display === 'flex') {
+                renderStorage();
+                document.getElementById('checkAllStorage').checked = false;
+            }
+        }
+    }
+    function openPopup() { renderStorage(); document.getElementById('popup').style.display = 'flex'; }
+    function closePopup() { document.getElementById('popup').style.display = 'none'; }
+    function saveAllCombos() {
+        if (generatedCombos.length === 0) { showToast('조합 없음'); return; }
+        let cnt = 0;
+        generatedCombos.forEach(c => { if (!savedNumbers.includes(c.key)) { savedNumbers.push(c.key); cnt++; } });
+        if (cnt) {
+            localStorage.setItem(`lottoSave_${userName}`, JSON.stringify(savedNumbers));
+            showToast(`📦 ${cnt}개 저장`);
+        } else showToast('모두 중복');
+    }
 
     function openGamePopup() {
         analyze();
         document.getElementById('gamePopup').style.display = 'flex';
-        switchGame('touch');
+        setTimeout(() => switchGame('touch'), 50);
     }
     function closeGamePopup() {
         document.getElementById('gamePopup').style.display = 'none';
-        if (touchInterval) {
-            cancelAnimationFrame(touchInterval);
-            touchInterval = null;
-        }
+        if (touchInterval) cancelAnimationFrame(touchInterval);
         clearTimeout(reactionTimer);
     }
-
     function switchGame(game) {
-        document.querySelectorAll('.game-tab').forEach(tab => tab.classList.remove('active'));
-        document.querySelectorAll('.game-panel').forEach(panel => panel.classList.remove('active'));
-        if (game === 'touch') {
-            document.querySelector('[data-game="touch"]').classList.add('active');
-            document.getElementById('touchGame').classList.add('active');
-            startTouchGame();
-        } else {
-            document.querySelector('[data-game="reaction"]').classList.add('active');
-            document.getElementById('reactionGame').classList.add('active');
-            const box = document.getElementById('reactionBox');
-            if (box) {
-                box.style.background = '#222';
-                box.innerText = '시작하려면 누르세요';
-            }
-            document.getElementById('reactionResult').innerText = '';
-            reactionSelected = [];
-            updateReactionSelectedDisplay();
-            reactionState = 'idle';
-            clearTimeout(reactionTimer);
-        }
+        document.querySelectorAll('.game-tab, .game-panel').forEach(e => e.classList.remove('active'));
+        document.querySelector(`.game-tab[data-game="${game}"]`).classList.add('active');
+        document.getElementById(`${game}Game`).classList.add('active');
+        if (game === 'touch') startTouchGame();
     }
-
     function startTouchGame() {
         const canvas = document.getElementById('gameCanvas');
         if (!canvas) return;
-        canvas.width = canvas.clientWidth;
-        canvas.height = canvas.clientHeight;
-        touchGame = {
-            ctx: canvas.getContext('2d'),
-            width: canvas.width,
-            height: canvas.height,
-            numbers: [],
-            highlightSet: new Set(basket)
-        };
+        canvas.width = 400; canvas.height = 200;
+        touchGame = { ctx: canvas.getContext('2d'), width: canvas.width, height: canvas.height, numbers: [], highlightSet: new Set(full14) };
         for (let i = 1; i <= 45; i++) {
-            touchGame.numbers.push({
-                num: i,
-                x: Math.random() * (canvas.width - 40) + 20,
-                y: Math.random() * (canvas.height - 40) + 20,
-                vx: (Math.random() - 0.5) * 3,
-                vy: (Math.random() - 0.5) * 3,
-                radius: 18
-            });
+            touchGame.numbers.push({ num: i, x: Math.random() * (canvas.width - 30) + 15, y: Math.random() * (canvas.height - 30) + 15, vx: (Math.random() - 0.5) * 2, vy: (Math.random() - 0.5) * 2, radius: 12 });
         }
         touchSelected = [];
         updateTouchDisplay();
@@ -884,339 +1811,137 @@
     }
     function updateTouchGame() {
         if (!touchGame) return;
-        const ctx = touchGame.ctx;
-        const w = touchGame.width;
-        const h = touchGame.height;
+        const ctx = touchGame.ctx, w = touchGame.width, h = touchGame.height;
         ctx.clearRect(0, 0, w, h);
         touchGame.numbers.forEach(num => {
-            num.x += num.vx;
-            num.y += num.vy;
-            if (num.x - num.radius < 0 || num.x + num.radius > w) {
-                num.vx *= -1;
-                num.x = Math.max(num.radius, Math.min(w - num.radius, num.x));
-            }
-            if (num.y - num.radius < 0 || num.y + num.radius > h) {
-                num.vy *= -1;
-                num.y = Math.max(num.radius, Math.min(h - num.radius, num.y));
-            }
-            ctx.beginPath();
-            ctx.arc(num.x, num.y, num.radius, 0, 2 * Math.PI);
-            if (touchGame.highlightSet.has(num.num)) {
-                ctx.strokeStyle = '#ffd700';
-                ctx.lineWidth = 3;
-                ctx.fillStyle = '#000000';
-            } else {
-                ctx.strokeStyle = '#888';
-                ctx.lineWidth = 2;
-                ctx.fillStyle = '#000000';
-            }
-            ctx.fill();
-            ctx.stroke();
-            ctx.fillStyle = '#ffd700';
-            ctx.font = 'bold 12px Malgun Gothic';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
+            num.x += num.vx; num.y += num.vy;
+            if (num.x - num.radius < 0 || num.x + num.radius > w) { num.vx *= -1; num.x = Math.max(num.radius, Math.min(w - num.radius, num.x)); }
+            if (num.y - num.radius < 0 || num.y + num.radius > h) { num.vy *= -1; num.y = Math.max(num.radius, Math.min(h - num.radius, num.y)); }
+            ctx.beginPath(); ctx.arc(num.x, num.y, num.radius, 0, 2 * Math.PI);
+            ctx.strokeStyle = touchGame.highlightSet.has(num.num) ? '#ffd700' : '#888';
+            ctx.lineWidth = touchGame.highlightSet.has(num.num) ? 3 : 2;
+            ctx.fillStyle = '#000';
+            ctx.fill(); ctx.stroke();
+            ctx.fillStyle = '#ffd700'; ctx.font = 'bold 9px Malgun Gothic'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
             ctx.fillText(num.num, num.x, num.y);
         });
         touchInterval = requestAnimationFrame(updateTouchGame);
     }
     document.addEventListener('touchstart', (e) => {
         if (!touchGame || document.getElementById('gamePopup').style.display !== 'flex' || !document.getElementById('touchGame').classList.contains('active')) return;
-        const canvas = document.getElementById('gameCanvas');
-        const rect = canvas.getBoundingClientRect();
-        const touch = e.touches[0];
-        const x = (touch.clientX - rect.left) * (canvas.width / rect.width);
-        const y = (touch.clientY - rect.top) * (canvas.height / rect.height);
-        let touchedNum = null;
-        let minDist = Infinity;
+        const canvas = document.getElementById('gameCanvas'), rect = canvas.getBoundingClientRect(), touch = e.touches[0];
+        const x = (touch.clientX - rect.left) * (canvas.width / rect.width), y = (touch.clientY - rect.top) * (canvas.height / rect.height);
+        let touched = null, minDist = Infinity;
         touchGame.numbers.forEach(num => {
-            const dx = num.x - x;
-            const dy = num.y - y;
-            const dist = Math.sqrt(dx*dx + dy*dy);
-            if (dist < num.radius && dist < minDist) {
-                minDist = dist;
-                touchedNum = num.num;
-            }
+            const dx = num.x - x, dy = num.y - y, dist = Math.sqrt(dx*dx + dy*dy);
+            if (dist < num.radius && dist < minDist) { minDist = dist; touched = num.num; }
         });
-        if (touchedNum !== null && !touchSelected.includes(touchedNum)) {
-            touchSelected.push(touchedNum);
-            updateTouchDisplay();
-        }
+        if (touched !== null && !touchSelected.includes(touched)) { touchSelected.push(touched); updateTouchDisplay(); }
         e.preventDefault();
     }, { passive: false });
     function updateTouchDisplay() {
         const container = document.getElementById('selectedNumbersContainer');
-        const html = touchSelected.map(n => `<div class="selected-ball">${n}</div>`).join('');
-        container.innerHTML = html || '<div style="color:#666;">터치해서 숫자를 선택하세요</div>';
+        container.innerHTML = touchSelected.map(n => `<div class="selected-ball" style="width:32px; height:32px;">${n}</div>`).join('') || '<div style="color:#666;">터치해서 선택</div>';
         document.getElementById('saveComboBtn').disabled = touchSelected.length !== 6;
     }
     function resetTouchGame() {
         if (touchGame) {
             touchGame.numbers.forEach(num => {
-                num.x = Math.random() * (touchGame.width - 40) + 20;
-                num.y = Math.random() * (touchGame.height - 40) + 20;
-                num.vx = (Math.random() - 0.5) * 3;
-                num.vy = (Math.random() - 0.5) * 3;
+                num.x = Math.random() * (touchGame.width - 30) + 15;
+                num.y = Math.random() * (touchGame.height - 30) + 15;
+                num.vx = (Math.random() - 0.5) * 2;
+                num.vy = (Math.random() - 0.5) * 2;
             });
-            touchSelected = [];
-            updateTouchDisplay();
+            touchSelected = []; updateTouchDisplay();
         }
     }
-    function saveTouchCombo() {
-        if (touchSelected.length === 6) {
-            const sorted = [...touchSelected].sort((a,b)=>a-b);
-            saveToBox(sorted.join(','));
-            touchSelected = [];
-            updateTouchDisplay();
-        }
-    }
+    function saveTouchCombo() { if (touchSelected.length === 6) { saveToBox([...touchSelected].sort((a,b)=>a-b).join(',')); touchSelected = []; updateTouchDisplay(); } }
 
-    function updateReactionSelectedDisplay() {
-        const container = document.getElementById('reactionSelectedContainer');
-        const html = reactionSelected.map(n => `<div class="selected-ball">${n}</div>`).join('');
-        container.innerHTML = html || '<div style="color:#666;">터치해서 번호를 뽑으세요</div>';
-        document.getElementById('saveReactionBtn').disabled = reactionSelected.length !== 6;
-    }
-
-    function startReaction() {
-        const box = document.getElementById('reactionBox');
-        if (!box) return;
-        reactionState = 'waiting';
-        box.style.background = '#222';
-        box.innerText = '기다리세요...';
-        document.getElementById('reactionResult').innerText = '';
-        const delay = Math.random() * 2000 + 1000;
-        clearTimeout(reactionTimer);
-        reactionTimer = setTimeout(() => {
-            if (reactionState === 'waiting') {
-                reactionState = 'ready';
-                box.style.background = '#00aa00';
-                box.innerText = '터치!';
-                reactionStartTime = performance.now();
-            }
-        }, delay);
-    }
-
-    function handleReactionClick() {
-        const box = document.getElementById('reactionBox');
-        const result = document.getElementById('reactionResult');
-        if (!box || !result) return;
-        
-        if (reactionState === 'ready') {
-            const reactionTime = performance.now() - reactionStartTime;
-            const randomNum = Math.floor(Math.random() * 45) + 1;
-            result.innerText = `반응속도: ${reactionTime.toFixed(0)}ms`;
-            
-            if (!reactionSelected.includes(randomNum)) {
-                reactionSelected.push(randomNum);
-                updateReactionSelectedDisplay();
-            }
-            
-            box.style.background = '#222';
-            box.innerText = '다시 하려면 새 게임 버튼';
-            reactionState = 'idle';
-            clearTimeout(reactionTimer);
-        } else if (reactionState === 'waiting') {
-            result.innerText = '너무 빨랐어요! 다시 시작하세요.';
-            box.style.background = '#222';
-            box.innerText = '시작 버튼 누르기';
-            reactionState = 'idle';
-            clearTimeout(reactionTimer);
-        }
-    }
-
-    function resetReactionGame() {
-        reactionSelected = [];
-        updateReactionSelectedDisplay();
-        startReaction();
-    }
-
-    function saveReactionCombo() {
-        if (reactionSelected.length === 6) {
-            const sorted = [...reactionSelected].sort((a,b)=>a-b);
-            saveToBox(sorted.join(','));
-            reactionSelected = [];
-            updateReactionSelectedDisplay();
-            startReaction();
-        }
-    }
-
-    // ===== 복기 함수 =====
     function openReviewPopup() {
-        // analyze() 호출 제거 - 현재 상태 유지
-        
-        const targetRound = currentBaseRound;
-        const winData = FULL_DATA.find(row => row[0] === targetRound);
-        const winningDisplay = document.getElementById('winningDisplay');
-        
-        // reviewAIInfo 업데이트 - 현재 상태 반영
-        const reviewAIInfo = document.getElementById('reviewAIInfo');
-        if (reviewAIInfo) {
-            let replacedInHtml = replacedIn.length ? replacedIn.map(n => `<span class="replaced-in">${n}</span>`).join(', ') : '없음';
-            let replacedOutHtml = replacedOut.length ? replacedOut.map(n => `<span class="replaced-out">${n}</span>`).join(', ') : '없음';
-            let compressedOutHtml = compressedOut4.map(n => 
-                replacedIn.includes(n) ? `<span class="replaced-in">${n}</span>` : n
-            ).join(', ');
-
-            reviewAIInfo.innerHTML = `
-                <div><span class="highlight-blue">생존자 ${survivors.length}수:</span> ${survivors.join(', ')}</div>
-                <div><span class="highlight-gold">AI 추천 10수:</span> ${basket.join(', ')}</div>
-                <div><span class="highlight-blue">🔻 14수에서 빠진 ${compressedOut4.length}개 (교체 후 남은):</span> ${compressedOutHtml}</div>
-                <div><span style="color:#ff6666;">▶ 교체된 번호: ${replacedInHtml}</span></div>
-                <div><span style="color:#66aaff;">◀ 교체당한 번호: ${replacedOutHtml}</span></div>
-                <div><span style="color:#aaa;">📦 B bag: ${middle.join(', ') || '없음'}</span></div>
-            `;
+        savedNumbers = JSON.parse(localStorage.getItem(`lottoSave_${userName}`)) || [];
+        let w = FULL_DATA.find(r => r[0] === currentBaseRound);
+        for (let i = 1; i <= 6; i++) document.getElementById(`win${i}`).value = w ? w[i] : '';
+        document.getElementById('bonus').value = w ? w[7] : '';
+        const savedMatchDiv = document.getElementById('savedMatch');
+        if (savedNumbers.length === 0) savedMatchDiv.innerHTML = '저장 조합 없음';
+        else {
+            let html = '';
+            savedNumbers.forEach(key => {
+                let nums = key.split(',').map(Number);
+                let balls = nums.map(n => `<span class="selected-ball" style="width:28px; height:28px; font-size:12px;">${n}</span>`).join('');
+                html += `<div class="saved-combo-item">${balls}</div>`;
+            });
+            savedMatchDiv.innerHTML = html;
         }
-
-        if (winData) {
-            const nums = winData.slice(1, 7).join(', ');
-            const bonus = winData[7];
-            winningDisplay.innerHTML = `📌 ${targetRound}회 당첨번호: ${nums} + 보너스 ${bonus}`;
-            
-            // 당첨번호 자동 입력
-            for (let i = 1; i <= 6; i++) {
-                document.getElementById(`win${i}`).value = winData[i];
-            }
-            document.getElementById('bonus').value = winData[7];
-        } else {
-            winningDisplay.innerHTML = `📌 ${targetRound}회 데이터가 없습니다.`;
-            for (let i = 1; i <= 6; i++) {
-                document.getElementById(`win${i}`).value = '';
-            }
-            document.getElementById('bonus').value = '';
-        }
-        
-        // 결과창 초기화
-        document.getElementById('aiMatch').innerHTML = '-';
-        document.getElementById('aiMatchedList').innerHTML = '';
-        document.getElementById('aiBonus').innerHTML = '';
-        document.getElementById('savedMatch').innerHTML = '';
-
-        // 팝업 열기
         document.getElementById('reviewPopup').style.display = 'flex';
     }
-
-    function closeReviewPopup() {
-        document.getElementById('reviewPopup').style.display = 'none';
-    }
-
+    function closeReviewPopup() { document.getElementById('reviewPopup').style.display = 'none'; }
     function compareNumbers() {
-        // 당첨번호 읽기
-        const winning = [];
-        for(let i=1; i<=6; i++) {
-            const val = parseInt(document.getElementById(`win${i}`).value);
-            if(isNaN(val) || val < 1 || val > 45) {
-                alert(`${i}번째 번호를 올바르게 입력하세요 (1-45)`);
-                return;
-            }
-            winning.push(val);
+        let win = [1,2,3,4,5,6].map(i => parseInt(document.getElementById(`win${i}`).value));
+        let bonus = parseInt(document.getElementById('bonus').value);
+        if (win.some(isNaN) || isNaN(bonus)) { alert('모두 입력'); return; }
+        let winSet = new Set(win);
+        let saved = savedNumbers.map(k => k.split(',').map(Number));
+        let resultHtml = '<h4>저장 조합 비교</h4>';
+        if (saved.length === 0) resultHtml += '<p>저장 없음</p>';
+        else {
+            saved.forEach(nums => {
+                let match = nums.filter(n => winSet.has(n)).length;
+                let hasBonus = nums.includes(bonus);
+                let rank = match === 6 ? '1등' : match===5 && hasBonus ? '2등' : match===5 ? '3등' : match===4 ? '4등' : match===3 ? '5등' : '꽝';
+                resultHtml += `<div>${nums.join(', ')} → ${match}개 ${rank}</div>`;
+            });
         }
-        const bonus = parseInt(document.getElementById('bonus').value);
-        if(isNaN(bonus) || bonus < 1 || bonus > 45) {
-            alert('보너스 번호를 올바르게 입력하세요 (1-45)');
-            return;
-        }
-
-        const winSet = new Set(winning);
-        const allWinningSet = new Set([...winning, bonus]);
-
-        // AI 추천 수와 비교
-        const aiMatch = basket.filter(n => winSet.has(n));
-        const aiBonusMatch = basket.includes(bonus) ? 1 : 0;
-        
-        document.getElementById('aiMatch').innerHTML = 
-            `AI 추천 ${basket.length}수 중 ${aiMatch.length}개 일치`;
-        document.getElementById('aiMatchedList').innerHTML = 
-            aiMatch.length ? `✅ 일치 번호: ${aiMatch.join(', ')}` : '일치 없음';
-        document.getElementById('aiBonus').innerHTML = 
-            aiBonusMatch ? `✨ 보너스 번호 ${bonus} 포함됨` : '';
-
-        // 보관함 조합 비교
-        const savedMatchDiv = document.getElementById('savedMatch');
-        if(savedNumbers.length === 0) {
-            savedMatchDiv.innerHTML = '저장된 조합이 없습니다.';
-            return;
-        }
-
-        let matchHtml = '';
-        savedNumbers.forEach((key, idx) => {
-            const nums = key.split(',').map(Number);
-            const matchCount = nums.filter(n => winSet.has(n)).length;
-            const hasBonus = nums.includes(bonus);
-            let rankInfo = '';
-            if (matchCount === 6) rankInfo = '🥇 1등';
-            else if (matchCount === 5 && hasBonus) rankInfo = '🥈 2등';
-            else if (matchCount === 5) rankInfo = '🥉 3등';
-            else if (matchCount === 4) rankInfo = '4등';
-            else if (matchCount === 3) rankInfo = '5등';
-            
-            if(matchCount > 0 || hasBonus) {
-                matchHtml += `<div class="combo-item">`;
-                matchHtml += `<span>조합 ${idx+1}: ${nums.join(',')}</span>`;
-                matchHtml += `<span style="color:${matchCount >= 3 ? '#00ff00' : '#ffd700'}"> ${matchCount}개 ${rankInfo}</span>`;
-                if(hasBonus) matchHtml += `<span style="color:#00ccff"> +보너스</span>`;
-                matchHtml += `</div>`;
-            }
-        });
-        
-        if(matchHtml === '') {
-            savedMatchDiv.innerHTML = '일치하는 조합이 없습니다.';
-        } else {
-            savedMatchDiv.innerHTML = matchHtml;
-        }
-
-        // AI 정보 영역 업데이트 (일치하는 번호 하이라이트)
-        const reviewAIInfo = document.getElementById('reviewAIInfo');
-        if (reviewAIInfo) {
-            const survivorsHtml = survivors.map(n => winSet.has(n) ? `<span class="matched">${n}</span>` : n).join(', ');
-            const basketHtml = basket.map(n => winSet.has(n) ? `<span class="matched">${n}</span>` : n).join(', ');
-            const middleHtml = middle.map(n => winSet.has(n) ? `<span class="matched">${n}</span>` : n).join(', ') || '없음';
-            const outHtml = compressedOut4.map(n => winSet.has(n) ? `<span class="matched">${n}</span>` : n).join(', ') || '없음';
-            const replacedInHtml = replacedIn.map(n => winSet.has(n) ? `<span class="matched">${n}</span>` : n).join(', ') || '없음';
-            const replacedOutHtml = replacedOut.map(n => winSet.has(n) ? `<span class="matched">${n}</span>` : n).join(', ') || '없음';
-
-            reviewAIInfo.innerHTML = `
-                <div><span class="highlight-blue">생존자 ${survivors.length}수:</span> ${survivorsHtml}</div>
-                <div><span class="highlight-gold">AI 추천 10수:</span> ${basketHtml}</div>
-                <div><span class="highlight-blue">🔻 14수에서 빠진 ${compressedOut4.length}개 (교체 후 남은):</span> ${outHtml}</div>
-                <div><span style="color:#ff6666;">▶ 교체된 번호: ${replacedInHtml}</span></div>
-                <div><span style="color:#66aaff;">◀ 교체당한 번호: ${replacedOutHtml}</span></div>
-                <div><span style="color:#aaa;">📦 B bag: ${middleHtml}</span></div>
-            `;
+        document.getElementById('reviewResult').innerHTML = resultHtml;
+    }
+    function saveWinningNumbers() {
+        let win = [1,2,3,4,5,6].map(i => parseInt(document.getElementById(`win${i}`).value));
+        let bonus = parseInt(document.getElementById('bonus').value);
+        if (win.some(isNaN) || isNaN(bonus)) { alert('모두 입력'); return; }
+        localStorage.setItem('lastWinningNumbers', win.join(',')+'+'+bonus);
+        showToast('✅ 저장');
+    }
+    function loadWinningNumbers() {
+        let saved = localStorage.getItem('lastWinningNumbers');
+        if (saved) {
+            let parts = saved.split('+');
+            let win = parts[0].split(',').map(Number);
+            let bonus = parseInt(parts[1]);
+            for (let i=1; i<=6; i++) document.getElementById(`win${i}`).value = win[i-1] || '';
+            document.getElementById('bonus').value = bonus || '';
         }
     }
-
-    function showComboDetail(arr, comboNumber) {
-        document.getElementById('comboDetailTitle').innerText = `${comboNumber}조합 상세 (${arr.join(', ')})`;
-        const content = document.getElementById('comboDetailContent');
-        const sections = [
-            { name: '1-10', range: [1,10] },
-            { name: '11-20', range: [11,20] },
-            { name: '21-30', range: [21,30] },
-            { name: '31-40', range: [31,40] },
-            { name: '41-45', range: [41,45] }
-        ];
-        let html = '';
-        sections.forEach(sec => {
-            const numsInSection = arr.filter(n => n >= sec.range[0] && n <= sec.range[1]);
-            html += `<div class="section-row">
-                <span class="section-label">${sec.name}</span>
-                <div class="section-nums">
-                    ${numsInSection.length ? numsInSection.map(n => `<span class="num-box" style="width:24px; height:24px; line-height:24px; font-size:10px;">${n}</span>`).join('') : '없음'}
-                </div>
-            </div>`;
-        });
-        content.innerHTML = html;
-        document.getElementById('comboDetailPopup').style.display = 'flex';
+    function stepBaseRound(delta) {
+        currentBaseRound += delta;
+        if (currentBaseRound < 901) currentBaseRound = 901;
+        if (currentBaseRound > 1300) currentBaseRound = 1300;
+        document.getElementById('baseRoundInput').value = currentBaseRound;
+        analyze();
+        showToast(`회차 ${currentBaseRound} 이동`);
     }
-
-    function closeComboDetailPopup() {
-        document.getElementById('comboDetailPopup').style.display = 'none';
+    function setBaseRound() {
+        let r = parseInt(document.getElementById('baseRoundInput').value);
+        if (r >= 901 && r <= 1300) { currentBaseRound = r; analyze(); showToast(`회차 ${r} 이동`); }
+        else alert('901~1300 입력');
+    }
+    function openComparisonPopup() { alert('회차별 비교는 준비 중입니다.'); }
+    function openHelpPopup() {
+        document.getElementById('helpPopup').style.display = 'flex';
+    }
+    function closeHelpPopup() {
+        document.getElementById('helpPopup').style.display = 'none';
     }
 
     window.onload = function() {
         initUser();
-        setBaseRound();
+        document.getElementById('intervalWeeks').value = intervalWeeks;
+        document.getElementById('refCount').value = referenceCount;
+        document.getElementById('tradeCountInput').value = tradeCount;
+        document.getElementById('baseRoundInput').value = currentBaseRound;
+        document.getElementById('compressSlider').value = currentCompress;
+        document.getElementById('compressValue').innerText = currentCompress;
+        analyze();
+        loadWinningNumbers();
     };
 </script>
 </body>
