@@ -427,13 +427,15 @@
             flex-wrap: wrap;
             flex: 1 1 auto;
         }
-        .fixed-left span { color: #ffd700; font-size: 13px; font-weight: 600; }
-        #fixedExtra { color: #00e6b8; font-size: 11px; margin-left: 3px; white-space: nowrap; }
+        /* 고정수 텍스트 제거됨, fixedExtra만 남음 */
+        #fixedExtra { color: #00e6b8; font-size: 11px; white-space: nowrap; }
         .fixed-right {
             display: flex;
             align-items: center;
             gap: 5px;
             flex-shrink: 0;
+            flex-wrap: wrap; /* 버튼 많아지면 줄바꿈 */
+            justify-content: flex-end;
         }
         .fixed-right button {
             background: #00e6b8;
@@ -689,16 +691,23 @@
         </div>
     </div>
 
-    <!-- 고정수 + 보관함 버튼 (설정/초기화 옆) - 설정에 톱니바퀴 아이콘 -->
+    <!-- 고정수 영역 (텍스트 제거, 네이버 버튼 + 추가 버튼 포함) -->
     <div class="fixed-numbers">
         <div class="fixed-left">
-            <span>🔑 고정수</span>
+            <!-- "🔑 고정수" 텍스트 완전 제거됨 -->
             <span id="fixedExtra"></span>
         </div>
         <div class="fixed-right">
-            <button onclick="openFixedPopup()">⚙️ 설정</button>
+            <!-- 네이버 버튼 (새 탭에서 네이버 열기) -->
+            <button onclick="window.open('https://www.naver.com', '_blank')">🌐 네이버</button>
+            <!-- 고정수 설정 버튼 -->
+            <button onclick="openFixedPopup()">🔑 설정</button>
+            <!-- 고정수 초기화 버튼 -->
             <button onclick="clearFixed()">초기화</button>
+            <!-- 보관함 버튼 -->
             <button class="btn-sub" onclick="openPopup()">📦 보관함</button>
+            <!-- 추가预留 버튼 (나중에 다른 기능으로 교체 가능) -->
+            <button onclick="alert('준비 중인 기능입니다.')">⏳ 추가</button>
         </div>
     </div>
 
