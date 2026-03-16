@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>SHIN-UI-SON · 로또 분석기</title>
     <style>
+        /* ===== 리셋 및 기본 톤 (모바일 최적화) ===== */
         * { margin:0; padding:0; box-sizing:border-box; }
         body {
             display: flex;
@@ -113,20 +114,8 @@
         }
         .target-win-label { color:#ddd; font-size:9px; }
         .target-win-numbers { color:#fff; font-size:10px; font-weight:900; }
-        .trash-icon {
-            background:#3a3a3a;
-            color:#fff;
-            border-radius:30px;
-            padding:2px 8px;
-            font-size:11px;
-            cursor:pointer;
-            display:flex;
-            align-items:center;
-            gap:3px;
-            border:1px solid #666;
-            white-space:nowrap;
-        }
-        .trash-icon:hover { background:#666; }
+
+        /* 상태창 */
         .status-info {
             background:#2a2a2a;
             border-radius:14px;
@@ -169,6 +158,7 @@
             flex:1;
             align-items:center;
         }
+        /* 기본 숫자 원: 글자 크기에 비례하도록 em 사용 */
         .number-group span {
             display:inline-flex;
             align-items:center;
@@ -177,7 +167,7 @@
             border-radius:50%;
             width: 2em;
             height: 2em;
-            font-size: 12px;
+            font-size: 12px;        /* 기본값, 이후 동적 조절됨 */
             font-weight:bold;
             color:#fff;
             border:1px solid #666;
@@ -185,16 +175,19 @@
             flex-shrink:0;
             transition: font-size 0.1s ease;
         }
+        /* 생존 행은 고정 작은 크기 */
         .survivor-row .number-group span {
             width: 1.5em;
             height: 1.5em;
             font-size: 8px !important;
         }
+        /* 합집합 행은 글자 크기에 따라 원 크기 비례 */
         .union-row .number-group span {
             width: 1.2em;
             height: 1.2em;
-            font-size: 6px;
+            font-size: 6px;        /* 기본, 자동 조절됨 */
         }
+        /* 선택된 모드 행은 약간 크게 */
         .selected-mode .number-group span {
             width: 2.2em;
             height: 2.2em;
@@ -202,18 +195,23 @@
             border-width:2px;
             border-color:#aaa;
         }
+
         .winning-num {
             color:#fff !important;
             background:#2e7d32 !important;
             border:2px solid #2e7d32 !important;
             font-weight:900;
+            text-shadow:0 0 2px #000;
         }
         .bonus-num {
             color:#fff !important;
             background:#bf360c !important;
             border:2px solid #bf360c !important;
             font-weight:900;
+            text-shadow:0 0 2px #000;
         }
+
+        /* ===== 3행 구성 ===== */
         .row-1, .row-2, .row-3 {
             display: flex;
             align-items: center;
@@ -225,6 +223,7 @@
             border: 1px solid #aaa;
             min-height: 44px;
         }
+
         .mode-btns {
             display: flex;
             gap: 10px;
@@ -248,6 +247,7 @@
             color: #fff;
             border-color: #ddd;
         }
+
         .compress-row {
             display: flex;
             align-items: center;
@@ -290,6 +290,8 @@
             cursor: pointer;
             white-space: nowrap;
         }
+
+        /* 새로 추가: 생존 커스텀 입력 행 */
         .custom-survivor-row {
             display: flex;
             align-items: center;
@@ -311,7 +313,9 @@
             font-size: 10px;
             min-width: 0;
         }
-        .custom-survivor-input::placeholder { color: #888; }
+        .custom-survivor-input::placeholder {
+            color: #888;
+        }
         .custom-btn {
             background: #666;
             border: none;
@@ -323,7 +327,10 @@
             cursor: pointer;
             white-space: nowrap;
         }
-        .custom-btn.clear { background: #bf360c; }
+        .custom-btn.clear {
+            background: #bf360c;
+        }
+
         .row-3 {
             display: flex;
             justify-content: space-between;
@@ -420,6 +427,7 @@
             min-width: 40px;
             text-align: center;
         }
+
         .btn-group {
             display:grid;
             grid-template-columns:repeat(6,1fr);
@@ -451,6 +459,7 @@
             color: #fff !important;
             border-color: #7ab0d0 !important;
         }
+
         .fixed-numbers {
             display:flex;
             align-items:center;
@@ -478,6 +487,7 @@
             font-weight:800;
             cursor:pointer;
         }
+
         .small-note {
             font-size:9px;
             text-align:center;
@@ -485,6 +495,7 @@
             margin-bottom:0;
             color:#ddd;
         }
+
         .toast {
             position:fixed;
             bottom:15px;
@@ -503,6 +514,8 @@
             font-size:11px;
             border:1px solid #aaa;
         }
+
+        /* 팝업 스타일 */
         .popup-overlay {
             position: fixed;
             top: 0;
@@ -534,10 +547,24 @@
             border-bottom: 1px solid #ffd700;
             padding-bottom: 10px;
         }
-        .popup-content h4 { color: #ffd700; margin: 15px 0 10px 0; font-size: 16px; }
-        .popup-content p { margin: 8px 0; line-height: 1.5; font-size: 14px; }
-        .popup-content ul { margin: 10px 0 10px 20px; }
-        .popup-content li { margin: 8px 0; line-height: 1.5; font-size: 14px; }
+        .popup-content h4 {
+            color: #ffd700;
+            margin: 15px 0 10px 0;
+            font-size: 16px;
+        }
+        .popup-content p {
+            margin: 8px 0;
+            line-height: 1.5;
+            font-size: 14px;
+        }
+        .popup-content ul {
+            margin: 10px 0 10px 20px;
+        }
+        .popup-content li {
+            margin: 8px 0;
+            line-height: 1.5;
+            font-size: 14px;
+        }
         .popup-content button {
             background: #ffd700;
             color: #000;
@@ -549,7 +576,10 @@
             font-size: 14px;
             font-weight: bold;
         }
-        .popup-content .close-btn { background: #bf360c; color: #fff; }
+        .popup-content .close-btn {
+            background: #bf360c;
+            color: #fff;
+        }
         .number-grid {
             display: grid;
             grid-template-columns: repeat(5, 1fr);
@@ -565,7 +595,12 @@
             padding: 0;
             margin: 0;
         }
-        .number-grid button.selected { background: #2e7d32; border-color: #fff; }
+        .number-grid button.selected {
+            background: #2e7d32;
+            border-color: #fff;
+        }
+
+        /* 게임 스타일 */
         #gameCanvas {
             width: 100%;
             height: 300px;
@@ -595,6 +630,8 @@
             font-weight: bold;
             font-size: 18px;
         }
+
+        /* 당첨확인 팝업 그리드 */
         .review-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -630,17 +667,67 @@
             border: 1px solid #666;
             color: #fff;
         }
-        .review-ball.winning-num { background: #2e7d32 !important; border: 2px solid #2e7d32 !important; }
-        .review-ball.bonus-num { background: #bf360c !important; border: 2px solid #bf360c !important; }
-        .review-rank { font-size: 9px; color: #ffd700; text-align: center; }
-        #statusZoomPopup .number-group span {
-            width: 2em; height: 2em; font-size: 24px; border-width: 2px;
+        .review-ball.winning-num {
+            background: #2e7d32 !important;
+            border: 2px solid #2e7d32 !important;
         }
-        #statusZoomPopup .survivor-row .number-group span { width: 2em; height: 2em; font-size: 20px !important; }
-        #statusZoomPopup .union-row .number-group span { width: 1.8em; height: 1.8em; font-size: 18px; }
-        #statusZoomPopup .stat-label { font-size: 18px; min-width: 70px; }
-        #statusZoomPopup .number-group { gap: 8px; flex-wrap: wrap; }
-        #basketList { max-height: 400px; overflow-y: auto; }
+        .review-ball.bonus-num {
+            background: #bf360c !important;
+            border: 2px solid #bf360c !important;
+        }
+        .review-rank {
+            font-size: 9px;
+            color: #ffd700;
+            text-align: center;
+        }
+
+        /* 확대창 글자 크기 조정 */
+        #statusZoomPopup .number-group span {
+            width: 2em;
+            height: 2em;
+            font-size: 24px;
+            border-width: 2px;
+        }
+        #statusZoomPopup .survivor-row .number-group span {
+            width: 2em;
+            height: 2em;
+            font-size: 20px !important;
+        }
+        #statusZoomPopup .union-row .number-group span {
+            width: 1.8em;
+            height: 1.8em;
+            font-size: 18px;
+        }
+        #statusZoomPopup .stat-label {
+            font-size: 18px;
+            min-width: 70px;
+        }
+        #statusZoomPopup .number-group {
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        /* 보관함 목록 스크롤 */
+        #basketList {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        /* 휴지통 스타일 */
+        .trash-icon {
+            background:#3a3a3a;
+            color:#fff;
+            border-radius:30px;
+            padding:2px 8px;
+            font-size:11px;
+            cursor:pointer;
+            display:flex;
+            align-items:center;
+            gap:3px;
+            border:1px solid #666;
+            white-space:nowrap;
+        }
+        .trash-icon:hover { background:#666; }
         .trash-item {
             display: inline-block;
             background: #3a3a3a;
@@ -670,13 +757,15 @@
 
     <div id="status" class="status-info" onclick="openStatusZoomPopup()">분석 중...</div>
 
+    <!-- 1행 -->
     <div class="row-1">
         <div class="mode-btns">
-            <div class="mode-btn" id="modeAiBtn" onclick="setMode('ai')">🤖 AI (기본+특수하위)</div>
-            <div class="mode-btn" id="modeExcludeBtn" onclick="setMode('exclude')">🎯 특수분석 (커스텀상위)</div>
+            <div class="mode-btn" id="modeAiBtn" onclick="setMode('ai')">🤖 AI</div>
+            <div class="mode-btn" id="modeExcludeBtn" onclick="setMode('exclude')">🎯 특수분석</div>
         </div>
     </div>
 
+    <!-- 2행 -->
     <div class="row-2">
         <div class="compress-row">
             <span class="compress-icon">🔢</span>
@@ -688,12 +777,14 @@
         </div>
     </div>
 
+    <!-- 커스텀 생존 번호 입력 행 -->
     <div class="custom-survivor-row">
         <input type="text" id="customSurvivorInput" class="custom-survivor-input" placeholder="예: 1,5,10,15,20,25,30,35,40,45 (최대28개)" value="">
         <button class="custom-btn" onclick="applyCustomSurvivors()">붙여넣기 적용</button>
         <button class="custom-btn clear" onclick="clearCustomSurvivors()">초기화</button>
     </div>
 
+    <!-- 3행 -->
     <div class="row-3">
         <div class="interval-box">
             <button onclick="changeInterval(-1)">−</button>
@@ -703,12 +794,13 @@
         <div class="trade-btn" id="tradeBtn" onclick="toggleTrade()">트레이드</div>
         <div class="round-box">
             <button onclick="decreaseRound()">−</button>
-            <input type="number" id="roundInput" value="1215" min="900" max="1215" onchange="setRoundFromInput()">
+            <input type="number" id="roundInput" value="1215" min="900" max="1216" onchange="setRoundFromInput()">
             <button onclick="increaseRound()">+</button>
         </div>
         <div class="fixed-btn" onclick="openFixedPopup()">🔒고정</div>
     </div>
 
+    <!-- 버튼 그룹 1 -->
     <div class="btn-group">
         <button class="btn-1set" onclick="processPattern(1)">1조합</button>
         <button class="btn-5set" onclick="processPattern(5)">5조합</button>
@@ -718,6 +810,7 @@
         <button class="btn-basket" onclick="openPopup()">📦 보관함</button>
     </div>
 
+    <!-- 버튼 그룹 2 -->
     <div class="btn-group">
         <button class="btn-sub" onclick="clearStorage()">초기화</button>
         <button class="btn-sub" onclick="location.reload()">새로고침</button>
@@ -727,6 +820,7 @@
         <button class="btn-help" onclick="openHelpPopup()">❓ 도움말</button>
     </div>
 
+    <!-- 고정번호 영역 -->
     <div class="fixed-numbers">
         <div class="fixed-left">
             <span id="fixedExtra"></span>
@@ -743,14 +837,28 @@
 
 <div class="toast" id="toast"><span>✅ 저장됨</span></div>
 
-<!-- 팝업들 -->
+<!-- 고정번호 팝업 -->
 <div id="fixedPopup" class="popup-overlay"><div class="popup-content"><h3>🔒 고정 번호 선택</h3><p style="text-align:center;">최대 6개까지 선택 가능</p><div class="number-grid" id="fixedNumberGrid"></div><div style="text-align:center;"><button onclick="saveFixedPopup()">저장</button><button class="close-btn" onclick="closeFixedPopup()">닫기</button></div></div></div>
+
+<!-- 생성조합 팝업 -->
 <div id="comboPopup" class="popup-overlay"><div class="popup-content"><h3>📋 생성된 조합</h3><div id="comboList"></div><div style="text-align:center;"><button onclick="saveAllCombos()">보관함 저장</button><button class="close-btn" onclick="closeComboPopup()">닫기</button></div></div></div>
+
+<!-- 보관함 팝업 -->
 <div id="basketPopup" class="popup-overlay"><div class="popup-content"><h3>📦 보관함</h3><div id="basketList"></div><div style="text-align:center;"><button onclick="loadFromBasket()">불러오기</button><button class="close-btn" onclick="closeBasketPopup()">닫기</button></div></div></div>
-<div id="reviewPopup" class="popup-overlay"><div class="popup-content"><h3>📊 당첨 확인</h3><div style="margin:15px 0; display:flex; flex-direction:column; gap:8px;"><p>회차: <input type="number" id="reviewRound" value="1215" min="900" max="1215" style="width:100px; padding:5px; background:#3a3a3a; color:#fff; border:1px solid #aaa; border-radius:30px;"></p><p>당첨번호: <input type="text" id="reviewWinning" placeholder="예: 1,2,3,4,5,6" style="width:100%; padding:5px; background:#3a3a3a; color:#fff; border:1px solid #aaa; border-radius:30px;"></p><p>보너스: <input type="number" id="reviewBonus" min="1" max="45" style="width:100px; padding:5px; background:#3a3a3a; color:#fff; border:1px solid #aaa; border-radius:30px;"></p></div><div id="reviewResult" style="background:#2a2a2a; border-radius:20px; padding:10px;"></div><div style="text-align:center;"><button onclick="compareNumbers()">비교</button><button onclick="saveWinningNumbers()">저장</button><button class="close-btn" onclick="closeReviewPopup()">닫기</button></div></div></div>
+
+<!-- 당첨확인 팝업 -->
+<div id="reviewPopup" class="popup-overlay"><div class="popup-content"><h3>📊 당첨 확인</h3><div style="margin:15px 0; display:flex; flex-direction:column; gap:8px;"><p>회차: <input type="number" id="reviewRound" value="1215" min="900" max="1216" style="width:100px; padding:5px; background:#3a3a3a; color:#fff; border:1px solid #aaa; border-radius:30px;"></p><p>당첨번호: <input type="text" id="reviewWinning" placeholder="예: 1,2,3,4,5,6" style="width:100%; padding:5px; background:#3a3a3a; color:#fff; border:1px solid #aaa; border-radius:30px;"></p><p>보너스: <input type="number" id="reviewBonus" min="1" max="45" style="width:100px; padding:5px; background:#3a3a3a; color:#fff; border:1px solid #aaa; border-radius:30px;"></p></div><div id="reviewResult" style="background:#2a2a2a; border-radius:20px; padding:10px;"></div><div style="text-align:center;"><button onclick="compareNumbers()">비교</button><button onclick="saveWinningNumbers()">저장</button><button class="close-btn" onclick="closeReviewPopup()">닫기</button></div></div></div>
+
+<!-- 게임 팝업 -->
 <div id="gamePopup" class="popup-overlay"><div class="popup-content"><h3>🎮 게임</h3><div style="text-align:center; margin:15px 0;"><button onclick="switchGame('updown')">업다운</button><button onclick="switchGame('baseball')">야구게임</button><button onclick="switchGame('touchrush')">🔴 터치러시</button></div><div id="gameArea"></div><div style="text-align:center;"><button class="close-btn" onclick="closeGamePopup()">닫기</button></div></div></div>
+
+<!-- 상태확대 팝업 -->
 <div id="statusZoomPopup" class="popup-overlay"><div class="popup-content"><h3>🔍 상세 분석</h3><div id="statusZoomContent"></div><div style="text-align:center;"><button class="close-btn" onclick="closeStatusZoomPopup()">닫기</button></div></div></div>
-<div id="helpPopup" class="popup-overlay"><div class="popup-content"><h3>❓ 도움말</h3><div style="margin:10px 0;"><h4>🤖 AI 모드</h4><p>기본 생존 번호(최근 10~15회 출현 빈도 상위 20개) + 특수분석에서 선택되지 않은 커스텀 번호(하위)의 합집합에서 상위 N개 선택</p><h4>🎯 특수분석 모드</h4><p>사용자가 입력한 커스텀 생존 번호(최대 28개)에서 상위 N개 선택</p><h4>🔄 트레이드</h4><p>두 모드의 랭크를 결합한 종합 점수로 교환, 유실번호는 휴지통에 누적</p><h4>🗑️ 휴지통</h4><p>트레이드 유실번호 저장, 헤더 아이콘 클릭 시 확인 및 비우기 가능, 당첨번호 색 구분</p></div><div style="text-align:center;"><button class="close-btn" onclick="closeHelpPopup()">닫기</button></div></div></div>
+
+<!-- 도움말 팝업 -->
+<div id="helpPopup" class="popup-overlay"><div class="popup-content"><h3>❓ 도움말</h3><div style="margin:10px 0;"><h4>🤖 AI 모드</h4><p>기본 생존 번호(최근 10~15회 출현 빈도 상위 20개)를 대상으로 패턴 분석</p><h4>🎯 특수분석 모드</h4><p>사용자가 입력한 커스텀 생존 번호(최대 28개)를 대상으로 분석</p><h4>🔄 트레이드</h4><p>AI와 특수분석이 번호 교환, 유실번호는 휴지통에 저장</p><h4>🗑️ 휴지통</h4><p>트레이드 유실번호 저장, 회차 이동 시 자동 비워짐</p><h4>✏️ 커스텀 생존 번호</h4><p>초기화 버튼으로 기본 생존 번호(20개) 사용</p></div><div style="text-align:center;"><button class="close-btn" onclick="closeHelpPopup()">닫기</button></div></div></div>
+
+<!-- 휴지통 팝업 -->
 <div id="trashPopup" class="popup-overlay">
     <div class="popup-content">
         <h3>🗑️ 휴지통 (유실번호)</h3>
@@ -763,8 +871,9 @@
 </div>
 
 <script>
-// ===== 전체 데이터 (900회 ~ 1215회) =====
+// ===== 전체 데이터 (900회 ~ 1216회) =====
 const FULL_DATA = [ 
+    [1216,0,0,0,0,0,0,0], // 1216회 데이터는 아직 없음 (직접 입력 필요)
     [1215,13,15,19,21,44,45,39],
     [1214,10,15,19,27,30,33,14],
     [1213,5,11,25,27,36,38,2],
@@ -985,9 +1094,7 @@ const FULL_DATA = [
 
 // ===== 전역 변수 =====
 let currentMode = 'ai';
-let full14 = [], full14_ai = [], full14_exclude = [], integrated14 = [];
-let specialSurvivors = [];
-let aiSurvivors = [];
+let full14 = [], full14_ai = [], full14_exclude = [], integrated14 = [], survivors = [];
 let full_ai_14 = [], full_exclude_14 = [], integrated_14 = [];
 let currentCompress = 9;
 let intervalWeeks = 2;
@@ -1003,8 +1110,10 @@ let commonMinusIntegrated = [], unusedIntegrated = [], survivorRank = {};
 let customWinningNumbers = null, customBonus = null;
 let aiRankMap = {}, excludeRankMap = {};
 let beforeIntersection = [], movedFromAIToExclude = [], movedFromExcludeToAI = [];
-let customSurvivors = null;
+let customSurvivors = null;  // null이면 기본 생존번호 사용
 let trashNumbers = [];
+
+// 터치러시 게임 변수
 let gameType = 'updown';
 let gameTargetUpDown = [], gameAttemptsUpDown = 0;
 let gameBalls = [], gameSelected = [], gameAnimationId = null, gameCanvas = null, gameCtx = null;
@@ -1013,9 +1122,9 @@ const STORAGE_FIXED = 'lottoFixedNumbers';
 const STORAGE_CUSTOM_SURVIVORS = 'lottoCustomSurvivors';
 const STORAGE_TRASH = 'lottoTrash';
 const MIN_ROUND = 900;
-const MAX_ROUND = 1215;
+const MAX_ROUND = 1216;
 
-// ===== 유틸리티 =====
+// ===== 유틸리티 함수 =====
 function shuffleArray(arr) {
     let a = arr.slice();
     for (let i = a.length - 1; i > 0; i--) {
@@ -1024,6 +1133,7 @@ function shuffleArray(arr) {
     }
     return a;
 }
+
 function saveFixedNumbers() { localStorage.setItem(STORAGE_FIXED, JSON.stringify(fixedNumbers)); }
 function loadFixedNumbers() {
     let saved = localStorage.getItem(STORAGE_FIXED);
@@ -1032,22 +1142,28 @@ function loadFixedNumbers() {
     fixedNumbers.sort((a,b)=>a-b);
     updateFixedDisplay();
 }
+
 function saveCustomSurvivors() {
-    if (customSurvivors) localStorage.setItem(STORAGE_CUSTOM_SURVIVORS, JSON.stringify(customSurvivors));
-    else localStorage.removeItem(STORAGE_CUSTOM_SURVIVORS);
+    if (customSurvivors) sessionStorage.setItem(STORAGE_CUSTOM_SURVIVORS, JSON.stringify(customSurvivors));
+    else sessionStorage.removeItem(STORAGE_CUSTOM_SURVIVORS);
 }
 function loadCustomSurvivors() {
-    let saved = localStorage.getItem(STORAGE_CUSTOM_SURVIVORS);
+    let saved = sessionStorage.getItem(STORAGE_CUSTOM_SURVIVORS);
     if (saved) {
         try {
             let arr = JSON.parse(saved);
             if (Array.isArray(arr) && arr.every(n => Number.isInteger(n) && n >= 1 && n <= 45)) {
                 customSurvivors = arr.sort((a,b)=>a-b);
                 document.getElementById('customSurvivorInput').value = customSurvivors.join(', ');
-            } else customSurvivors = null;
-        } catch(e) { customSurvivors = null; }
-    } else customSurvivors = null;
+                return;
+            }
+        } catch(e) {}
+    }
+    // 저장된 값이 없으면 null
+    customSurvivors = null;
+    document.getElementById('customSurvivorInput').value = '';
 }
+
 function saveTrash() {
     localStorage.setItem(STORAGE_TRASH, JSON.stringify(trashNumbers));
     updateTrashIcon();
@@ -1067,6 +1183,7 @@ function updateTrashIcon() {
     let icon = document.getElementById('trashIcon');
     if (icon) icon.innerHTML = `🗑️ ${trashNumbers.length}`;
 }
+
 function updateFixedDisplay() {
     let fixedStr = fixedNumbers.length > 0 ? '🔒 ' + fixedNumbers.join(', ') : '고정번호 없음';
     document.getElementById('fixedExtra').innerText = fixedStr;
@@ -1088,7 +1205,9 @@ function initUser() {
     }
     try {
         savedNumbers = JSON.parse(localStorage.getItem(`lottoSave_${userName}`)) || [];
-    } catch(e) { savedNumbers = []; }
+    } catch(e) {
+        savedNumbers = [];
+    }
     if (!Array.isArray(savedNumbers)) savedNumbers = [];
     loadFixedNumbers();
     loadCustomSurvivors();
@@ -1125,7 +1244,7 @@ function showToast(msg) {
     setTimeout(() => t.style.display = 'none', 800);
 }
 
-// ===== 분석 =====
+// ===== 분석 함수 =====
 function analyzeExcelVisual(pastData) {
     let scores = Array(46).fill(0);
     let grid = Array.from({ length: pastData.length }, () => Array(46).fill(0));
@@ -1148,39 +1267,23 @@ function analyzeExcelVisual(pastData) {
     }
     return scores;
 }
+
 function getCurrentWinningNumbers() {
-    if (customWinningNumbers && customBonus) return { winning: customWinningNumbers, bonus: customBonus };
+    if (customWinningNumbers && customBonus) {
+        return { winning: customWinningNumbers, bonus: customBonus };
+    }
     let winData = FULL_DATA.find(r => r[0] === currentBaseRound);
-    if (winData) return { winning: winData.slice(1, 7), bonus: winData[7] };
+    if (winData) {
+        return { winning: winData.slice(1, 7), bonus: winData[7] };
+    }
     return { winning: [], bonus: null };
 }
-function adjustNumberGroupFontSize() {
-    document.querySelectorAll('.stat-row:not(.survivor-row) .number-group').forEach(group => {
-        const row = group.closest('.stat-row');
-        if (!row) return;
-        const label = row.querySelector('.stat-label');
-        if (!label) return;
-        const rowWidth = row.clientWidth;
-        const labelWidth = label.offsetWidth;
-        const gap = 6;
-        const availableWidth = rowWidth - labelWidth - gap - 10;
-        if (availableWidth <= 0) return;
-        let totalWidth = 0;
-        const spans = group.querySelectorAll('span');
-        spans.forEach(span => totalWidth += span.offsetWidth);
-        if (totalWidth === 0) return;
-        let ratio = availableWidth / totalWidth;
-        const currentFontSize = parseFloat(window.getComputedStyle(spans[0]).fontSize);
-        let newFontSize = currentFontSize * ratio;
-        const minSize = row.classList.contains('union-row') ? 6 : 8;
-        newFontSize = Math.min(14, Math.max(minSize, newFontSize));
-        spans.forEach(span => span.style.fontSize = newFontSize + 'px');
-    });
-}
+
 function analyze() {
     const referenceCount = REFERENCE_COUNT;
     const interval = intervalWeeks;
-    let pastData = FULL_DATA.filter(round => round[0] < currentBaseRound);
+
+    let pastData = FULL_DATA.filter(round => round[0] < currentBaseRound && round[0] > 0);
     let collectedRounds = [];
     for (let i = 0; i < referenceCount; i++) {
         let targetRound = currentBaseRound - 1 - interval * i;
@@ -1196,24 +1299,23 @@ function analyze() {
     collectedRounds.forEach(round => allNumbers.push(...round.slice(1, 7)));
     let freq = {};
     allNumbers.forEach(n => freq[n] = (freq[n] || 0) + 1);
-    let sortedByFreq = Object.entries(freq).map(([num, cnt]) => ({ num: parseInt(num), cnt })).sort((a, b) => b.cnt !== a.cnt ? b.cnt - a.cnt : a.num - b.num);
-    let computedSurvivors = sortedByFreq.slice(0, 20).map(x => x.num).sort((a,b)=>a-b);
+    let sortedByFreq = Object.entries(freq)
+        .map(([num, cnt]) => ({ num: parseInt(num), cnt }))
+        .sort((a, b) => b.cnt !== a.cnt ? b.cnt - a.cnt : a.num - b.num);
+    survivors = sortedByFreq.slice(0, 20).map(x => x.num).sort((a,b)=>a-b);
     
-    // 특수분석용 생존 번호: 커스텀이 있으면 그것, 없으면 기본
-    if (customSurvivors && customSurvivors.length > 0) {
-        specialSurvivors = customSurvivors.slice();
-    } else {
-        specialSurvivors = computedSurvivors;
-    }
+    survivorRank = {};
+    survivors.forEach((num, idx) => { survivorRank[num] = idx + 1; });
     
-    // AI용 기본 생존 번호: 항상 computedSurvivors
-    aiSurvivors = computedSurvivors.slice();
-    
-    // 특수분석 점수 계산 (specialSurvivors 대상)
     let past10 = collectedRounds.slice(0, 10);
     let past15 = collectedRounds.slice(0, 15);
+    
+    // 특수분석 대상 번호: customSurvivors가 있으면 그것, 없으면 survivors
+    let specialTargets = customSurvivors ? customSurvivors : survivors;
+    
+    // 특수분석 점수 계산
     excludeScores = {};
-    specialSurvivors.forEach(num => {
+    specialTargets.forEach(num => {
         let score = 0;
         let freqRecent10 = past10.filter(r => r.slice(1,7).includes(num)).length;
         score += freqRecent10 * 2.0;
@@ -1221,40 +1323,28 @@ function analyze() {
         if (num >= 20 && num <= 35) score += 1.5;
         excludeScores[num] = score;
     });
-    let scoredExclude = specialSurvivors.map(num => ({ num, score: excludeScores[num] }));
+    let scoredExclude = specialTargets.map(num => ({ num, score: excludeScores[num] }));
     scoredExclude.sort((a, b) => b.score !== a.score ? b.score - a.score : a.num - b.num);
     original_exclude = scoredExclude.slice(0, currentCompress).map(x => x.num).sort((a,b)=>a-b);
     
-    // AI 점수 계산 (전체 번호에 대해 미리 계산)
+    // AI 점수 계산 (survivors 대상)
     patternScores = analyzeExcelVisual(collectedRounds);
-    
-    // AI가 사용할 번호: 기본 생존 번호 + 특수분석에서 선택되지 않은 커스텀 번호
-    let aiCandidates = [];
-    if (customSurvivors && customSurvivors.length > 0) {
-        let excludeSet = new Set(original_exclude); // 특수분석에서 선택된 번호
-        let unselectedCustom = specialSurvivors.filter(num => !excludeSet.has(num)); // 특수 하위
-        // 기본 생존 번호와 합집합 (중복 제거)
-        aiCandidates = [...new Set([...aiSurvivors, ...unselectedCustom])];
-    } else {
-        aiCandidates = aiSurvivors;
-    }
-    
-    let aiRanked = aiCandidates.map(num => ({ num, score: patternScores[num] }));
-    aiRanked.sort((a, b) => b.score !== a.score ? b.score - a.score : a.num - b.num);
-    original_ai = aiRanked.slice(0, currentCompress).map(x => x.num).sort((a,b)=>a-b);
+    let aiCandidates = survivors.map(num => ({ num, score: patternScores[num] }));
+    aiCandidates.sort((a, b) => b.score !== a.score ? b.score - a.score : a.num - b.num);
+    original_ai = aiCandidates.slice(0, currentCompress).map(x => x.num).sort((a,b)=>a-b);
     
     // AI 상위 14개 (터치러시용)
-    let aiRankingFull = aiCandidates.map(num => ({ num, score: patternScores[num] }));
+    let aiRankingFull = survivors.map(num => ({ num, score: patternScores[num] }));
     aiRankingFull.sort((a, b) => b.score !== a.score ? b.score - a.score : a.num - b.num);
     full_ai_14 = aiRankingFull.slice(0, 14).map(x => x.num).sort((a,b)=>a-b);
-    
+
     // 특수 상위 14개 (터치러시용)
-    let excludeRankingFull = specialSurvivors.map(num => ({ num, score: excludeScores[num] }));
+    let excludeRankingFull = specialTargets.map(num => ({ num, score: excludeScores[num] }));
     excludeRankingFull.sort((a, b) => b.score !== a.score ? b.score - a.score : a.num - b.num);
     full_exclude_14 = excludeRankingFull.slice(0, 14).map(x => x.num).sort((a,b)=>a-b);
-    
+
     integrated_14 = [];
-    
+
     pairFrequency = {};
     collectedRounds.forEach(round => {
         let nums = round.slice(1, 7);
@@ -1267,34 +1357,48 @@ function analyze() {
             }
         }
     });
-    
-    // AI 랭크 (전체 45개 기준)
+
     let aiRanking = [];
     for (let i = 1; i <= 45; i++) aiRanking.push({ num: i, score: patternScores[i] });
     aiRanking.sort((a, b) => b.score !== a.score ? b.score - a.score : a.num - b.num);
     aiRankMap = {};
     aiRanking.forEach((item, idx) => { aiRankMap[item.num] = idx + 1; });
-    
-    let excludeRanking = specialSurvivors.map(num => ({ num, score: excludeScores[num] }));
+
+    let excludeRanking = specialTargets.map(num => ({ num, score: excludeScores[num] }));
     excludeRanking.sort((a, b) => b.score !== a.score ? b.score - a.score : a.num - b.num);
     excludeRankMap = {};
     excludeRanking.forEach((item, idx) => { excludeRankMap[item.num] = idx + 1; });
-    for (let i = 1; i <= 45; i++) if (!excludeRankMap[i]) excludeRankMap[i] = 21;
     
+    for (let i = 1; i <= 45; i++) {
+        if (!excludeRankMap[i]) excludeRankMap[i] = 21;
+    }
+
     tradeActive = false;
     document.getElementById('tradeBtn').classList.remove('active');
-    full14_ai = original_ai.slice();
-    full14_exclude = original_exclude.slice();
-    integrated14 = []; integrated_14 = [];
-    lostWinningNumbers = []; lostNumbersAll = []; fullIntersection = []; commonMinusIntegrated = []; unusedIntegrated = [];
-    beforeIntegrated = []; afterIntegrated = []; movedFromAIToExclude = []; movedFromExcludeToAI = [];
-    
+    integrated14 = [];
+    lostWinningNumbers = [];
+    lostNumbersAll = [];
+    fullIntersection = [];
+    commonMinusIntegrated = [];
+    unusedIntegrated = [];
+    beforeIntegrated = [];
+    afterIntegrated = [];
+    movedFromAIToExclude = [];
+    movedFromExcludeToAI = [];
     applyCurrentState();
 }
+
 function applyCurrentState() {
-    if (!tradeActive) { full14_ai = original_ai.slice(); full14_exclude = original_exclude.slice(); }
-    if (currentMode === 'ai') full14 = full14_ai.slice();
-    else full14 = full14_exclude.slice();
+    if (!tradeActive) {
+        full14_ai = original_ai.slice();
+        full14_exclude = original_exclude.slice();
+    }
+    
+    if (currentMode === 'ai') {
+        full14 = full14_ai.slice();
+    } else {
+        full14 = full14_exclude.slice();
+    }
     
     let winData = FULL_DATA.find(r => r[0] === currentBaseRound);
     let winNumbers = customWinningNumbers || (winData ? winData.slice(1, 7) : []);
@@ -1311,15 +1415,24 @@ function applyCurrentState() {
     let aiHtml = full14_ai.map(formatNumber).join(' ') + ` (${aiMatches})`;
     let excludeMatches = full14_exclude.filter(n => winNumbers.includes(n)).length;
     let excludeHtml = full14_exclude.map(formatNumber).join(' ') + ` (${excludeMatches})`;
-    let specialMatches = specialSurvivors.filter(n => winNumbers.includes(n)).length;
-    let specialHtml = specialSurvivors.map(formatNumber).join(' ');
+    
+    // 특수분석 대상 번호 표시
+    let specialTargets = customSurvivors ? customSurvivors : survivors;
+    let specialMatches = specialTargets.filter(n => winNumbers.includes(n)).length;
+    let specialHtml = specialTargets.map(formatNumber).join(' ');
+    let specialLabel = customSurvivors ? '👥특수생존*' : '👥생존';
+    
     let unionSet = new Set([...full14_ai, ...full14_exclude]);
     let union14 = Array.from(unionSet).sort((a,b)=>a-b);
     let unionMatches = union14.filter(n => winNumbers.includes(n)).length;
     let unionHtml = union14.map(formatNumber).join(' ') + ` (${unionMatches})`;
     
     let intersection = full14_ai.filter(n => full14_exclude.includes(n));
-    intersection.sort((a, b) => { let aIsWin = allWinNumbers.includes(a)?1:0; let bIsWin = allWinNumbers.includes(b)?1:0; return bIsWin - aIsWin; });
+    intersection.sort((a, b) => {
+        let aIsWin = allWinNumbers.includes(a) ? 1 : 0;
+        let bIsWin = allWinNumbers.includes(b) ? 1 : 0;
+        return bIsWin - aIsWin;
+    });
     let topIntersection = intersection.slice(0, currentCompress);
     let topIntersectionMatches = topIntersection.filter(n => winNumbers.includes(n)).length;
     let topIntersectionHtml = topIntersection.map(formatNumber).join(' ') + ` (${topIntersectionMatches})`;
@@ -1329,13 +1442,7 @@ function applyCurrentState() {
         let integratedMatches = integrated14.filter(n => winNumbers.includes(n)).length;
         integratedHtml = `<div class="stat-row"><span class="stat-label">🔷추천</span> <div class="number-group">${integrated14.map(formatNumber).join(' ')} (${integratedMatches})</div></div>`;
     }
-    
-    let currentModeNumbers = full14;
-    let currentModeMatches = currentModeNumbers.filter(n => winNumbers.includes(n)).length;
-    let currentModeHtml = currentModeNumbers.map(n => formatNumber(n)).join(' ') + ` (${currentModeMatches})`;
-    let currentModeLabel = (currentMode === 'ai') ? '🤖AI 선택' : '🎯특수 선택';
-    let survivorLabel = customSurvivors ? '👥특수생존*' : '👥특수생존';
-    
+
     let moveHtml = '';
     if (tradeActive) {
         if (movedFromAIToExclude.length > 0) {
@@ -1347,16 +1454,22 @@ function applyCurrentState() {
             moveHtml += `<div class="stat-row"><span class="stat-label">⬇️특수→AI</span> <div class="number-group">${movedStr}</div></div>`;
         }
     }
+
     let lostHtml = '';
     if (tradeActive && lostNumbersAll.length > 0) {
         let lostNumbers = lostNumbersAll.sort((a,b)=>a-b).map(n => formatNumber(n)).join(' ');
         lostHtml = `<div class="stat-row"><span class="stat-label">❌ 유실</span> <div class="number-group">${lostNumbers}</div></div>`;
     }
-    
+
+    let currentModeNumbers = full14;
+    let currentModeMatches = currentModeNumbers.filter(n => winNumbers.includes(n)).length;
+    let currentModeHtml = currentModeNumbers.map(n => formatNumber(n)).join(' ') + ` (${currentModeMatches})`;
+    let currentModeLabel = (currentMode === 'ai') ? '🤖AI 선택' : '🎯특수 선택';
+
     let statusHtml = `
-        <div class="stat-row survivor-row"><span class="stat-label">${survivorLabel}</span> <div class="number-group">${specialHtml} (${specialMatches})</div></div>
+        <div class="stat-row survivor-row"><span class="stat-label">${specialLabel}</span> <div class="number-group">${specialHtml} (${specialMatches})</div></div>
         <div class="stat-row"><span class="stat-label">🎯특수분석</span> <div class="number-group">${excludeHtml}</div></div>
-        <div class="stat-row"><span class="stat-label">🤖AI (기본+특수하위)</span> <div class="number-group">${aiHtml}</div></div>
+        <div class="stat-row"><span class="stat-label">🤖AI</span> <div class="number-group">${aiHtml}</div></div>
         <div class="stat-row"><span class="stat-label">🤝교집합</span> <div class="number-group">${topIntersectionHtml}</div></div>
         <div class="stat-row union-row"><span class="stat-label">합집합</span> <div class="number-group">${unionHtml}</div></div>
         ${moveHtml}
@@ -1364,10 +1477,9 @@ function applyCurrentState() {
         <div class="stat-row selected-mode"><span class="stat-label">${currentModeLabel}</span> <div class="number-group">${currentModeHtml}</div></div>
         ${integratedHtml}
     `;
-    
+
     document.getElementById('status').innerHTML = statusHtml;
-    setTimeout(adjustNumberGroupFontSize, 0);
-    
+
     let prevData = FULL_DATA.find(r => r[0] === currentBaseRound - 1);
     if (prevData) {
         document.getElementById('baseRoundInfo').innerHTML = prevData.slice(1, 7).map(n => `<span class="prev-num">${n}</span>`).join('') + '<span>+</span>' + `<span class="prev-num">${prevData[7]}</span>`;
@@ -1376,6 +1488,7 @@ function applyCurrentState() {
         document.getElementById('baseRoundInfo').innerHTML = '';
         document.getElementById('prevWinLabel').innerHTML = `📌 없음`;
     }
+    
     document.getElementById('roundInput').value = currentBaseRound;
     document.getElementById('targetRound').innerText = currentBaseRound;
     
@@ -1386,12 +1499,17 @@ function applyCurrentState() {
         targetWinContainer.className = 'target-win-container';
         document.querySelector('.header-line').appendChild(targetWinContainer);
     }
-    if (winNumbers.length > 0) targetWinContainer.innerHTML = `<span class="target-win-label">${currentBaseRound}회:</span><span class="target-win-numbers">${winNumbers.join(',')}+${bonus}</span>`;
-    else targetWinContainer.innerHTML = `<span class="target-win-label">${currentBaseRound}회: 없음</span>`;
-    
+    if (winNumbers.length > 0) {
+        targetWinContainer.innerHTML = `<span class="target-win-label">${currentBaseRound}회:</span><span class="target-win-numbers">${winNumbers.join(',')}+${bonus}</span>`;
+    } else {
+        targetWinContainer.innerHTML = `<span class="target-win-label">${currentBaseRound}회: 없음</span>`;
+    }
+
     document.getElementById('modeAiBtn').classList.toggle('active', currentMode === 'ai');
     document.getElementById('modeExcludeBtn').classList.toggle('active', currentMode === 'exclude');
 }
+
+// ===== 회차 이동 함수들 (휴지통 자동 비우기 추가) =====
 function setRoundFromInput() {
     let input = document.getElementById('roundInput');
     let val = parseInt(input.value);
@@ -1402,23 +1520,63 @@ function setRoundFromInput() {
         currentBaseRound = val;
         customWinningNumbers = null;
         customBonus = null;
+        
+        // 🔥 회차 변경 시 휴지통 비우기
+        trashNumbers = [];
+        saveTrash();
+        
         analyze();
-        showToast(`회차 ${currentBaseRound}`);
+        showToast(`회차 ${currentBaseRound} (휴지통 비워짐)`);
     }
     input.value = currentBaseRound;
 }
+
 function increaseRound() {
-    if (currentBaseRound < MAX_ROUND) { currentBaseRound++; customWinningNumbers=null; customBonus=null; analyze(); document.getElementById('roundInput').value = currentBaseRound; showToast(`회차 ${currentBaseRound}`); }
-    else showToast('최대 회차');
+    if (currentBaseRound < MAX_ROUND) {
+        currentBaseRound++;
+        customWinningNumbers = null;
+        customBonus = null;
+        
+        // 🔥 회차 증가 시 휴지통 비우기
+        trashNumbers = [];
+        saveTrash();
+        
+        analyze();
+        document.getElementById('roundInput').value = currentBaseRound;
+        showToast(`회차 ${currentBaseRound} (휴지통 비워짐)`);
+    } else {
+        showToast('최대 회차');
+    }
 }
+
 function decreaseRound() {
-    if (currentBaseRound > MIN_ROUND) { currentBaseRound--; customWinningNumbers=null; customBonus=null; analyze(); document.getElementById('roundInput').value = currentBaseRound; showToast(`회차 ${currentBaseRound}`); }
-    else showToast('최소 회차');
+    if (currentBaseRound > MIN_ROUND) {
+        currentBaseRound--;
+        customWinningNumbers = null;
+        customBonus = null;
+        
+        // 🔥 회차 감소 시 휴지통 비우기
+        trashNumbers = [];
+        saveTrash();
+        
+        analyze();
+        document.getElementById('roundInput').value = currentBaseRound;
+        showToast(`회차 ${currentBaseRound} (휴지통 비워짐)`);
+    } else {
+        showToast('최소 회차');
+    }
 }
-function updateCompressValue(val) { currentCompress = parseInt(val); document.getElementById('compressValue').innerText = currentCompress; }
+
+function updateCompressValue(val) {
+    currentCompress = parseInt(val);
+    document.getElementById('compressValue').innerText = currentCompress;
+}
 function applyCompress() {
-    if (tradeActive) { toggleTrade(); analyze(); toggleTrade(); }
-    else analyze();
+    if (tradeActive) {
+        toggleTrade();
+        analyze();
+        toggleTrade();
+    } else analyze();
     showToast(`압축수 ${currentCompress}`);
 }
 function changeInterval(delta) {
@@ -1436,48 +1594,57 @@ function setMode(mode) {
     applyCurrentState();
 }
 
-// ===== 개선된 트레이드 (양방향 랭크 결합) =====
+// ===== 트레이드 함수 =====
 function toggleTrade() {
     if (tradeActive) {
         tradeActive = false;
         document.getElementById('tradeBtn').classList.remove('active');
         full14_ai = original_ai.slice();
         full14_exclude = original_exclude.slice();
-        integrated14 = []; integrated_14 = [];
-        lostWinningNumbers = []; lostNumbersAll = []; fullIntersection = []; commonMinusIntegrated = []; unusedIntegrated = [];
-        movedFromAIToExclude = []; movedFromExcludeToAI = [];
+        integrated14 = [];
+        lostWinningNumbers = [];
+        lostNumbersAll = [];
+        fullIntersection = [];
+        commonMinusIntegrated = [];
+        unusedIntegrated = [];
+        movedFromAIToExclude = [];
+        movedFromExcludeToAI = [];
     } else {
         let beforeSet = new Set([...original_ai, ...original_exclude]);
         let winData = FULL_DATA.find(r => r[0] === currentBaseRound);
         let winNumbers = winData ? winData.slice(1, 7) : [];
         const tc = TRADE_COUNT;
-        
-        function combinedRank(num) {
-            let aiRank = aiRankMap[num] || 45;
-            let exRank = excludeRankMap[num] || 21;
-            return aiRank + exRank;
-        }
-        
-        let aiWants = original_exclude.map(num => ({ num, rank: combinedRank(num) })).sort((a,b)=>a.rank - b.rank).slice(0, tc).map(x=>x.num);
-        let excludeWants = original_ai.map(num => ({ num, rank: combinedRank(num) })).sort((a,b)=>a.rank - b.rank).slice(0, tc).map(x=>x.num);
-        let aiGives = original_ai.map(num => ({ num, rank: combinedRank(num) })).sort((a,b)=>b.rank - a.rank).slice(0, tc).map(x=>x.num);
-        let excludeGives = original_exclude.map(num => ({ num, rank: combinedRank(num) })).sort((a,b)=>b.rank - a.rank).slice(0, tc).map(x=>x.num);
-        
+
+        beforeIntersection = original_ai.filter(n => original_exclude.includes(n));
+
+        let aiWants = original_exclude.map(num => ({ num, rank: aiRankMap[num] || 45 }))
+            .sort((a,b)=> a.rank !== b.rank ? a.rank - b.rank : a.num - b.num).slice(0, tc).map(x=>x.num);
+            
+        let excludeWants = original_ai.map(num => ({ num, rank: excludeRankMap[num] || 21 }))
+            .sort((a,b)=> a.rank !== b.rank ? a.rank - b.rank : a.num - b.num).slice(0, tc).map(x=>x.num);
+            
+        let aiGives = original_ai.map(num => ({ num, rank: excludeRankMap[num] || 21 }))
+            .sort((a,b)=> b.rank !== a.rank ? b.rank - a.rank : a.num - b.num).slice(0, tc).map(x=>x.num);
+            
+        let excludeGives = original_exclude.map(num => ({ num, rank: aiRankMap[num] || 45 }))
+            .sort((a,b)=> b.rank !== a.rank ? b.rank - a.rank : a.num - b.num).slice(0, tc).map(x=>x.num);
+
         let newAI = new Set(original_ai);
         aiGives.forEach(num => newAI.delete(num));
         aiWants.forEach(num => newAI.add(num));
+
         let newExclude = new Set(original_exclude);
         excludeGives.forEach(num => newExclude.delete(num));
         excludeWants.forEach(num => newExclude.add(num));
-        
+
         full14_ai = Array.from(newAI).sort((a,b)=>a-b);
         full14_exclude = Array.from(newExclude).sort((a,b)=>a-b);
-        
+
         movedFromAIToExclude = [];
         movedFromExcludeToAI = [];
         for (let num of original_ai) if (!newAI.has(num) && newExclude.has(num)) movedFromAIToExclude.push(num);
         for (let num of original_exclude) if (!newExclude.has(num) && newAI.has(num)) movedFromExcludeToAI.push(num);
-        
+
         let unionSet = new Set([...full14_ai, ...full14_exclude]);
         let union = Array.from(unionSet).sort((a,b)=>a-b);
         let scored = union.map(num => {
@@ -1486,32 +1653,35 @@ function toggleTrade() {
             let bonus = (full14_ai.includes(num) && full14_exclude.includes(num)) ? -20 : 0;
             return { num, score: aiRank + exRank + bonus };
         });
-        scored.sort((a, b) => a.score - b.score);
+        scored.sort((a, b) => a.score !== b.score ? a.score - b.score : a.num - b.num);
         integrated14 = scored.slice(0, currentCompress).map(x => x.num).sort((a,b)=>a-b);
         integrated_14 = scored.slice(0, 14).map(x => x.num).sort((a,b)=>a-b);
-        
+
         let afterSet = new Set([...full14_ai, ...full14_exclude]);
         let lostNumbers = Array.from(beforeSet).filter(n => !afterSet.has(n));
         lostNumbersAll = lostNumbers.slice();
         lostWinningNumbers = lostNumbers.filter(n => winNumbers.includes(n));
-        
+
+        // 유실번호를 휴지통에 추가
         lostNumbersAll.forEach(num => { if (!trashNumbers.includes(num)) trashNumbers.push(num); });
         trashNumbers.sort((a,b)=>a-b);
         saveTrash();
-        if (lostNumbersAll.length > 0) showToast(`🗑️ 유실번호 ${lostNumbersAll.length}개 휴지통에 추가`);
-        
+        if (lostNumbersAll.length > 0) {
+            showToast(`🗑️ 유실번호 ${lostNumbersAll.length}개 휴지통에 추가`);
+        }
+
         let commonAfterTrade = full14_ai.filter(n => full14_exclude.includes(n));
         fullIntersection = commonAfterTrade.slice();
         commonMinusIntegrated = commonAfterTrade.filter(n => !integrated14.includes(n));
-        
+
         tradeActive = true;
         document.getElementById('tradeBtn').classList.add('active');
-        showToast(`🔄 트레이드 완료 (교환 ${tc}개, 양방향 랭크 결합)`);
+        showToast(`🔄 트레이드 완료`);
     }
     applyCurrentState();
 }
 
-// ===== 커스텀 생존 =====
+// ===== 커스텀 생존 번호 적용 =====
 function applyCustomSurvivors() {
     let input = document.getElementById('customSurvivorInput').value.trim();
     if (!input) { showToast('번호를 입력하세요'); return; }
@@ -1529,18 +1699,21 @@ function applyCustomSurvivors() {
     numbers.sort((a,b)=>a-b);
     customSurvivors = numbers;
     saveCustomSurvivors();
+    document.getElementById('customSurvivorInput').value = customSurvivors.join(', ');
     analyze();
     showToast(`커스텀 생존 ${numbers.length}개 적용됨`);
 }
+
 function clearCustomSurvivors() {
+    // 커스텀 생존 번호 제거 (기본 생존번호 사용)
     customSurvivors = null;
-    saveCustomSurvivors();
+    sessionStorage.removeItem(STORAGE_CUSTOM_SURVIVORS);
     document.getElementById('customSurvivorInput').value = '';
     analyze();
-    showToast('기본 생존 번호로 복귀');
+    showToast('기본 생존 번호로 복원 (20개)');
 }
 
-// ===== 조합 생성 =====
+// ===== 조합 생성 함수 =====
 function generateCombinationsFromNumbers(numberArray, count, useFixed = true) {
     let combos = [];
     let sourceNumbers = numberArray.slice();
@@ -1559,45 +1732,59 @@ function generateCombinationsFromNumbers(numberArray, count, useFixed = true) {
         }
         if (selected.length < 6) {
             let remaining = [];
-            for (let i = 1; i <= 45; i++) if (!selected.includes(i)) remaining.push(i);
+            for (let i = 1; i <= 45; i++) {
+                if (!selected.includes(i)) remaining.push(i);
+            }
             remaining = shuffleArray(remaining);
             while (selected.length < 6) selected.push(remaining.shift());
         }
-        selected.sort((a,b)=>a-b);
+        selected.sort((a,b) => a-b);
         combos.push(selected);
     }
     return combos;
 }
+
 function processPattern(limit) {
     let numbers;
-    if (tradeActive) {
-        if (limit === 1) numbers = integrated_14.slice(0, 10);
-        else numbers = integrated_14.slice();
-    } else {
-        if (limit === 1) {
-            if (currentMode === 'ai') numbers = full_ai_14.slice(0, 10);
-            else numbers = full_exclude_14.slice(0, 10);
-        } else numbers = full14.slice();
-    }
+    if (limit === 1) {
+        if (tradeActive) numbers = integrated_14.slice(0, 10);
+        else if (currentMode === 'ai') {
+            numbers = full_ai_14.slice(0, 10);
+        } else {
+            numbers = full_exclude_14.slice(0, 10);
+        }
+    } else numbers = full14.slice();
+    
     let combos = generateCombinationsFromNumbers(numbers, limit);
     generatedCombos = combos;
     showToast(`${limit}조합 생성 완료`);
     showComboList();
 }
+
 function processIntegrated(limit) {
-    if (!tradeActive || integrated14.length === 0) { showToast('트레이드 후 이용 가능'); return; }
+    if (!tradeActive || integrated14.length === 0) {
+        showToast('트레이드 후 이용 가능');
+        return;
+    }
     let combos = generateCombinationsFromNumbers(integrated14.slice(), limit);
     generatedCombos = combos;
+    
     let usedSet = new Set();
     generatedCombos.forEach(c => c.forEach(n => usedSet.add(n)));
     unusedIntegrated = integrated14.filter(n => !usedSet.has(n));
+    
     showToast(`통합${limit}조합 생성 완료`);
     showComboList();
 }
+
 function showComboList() {
-    if (generatedCombos.length === 0) { alert('생성된 조합이 없습니다'); return; }
+    if (generatedCombos.length === 0) {
+        alert('생성된 조합이 없습니다');
+        return;
+    }
     let winData = getCurrentWinningNumbers();
-    let winning = winData.winning, bonus = winData.bonus;
+    let winning = winData.winning;
+    let bonus = winData.bonus;
     let html = '<div style="max-height: 400px; overflow-y: auto;">';
     generatedCombos.forEach((combo, idx) => {
         let numbersHtml = combo.map(n => {
@@ -1629,7 +1816,10 @@ function openFixedPopup() {
 function closeFixedPopup() { document.getElementById('fixedPopup').style.display = 'none'; }
 function toggleFixedNumber(num) {
     if (fixedNumbers.includes(num)) fixedNumbers = fixedNumbers.filter(n => n !== num);
-    else { if (fixedNumbers.length < 6) fixedNumbers.push(num); else { showToast('최대 6개까지 선택 가능'); return; } }
+    else {
+        if (fixedNumbers.length < 6) fixedNumbers.push(num);
+        else { showToast('최대 6개까지 선택 가능'); return; }
+    }
     fixedNumbers.sort((a,b)=>a-b);
     updateFixedDisplay();
     saveFixedNumbers();
@@ -1637,29 +1827,47 @@ function toggleFixedNumber(num) {
 }
 function saveFixedPopup() { closeFixedPopup(); showToast('고정번호 저장됨'); }
 
-// ===== 보관함 =====
+// ===== 보관함 팝업 =====
 function renderBasketList() {
     let basket = document.getElementById('basketList');
     basket.innerHTML = '';
     let winData = getCurrentWinningNumbers();
-    let winning = winData.winning, bonus = winData.bonus;
-    if (!Array.isArray(savedNumbers) || savedNumbers.length === 0) { basket.innerHTML = '<p style="text-align: center;">저장된 조합이 없습니다</p>'; return; }
+    let winning = winData.winning;
+    let bonus = winData.bonus;
+
+    if (!Array.isArray(savedNumbers) || savedNumbers.length === 0) {
+        basket.innerHTML = '<p style="text-align: center;">저장된 조합이 없습니다</p>';
+        return;
+    }
+
     savedNumbers.forEach((combo, idx) => {
         if (!Array.isArray(combo)) return;
+
         let matchCount = combo.filter(n => winning.includes(n)).length;
         let hasBonus = combo.includes(bonus);
+
         let div = document.createElement('div');
-        div.style.margin = '10px 0'; div.style.padding = '8px'; div.style.background = '#3a3a3a'; div.style.borderRadius = '30px'; div.style.textAlign = 'center';
+        div.style.margin = '10px 0';
+        div.style.padding = '8px';
+        div.style.background = '#3a3a3a';
+        div.style.borderRadius = '30px';
+        div.style.textAlign = 'center';
+
         let numbersHtml = combo.map(n => {
             if (winning.includes(n)) return `<span class="winning-num" style="display:inline-block; min-width:24px;">${n}</span>`;
             else if (bonus === n) return `<span class="bonus-num" style="display:inline-block; min-width:24px;">${n}</span>`;
             else return `<span style="background:#3a3a3a; border:1px solid #666; border-radius:50%; display:inline-block; min-width:24px; height:24px; line-height:24px;">${n}</span>`;
         }).join(' ');
+
         div.innerHTML = `${idx+1}: ${numbersHtml} <span style="font-size:9px; margin-left:5px;">(${matchCount}개 일치${hasBonus ? '+보너스' : ''})</span>`;
         basket.appendChild(div);
     });
 }
-function openPopup() { renderBasketList(); document.getElementById('basketPopup').style.display = 'flex'; }
+
+function openPopup() {
+    renderBasketList();
+    document.getElementById('basketPopup').style.display = 'flex';
+}
 function closeBasketPopup() { document.getElementById('basketPopup').style.display = 'none'; }
 function saveAllCombos() {
     if (generatedCombos.length === 0) { showToast('저장할 조합이 없습니다'); return; }
@@ -1668,11 +1876,14 @@ function saveAllCombos() {
     showToast('보관함에 저장됨');
 }
 function loadFromBasket() {
-    if (savedNumbers.length > 0) { generatedCombos = savedNumbers.slice(); showComboList(); closeBasketPopup(); }
-    else showToast('보관함이 비어있음');
+    if (savedNumbers.length > 0) {
+        generatedCombos = savedNumbers.slice();
+        showComboList();
+        closeBasketPopup();
+    } else showToast('보관함이 비어있음');
 }
 
-// ===== 당첨 확인 =====
+// ===== 당첨 확인 팝업 =====
 function openReviewPopup() {
     let winData = getCurrentWinningNumbers();
     document.getElementById('reviewRound').value = currentBaseRound;
@@ -1687,12 +1898,26 @@ function compareNumbers() {
     let round = parseInt(document.getElementById('reviewRound').value);
     let winningStr = document.getElementById('reviewWinning').value;
     let bonus = Number(document.getElementById('reviewBonus').value);
+
     let winning = winningStr.split(',').map(n => parseInt(n.trim())).filter(n => !isNaN(n) && n >= 1 && n <= 45);
-    if (winning.length !== 6 || isNaN(bonus) || bonus < 1 || bonus > 45) { document.getElementById('reviewResult').innerHTML = '<p style="text-align:center; color:#f00;">올바른 번호를 입력하세요</p>'; return; }
+    if (winning.length !== 6 || isNaN(bonus) || bonus < 1 || bonus > 45) {
+        document.getElementById('reviewResult').innerHTML = '<p style="text-align:center; color:#f00;">올바른 번호를 입력하세요</p>';
+        return;
+    }
+
     let allCombos = [];
-    if (Array.isArray(generatedCombos) && generatedCombos.length > 0) allCombos.push({ type: '📋 생성조합', combos: generatedCombos });
-    if (Array.isArray(savedNumbers) && savedNumbers.length > 0) allCombos.push({ type: '📦 보관함', combos: savedNumbers });
-    if (allCombos.length === 0) { document.getElementById('reviewResult').innerHTML = '<p style="text-align:center;">비교할 조합이 없습니다</p>'; return; }
+    if (Array.isArray(generatedCombos) && generatedCombos.length > 0) {
+        allCombos.push({ type: '📋 생성조합', combos: generatedCombos });
+    }
+    if (Array.isArray(savedNumbers) && savedNumbers.length > 0) {
+        allCombos.push({ type: '📦 보관함', combos: savedNumbers });
+    }
+
+    if (allCombos.length === 0) {
+        document.getElementById('reviewResult').innerHTML = '<p style="text-align:center;">비교할 조합이 없습니다</p>';
+        return;
+    }
+
     let resultHtml = '<div class="review-grid">';
     allCombos.forEach(group => {
         group.combos.forEach((combo, idx) => {
@@ -1706,6 +1931,7 @@ function compareNumbers() {
             else if (matchCount === 4) rank = '💫 4등';
             else if (matchCount === 3) rank = '⭐ 5등';
             else rank = '❌ 낙첨';
+
             resultHtml += `<div class="review-combo-card">`;
             resultHtml += `<div class="review-combo-numbers">`;
             combo.forEach(n => {
@@ -1737,7 +1963,7 @@ function saveWinningNumbers() {
     } else alert('올바른 번호를 입력하세요');
 }
 
-// ===== 게임 =====
+// ===== 게임 팝업 =====
 function openGamePopup() {
     gameTargetUpDown = [];
     for (let i = 0; i < 3; i++) gameTargetUpDown.push(Math.floor(Math.random() * 45) + 1);
@@ -1923,15 +2149,19 @@ function playUpDown() {
     }
 }
 
-// ===== 팝업 =====
+// ===== 상태 확대 팝업 =====
 function openStatusZoomPopup() {
     let statusContent = document.getElementById('status').innerHTML;
     document.getElementById('statusZoomContent').innerHTML = statusContent;
     document.getElementById('statusZoomPopup').style.display = 'flex';
 }
 function closeStatusZoomPopup() { document.getElementById('statusZoomPopup').style.display = 'none'; }
+
+// ===== 도움말 팝업 =====
 function openHelpPopup() { document.getElementById('helpPopup').style.display = 'flex'; }
 function closeHelpPopup() { document.getElementById('helpPopup').style.display = 'none'; }
+
+// ===== 휴지통 팝업 =====
 function openTrashPopup() {
     let listDiv = document.getElementById('trashList');
     let winData = getCurrentWinningNumbers();
@@ -1960,9 +2190,12 @@ function clearTrash() {
         showToast('🗑️ 휴지통 비움');
     }
 }
+
+// ===== 초기화 =====
 function clearStorage() {
     if (confirm('모든 저장 데이터를 초기화할까요?')) {
         localStorage.clear();
+        sessionStorage.clear();
         location.reload();
     }
 }
@@ -1973,7 +2206,6 @@ window.onload = function() {
     document.getElementById('compressValue').innerText = currentCompress;
     document.getElementById('intervalValue').innerText = intervalWeeks;
     analyze();
-    window.addEventListener('resize', adjustNumberGroupFontSize);
 };
 </script>
 </body>
