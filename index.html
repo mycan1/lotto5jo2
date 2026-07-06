@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SHIN-UI-SON · 압축26수 10조합</title>
+    <title>SHIN-UI-SON · 로또 분석기</title>
     <style>
         * { margin:0; padding:0; box-sizing:border-box; }
         body {
@@ -249,31 +249,8 @@
             color:#fff;
             border:1px solid #666;
         }
-        .btn-recommend { background: #2e7d32 !important; color: #fff !important; border-color: #4caf50 !important; }
         .btn-zone { background: #2e7d32 !important; color: #fff !important; border-color: #4caf50 !important; }
         .btn-mix { background: #ffd700 !important; color: #000 !important; border-color: #ffd700 !important; }
-        .mode-selector {
-            display: flex;
-            gap: 6px;
-            margin: 4px 0;
-            background: #2a2a2a;
-            border-radius: 30px;
-            padding: 4px;
-            border: 1px solid #aaa;
-            flex-shrink: 0;
-        }
-        .mode-btn {
-            flex: 1;
-            background: #3a3a3a;
-            border: none;
-            border-radius: 30px;
-            padding: 6px 4px;
-            font-size: 9px;
-            font-weight: bold;
-            color: #ccc;
-            cursor: pointer;
-        }
-        .mode-btn.active { background: #2e7d32; color: #fff; }
         .fixed-numbers {
             display:flex;
             align-items:center;
@@ -328,16 +305,30 @@
 <div class="outer-border">
     <div class="header-line">
         <div class="prev-info"><span id="prevWinLabel">📌 분석기준</span><span id="baseRoundInfo"></span></div>
-        <span class="title-main">SHIN-UI-SON (압축26수→10조합)</span>
+        <span class="title-main">SHIN-UI-SON</span>
         <span id="trashIcon" class="trash-icon" onclick="openTrashPopup()">🗑️ 0</span>
         <span id="userDisplay" class="user-info"></span>
     </div>
     <div id="status" class="status-info" onclick="openStatusZoomPopup()">분석 중...</div>
-    <div class="row-2"><div class="compress-row"><span class="compress-icon">⭐ 추천수 압축</span><div class="slider-wrap"><input type="range" id="compressSlider" min="1" max="30" value="26" step="1" oninput="updateCompressValue(this.value)"></div><span class="compress-value" id="compressValue">26</span><button class="apply-btn" onclick="applyCompress()">적용</button></div></div>
-    <div class="custom-survivor-row"><input type="text" id="customSurvivorInput" class="custom-survivor-input" placeholder="예: 1,5,10,15,20,25,30,35,40,45" value=""><button class="custom-btn" onclick="applyCustomSurvivors()">붙여넣기</button><button class="custom-btn clear" onclick="clearCustomSurvivors()">초기화</button></div>
+    <div class="row-2"><div class="compress-row"><span class="compress-icon">⭐ 추천수 압축</span><div class="slider-wrap"><input type="range" id="compressSlider" min="1" max="40" value="10" step="1" oninput="updateCompressValue(this.value)"></div><span class="compress-value" id="compressValue">10</span><button class="apply-btn" onclick="applyCompress()">적용</button></div></div>
+    <div class="custom-survivor-row">
+        <input type="text" id="customSurvivorInput" class="custom-survivor-input" placeholder="예: 1,5,10,15,20,25,30,35,40,45" value="">
+        <button class="custom-btn" onclick="applyCustomSurvivors()">📥 붙여넣기</button>
+        <button class="custom-btn clear" onclick="clearCustomSurvivors()">초기화</button>
+    </div>
     <div class="row-3">
-        <div class="interval-box"><span class="interval-label">🎯</span><button onclick="changeIntervalExclude(-1)">−</button><span id="intervalExcludeValue">3</span><button onclick="changeIntervalExclude(1)">+</button></div>
-        <div class="interval-box"><span class="interval-label">🤖</span><button onclick="changeIntervalAi(-1)">−</button><span id="intervalAiValue">3</span><button onclick="changeIntervalAi(1)">+</button></div>
+        <div class="interval-box">
+            <span class="interval-label">🎯</span>
+            <button onclick="changeIntervalExclude(-1)">−</button>
+            <span id="intervalExcludeValue">3</span>
+            <button onclick="changeIntervalExclude(1)">+</button>
+        </div>
+        <div class="interval-box">
+            <span class="interval-label">🤖</span>
+            <button onclick="changeIntervalAi(-1)">−</button>
+            <span id="intervalAiValue">3</span>
+            <button onclick="changeIntervalAi(1)">+</button>
+        </div>
         <div class="round-box"><button onclick="decreaseRound()">−</button><input type="number" id="roundInput" value="1230" min="901" max="1230" onchange="setRoundFromInput()"><button onclick="increaseRound()">+</button></div>
         <div class="fixed-btn" onclick="openFixedPopup()">🔒고정</div>
     </div>
@@ -352,7 +343,7 @@
         <button onclick="openHelp()">❓ 도움말</button>
     </div>
     <div class="fixed-numbers"><div class="fixed-left"><span id="fixedExtra"></span></div><div class="fixed-right"><button onclick="window.open('https://www.naver.com', '_blank')">🌐 네이버</button><button onclick="clearFixed()">초기화</button><button onclick="openFixedPopup()">⏳ 추가</button></div></div>
-    <div class="small-note">🎯 예상회차: <span id="targetRound">1230</span> | 분석기준: <span id="analyzeRoundDisplay">1229</span>회까지 데이터<br>※ 1230회 당첨: 3,7,12,24,26,40 + 35 | 압축26수 → 10조합</div>
+    <div class="small-note">🎯 예상회차: <span id="targetRound">1230</span> | 분석기준: <span id="analyzeRoundDisplay">1229</span>회까지 데이터<br>※ 생존수 40개 | 압축 순위 V3 | 1230회 당첨: 3,8,9,22,28,42 + 45</div>
 </div>
 <div class="toast" id="toast"><span>✅ 저장됨</span></div>
 <div id="fixedPopup" class="popup-overlay"><div class="popup-content"><h3>🔒 고정 번호 선택</h3><p style="text-align:center;">최대 6개까지 선택 가능</p><div class="number-grid" id="fixedNumberGrid"></div><div style="text-align:center;"><button onclick="saveFixedPopup()">저장</button><button class="close-btn" onclick="closeFixedPopup()">닫기</button></div></div></div>
@@ -360,11 +351,15 @@
 <div id="basketPopup" class="popup-overlay"><div class="popup-content"><h3>📦 보관함</h3><div id="basketList"></div><div style="text-align:center;"><button onclick="loadFromBasket()">불러오기</button><button class="close-btn" onclick="closeBasketPopup()">닫기</button></div></div></div>
 <div id="reviewPopup" class="popup-overlay"><div class="popup-content"><h3>📊 당첨 확인</h3><div style="margin:15px 0; display:flex; flex-direction:column; gap:8px;"><p>회차: <input type="number" id="reviewRound" value="1230" min="900" max="1230" style="width:100px; padding:5px; background:#3a3a3a; color:#fff; border:1px solid #aaa; border-radius:30px;"></p><p>당첨번호: <input type="text" id="reviewWinning" placeholder="예: 1,2,3,4,5,6" style="width:100%; padding:5px; background:#3a3a3a; color:#fff; border:1px solid #aaa; border-radius:30px;"></p><p>보너스: <input type="number" id="reviewBonus" min="1" max="45" style="width:100px; padding:5px; background:#3a3a3a; color:#fff; border:1px solid #aaa; border-radius:30px;"></p></div><div id="reviewResult" style="background:#2a2a2a; border-radius:20px; padding:10px;"></div><div style="text-align:center;"><button onclick="compareNumbers()">비교</button><button onclick="saveWinningNumbers()">저장</button><button class="close-btn" onclick="closeReviewPopup()">닫기</button></div></div></div>
 <div id="statusZoomPopup" class="popup-overlay"><div class="popup-content"><h3>🔍 상세 분석</h3><div id="statusZoomContent"></div><div style="text-align:center;"><button class="close-btn" onclick="closeStatusZoomPopup()">닫기</button></div></div></div>
-<div id="helpPopup" class="popup-overlay"><div class="popup-content"><h3>❓ 도움말</h3><div style="margin:10px 0;"><h4>🎯 압축26수 → 10조합</h4>
-<p>📐구간10: 5개 구간에서 균등 분산 (10조합)</p>
-<p>🎲혼합랜덤10: 구간 2~3개 + 랜덤 3~4개 (10조합)</p>
-<p>💡 추천: 혼합랜덤10 (구간+랜덤 균형)</p>
-<p>✅ 1230회 당첨번호 업데이트됨 (3,7,12,24,26,40 보너스35)</p></div><div style="text-align:center;"><button class="close-btn" onclick="closeHelpPopup()">닫기</button></div></div></div>
+<div id="helpPopup" class="popup-overlay"><div class="popup-content"><h3>❓ 도움말</h3><div style="margin:10px 0;">
+<h4>🎯 압축 순위 V3</h4>
+<p>✅ 특수생존 포함 (+60) + 순위 보너스</p>
+<p>✅ AI생존 포함 (+40) + 순위 보너스</p>
+<p>✅ 교집합 추가 (+25)</p>
+<p>✅ 최근 출현 (+10/회)</p>
+<p>✅ 미출현 기간 (+18)</p>
+<p>✅ 당첨 패턴 학습 (최근 10회)</p>
+</div><div style="text-align:center;"><button class="close-btn" onclick="closeHelpPopup()">닫기</button></div></div></div>
 <div id="trashPopup" class="popup-overlay"><div class="popup-content"><h3>🗑️ 휴지통 (압축 제외 번호)</h3><div id="trashStats" class="trash-stats"></div><div style="text-align:center; margin:10px 0;"><button onclick="generateTrashCombo(1)">🎲 휴지통 1조합</button><button onclick="generateTrashCombo(5)">🎲 휴지통 5조합</button><button onclick="generateTrashCombo(10)">🎲 휴지통 10조합</button></div><div id="trashContent" class="trash-numbers-area"></div><div style="text-align:center; margin-top:15px;"><button onclick="copyTrashToCustom()">📋 휴지통→커스텀</button><button onclick="clearTrash()">휴지통 비우기</button><button class="close-btn" onclick="closeTrashPopup()">닫기</button></div></div></div>
 
 <script>
@@ -373,30 +368,248 @@ const MAX_ROUND = 1230;
 const MIN_ROUND = 901;
 
 const FULL_DATA = [
-    [1230, 3, 7, 12, 24, 26, 40, 35],
-    [1229, 6, 12, 14, 18, 30, 31, 16],
-    [1228, 5, 10, 15, 19, 23, 34, 9],
-    [1227, 4, 11, 17, 22, 27, 41, 29],
-    [1226, 2, 8, 13, 18, 25, 38, 21],
-    [1225, 7, 14, 16, 20, 29, 35, 11],
-    [1224, 1, 9, 15, 21, 28, 33, 37],
-    [1223, 3, 6, 10, 17, 24, 39, 12],
+    [1230, 3, 8, 9, 22, 28, 42, 45],
+    [1229, 12, 13, 29, 34, 37, 42, 16],
+    [1228, 24, 29, 30, 31, 35, 44, 1],
+    [1227, 1, 14, 16, 34, 41, 44, 13],
+    [1226, 4, 6, 13, 17, 26, 28, 41],
+    [1225, 8, 9, 19, 25, 41, 42, 33],
+    [1224, 9, 18, 21, 27, 44, 45, 28],
+    [1223, 16, 18, 20, 32, 33, 39, 26],
     [1222, 4, 11, 17, 22, 32, 41, 34],
-    [1221,6,13,18,28,30,36,9],
-    [1220,2,22,25,28,34,43,16],
-    [1219,1,2,15,28,39,45,31],[1218,3,28,31,32,42,45,25],[1217,8,10,15,20,29,31,41],[1216,3,10,14,15,23,24,25],[1215,13,15,19,21,44,45,39],[1214,10,15,19,27,30,33,14],[1213,5,11,25,27,36,38,2],[1212,23,26,27,35,38,40,10],[1211,1,7,9,17,27,38,31],[1210,2,17,20,35,37,39,24],[1209,6,27,30,36,38,42,25],[1208,10,22,24,27,38,45,11],[1207,1,3,17,26,27,42,23],[1206,1,4,16,23,31,41,2],[1205,8,16,28,30,31,44,27],[1204,3,6,18,29,35,39,24],[1203,5,12,21,33,37,40,7],[1202,7,9,24,27,35,36,37],[1201,1,2,4,16,20,32,45],[1200,16,24,25,30,31,32,7],[1199,26,30,33,38,39,41,21],[1198,1,5,7,26,28,43,30],[1197,8,12,15,29,40,45,14],[1196,3,15,27,33,34,36,37],[1195,3,13,15,24,33,37,2],[1194,6,9,16,19,24,28,17],[1193,10,16,23,36,39,40,11],[1192,1,4,11,12,20,41,2],[1191,7,9,19,23,26,45,33],[1190,9,19,29,35,37,38,31],[1189,3,4,12,19,22,27,9],[1188,5,13,26,29,37,40,42],[1187,2,8,13,16,23,28,35],[1186,6,17,22,28,29,32,38],[1185,14,16,23,25,31,37,42],[1184,4,15,17,23,27,36,31],[1183,1,13,21,25,28,31,22],[1182,8,10,14,20,33,41,28],[1181,6,12,18,37,40,41,3],[1180,3,16,18,24,40,44,21],[1179,5,6,11,27,43,44,17],[1178,3,7,15,16,19,43,21],[1177,7,9,11,21,30,35,29],[1176,3,4,6,8,32,42,31],[1175,8,11,14,17,36,39,22],[1174,1,5,18,20,30,35,3],[1173,7,9,24,40,42,44,45],[1172,3,6,7,11,12,17,19],[1171,3,13,28,34,38,42,25],[1170,5,12,24,26,39,42,20],[1169,9,21,24,30,33,37,29],[1168,8,23,31,35,39,40,24],[1167,14,23,25,27,29,42,16],[1166,6,7,27,29,38,45,17],[1165,17,18,23,25,38,39,22],[1164,2,13,15,16,33,43,4],[1163,20,21,22,25,28,29,6],[1162,2,12,20,24,34,42,37],[1161,7,13,18,36,39,45,19],[1160,3,9,27,28,38,39,7],[1159,21,25,27,32,37,38,20],[1158,5,7,12,20,25,26,28],[1157,30,31,34,39,41,45,7],[1156,10,16,19,27,37,38,13],[1155,4,8,22,26,32,38,27],[1154,1,9,10,13,35,44,5],[1153,30,31,32,35,36,37,5],[1152,2,3,9,15,27,29,8],[1151,8,9,18,35,39,45,25],[1150,8,15,19,21,32,36,38],[1149,3,6,13,15,16,22,32],[1148,7,11,24,26,27,37,32],[1147,6,11,17,19,40,43,28],[1146,2,11,31,33,37,44,32],[1145,3,4,12,15,26,34,6],[1144,10,16,17,27,28,36,6],[1143,2,8,28,30,37,41,22],[1142,7,11,12,21,26,35,20],[1141,7,10,22,29,31,38,15],[1140,5,12,15,30,37,40,18],[1139,14,16,19,20,29,34,35],[1138,4,9,12,15,33,45,26],[1137,21,33,35,38,42,44,1],[1136,1,6,13,19,21,33,4],[1135,3,7,9,13,19,24,23],[1134,13,14,20,28,29,34,23],[1133,6,7,19,28,34,41,5],[1132,1,2,6,14,27,38,33],[1131,15,19,21,25,27,28,40],[1130,5,10,11,17,28,34,22],[1129,1,5,8,16,28,33,45],[1128,10,15,24,30,31,37,32],[1127,4,5,9,11,37,40,7],[1126,6,14,25,33,40,44,30],[1125,3,8,17,30,33,34,28],[1124,13,19,21,24,34,35,26],[1123,3,6,21,30,34,35,22],[1122,6,24,31,32,38,44,8],[1121,2,19,26,31,38,41,34],[1120,1,9,12,13,20,45,3],[1119,11,13,14,15,16,45,3],[1118,3,4,9,30,33,36,7],[1117,15,16,17,25,30,31,32],[1116,7,12,23,32,34,36,8],[1115,10,16,19,32,33,38,3],[1114,11,13,20,21,32,44,8],[1113,16,20,26,36,42,44,24],[1112,3,13,30,33,43,45,4],[1111,3,7,11,20,22,41,24],[1110,10,12,13,19,33,40,2],[1109,7,19,26,37,39,44,27],[1108,6,14,30,31,40,41,29],[1107,1,3,4,29,42,45,36],[1106,6,16,34,37,39,40,11],[1105,1,7,21,30,35,38,2],[1104,10,12,29,31,40,44,2],[1103,13,14,22,26,37,38,20],[1102,6,7,13,28,36,42,41],[1101,17,26,29,30,31,43,12],[1100,3,20,28,38,40,43,4],[1099,12,16,21,24,41,43,15],[1098,14,33,34,35,37,40,4],[1097,1,12,16,19,23,43,34],[1096,8,14,28,29,34,40,12],[1095,6,7,15,22,26,40,41],[1094,10,17,22,30,35,43,44],[1093,7,18,19,26,33,45,37],[1092,6,20,23,24,28,30,44],[1091,12,19,21,29,40,45,1],[1090,4,18,31,37,42,43,40],[1089,11,21,22,30,39,44,31],[1088,13,14,18,21,34,44,16],[1087,11,16,25,27,35,36,37],[1086,4,7,17,18,38,44,36],[1085,8,12,13,29,33,42,5],[1084,3,7,14,15,22,38,17],[1083,21,26,27,32,34,42,31],[1082,1,9,16,23,24,38,17],[1081,13,16,23,31,36,44,38],[1080,4,8,18,24,37,45,6],[1079,6,10,11,14,36,38,43],[1078,4,8,17,30,40,43,34],[1077,3,7,9,33,36,37,10],[1076,1,23,24,35,44,45,10],[1075,1,6,20,27,28,41,15],[1074,6,18,28,30,32,38,15],[1073,16,18,20,23,32,43,27],[1072,1,2,11,21,30,35,39],[1071,3,6,14,22,30,41,36],[1070,1,10,18,22,28,31,44],[1069,4,7,19,26,33,35,3],[1068,7,10,19,23,28,33,18],[1067,6,11,16,19,21,32,45],[1066,3,18,19,23,32,45,24],[1065,3,6,9,18,22,35,14],[1064,3,6,22,23,24,38,30],[1063,20,31,32,40,41,45,12],[1062,4,24,27,35,37,45,15],[1061,3,10,24,33,38,45,36],[1060,7,10,22,25,34,40,27],[1059,11,23,25,30,32,40,42],[1058,8,13,19,27,40,45,12],[1057,13,20,24,32,36,45,29],[1056,4,7,12,14,22,33,31],[1055,14,19,27,28,30,45,33],[1054,22,26,29,30,34,45,15],[1053,5,17,26,27,35,38,1],[1052,21,26,30,32,33,35,44],[1051,6,12,31,35,38,43,17],[1050,3,5,13,20,21,37,17],[1049,6,12,17,21,32,39,30],[1048,2,20,33,40,42,44,32],[1047,7,16,25,29,35,36,28],[1046,6,14,15,19,21,41,37],[1045,12,17,20,26,28,36,4],[1044,3,5,12,22,26,31,19],[1043,5,14,15,23,34,43,4],[1042,6,7,9,11,17,18,45],[1041,8,16,26,29,31,36,11],[1040,2,3,6,19,36,39,26],[1039,7,16,24,27,37,44,2],[1038,2,14,15,22,27,33,31],[1037,2,5,22,32,34,45,39],[1036,9,14,34,35,41,42,2],[1035,26,31,32,33,38,40,11],[1034,3,11,15,20,35,44,10],[1033,1,6,12,19,36,42,28],[1032,6,7,22,32,35,36,19],[1031,2,5,11,17,24,29,9],[1030,12,30,32,37,39,41,24],[1029,5,7,12,13,18,35,23],[1028,14,16,27,35,39,45,5],[1027,5,12,13,31,32,41,34],[1026,8,9,20,25,29,33,7],[1025,9,18,20,22,38,44,10],[1024,10,14,16,18,29,35,25],[1023,5,6,11,29,42,45,28],[1022,12,15,17,24,29,45,16],[1021,12,27,29,38,41,45,6],[1020,1,4,13,17,34,39,6],[1019,3,19,21,25,37,45,35],[1018,12,18,22,23,30,34,32],[1017,15,26,28,34,41,42,44],[1016,14,23,31,33,37,40,44],[1015,3,11,14,18,26,27,21],[1014,21,22,26,34,36,41,32],[1013,5,11,18,20,35,45,3],[1012,1,9,12,26,35,38,42],[1011,9,12,15,25,34,36,3],[1010,15,23,29,34,40,44,20],[1009,9,11,30,31,41,44,33],[1008,8,11,16,19,21,25,40],[1007,8,11,15,16,17,37,36],[1006,8,13,18,24,27,29,17],[1005,7,15,30,37,39,44,18],[1004,1,4,29,39,43,45,31],[1003,17,25,33,35,38,45,15],[1002,6,10,12,14,20,42,15],[1001,2,8,19,22,32,42,39],[1000,1,3,9,14,18,28,34]
+    [1221, 6, 13, 18, 28, 30, 36, 9],
+    [1220, 2, 22, 25, 28, 34, 43, 16],
+    [1219, 1, 2, 15, 28, 39, 45, 31],
+    [1218, 3, 28, 31, 32, 42, 45, 25],
+    [1217, 8, 10, 15, 20, 29, 31, 41],
+    [1216, 3, 10, 14, 15, 23, 24, 25],
+    [1215, 13, 15, 19, 21, 44, 45, 39],
+    [1214, 10, 15, 19, 27, 30, 33, 14],
+    [1213, 5, 11, 25, 27, 36, 38, 2],
+    [1212, 23, 26, 27, 35, 38, 40, 10],
+    [1211, 1, 7, 9, 17, 27, 38, 31],
+    [1210, 2, 17, 20, 35, 37, 39, 24],
+    [1209, 6, 27, 30, 36, 38, 42, 25],
+    [1208, 10, 22, 24, 27, 38, 45, 11],
+    [1207, 1, 3, 17, 26, 27, 42, 23],
+    [1206, 1, 4, 16, 23, 31, 41, 2],
+    [1205, 8, 16, 28, 30, 31, 44, 27],
+    [1204, 3, 6, 18, 29, 35, 39, 24],
+    [1203, 5, 12, 21, 33, 37, 40, 7],
+    [1202, 7, 9, 24, 27, 35, 36, 37],
+    [1201, 1, 2, 4, 16, 20, 32, 45],
+    [1200, 16, 24, 25, 30, 31, 32, 7],
+    [1199, 26, 30, 33, 38, 39, 41, 21],
+    [1198, 1, 5, 7, 26, 28, 43, 30],
+    [1197, 8, 12, 15, 29, 40, 45, 14],
+    [1196, 3, 15, 27, 33, 34, 36, 37],
+    [1195, 3, 13, 15, 24, 33, 37, 2],
+    [1194, 6, 9, 16, 19, 24, 28, 17],
+    [1193, 10, 16, 23, 36, 39, 40, 11],
+    [1192, 1, 4, 11, 12, 20, 41, 2],
+    [1191, 7, 9, 19, 23, 26, 45, 33],
+    [1190, 9, 19, 29, 35, 37, 38, 31],
+    [1189, 3, 4, 12, 19, 22, 27, 9],
+    [1188, 5, 13, 26, 29, 37, 40, 42],
+    [1187, 2, 8, 13, 16, 23, 28, 35],
+    [1186, 6, 17, 22, 28, 29, 32, 38],
+    [1185, 14, 16, 23, 25, 31, 37, 42],
+    [1184, 4, 15, 17, 23, 27, 36, 31],
+    [1183, 1, 13, 21, 25, 28, 31, 22],
+    [1182, 8, 10, 14, 20, 33, 41, 28],
+    [1181, 6, 12, 18, 37, 40, 41, 3],
+    [1180, 3, 16, 18, 24, 40, 44, 21],
+    [1179, 5, 6, 11, 27, 43, 44, 17],
+    [1178, 3, 7, 15, 16, 19, 43, 21],
+    [1177, 7, 9, 11, 21, 30, 35, 29],
+    [1176, 3, 4, 6, 8, 32, 42, 31],
+    [1175, 8, 11, 14, 17, 36, 39, 22],
+    [1174, 1, 5, 18, 20, 30, 35, 3],
+    [1173, 7, 9, 24, 40, 42, 44, 45],
+    [1172, 3, 6, 7, 11, 12, 17, 19],
+    [1171, 3, 13, 28, 34, 38, 42, 25],
+    [1170, 5, 12, 24, 26, 39, 42, 20],
+    [1169, 9, 21, 24, 30, 33, 37, 29],
+    [1168, 8, 23, 31, 35, 39, 40, 24],
+    [1167, 14, 23, 25, 27, 29, 42, 16],
+    [1166, 6, 7, 27, 29, 38, 45, 17],
+    [1165, 17, 18, 23, 25, 38, 39, 22],
+    [1164, 2, 13, 15, 16, 33, 43, 4],
+    [1163, 20, 21, 22, 25, 28, 29, 6],
+    [1162, 2, 12, 20, 24, 34, 42, 37],
+    [1161, 7, 13, 18, 36, 39, 45, 19],
+    [1160, 3, 9, 27, 28, 38, 39, 7],
+    [1159, 21, 25, 27, 32, 37, 38, 20],
+    [1158, 5, 7, 12, 20, 25, 26, 28],
+    [1157, 30, 31, 34, 39, 41, 45, 7],
+    [1156, 10, 16, 19, 27, 37, 38, 13],
+    [1155, 4, 8, 22, 26, 32, 38, 27],
+    [1154, 1, 9, 10, 13, 35, 44, 5],
+    [1153, 30, 31, 32, 35, 36, 37, 5],
+    [1152, 2, 3, 9, 15, 27, 29, 8],
+    [1151, 8, 9, 18, 35, 39, 45, 25],
+    [1150, 8, 15, 19, 21, 32, 36, 38],
+    [1149, 3, 6, 13, 15, 16, 22, 32],
+    [1148, 7, 11, 24, 26, 27, 37, 32],
+    [1147, 6, 11, 17, 19, 40, 43, 28],
+    [1146, 2, 11, 31, 33, 37, 44, 32],
+    [1145, 3, 4, 12, 15, 26, 34, 6],
+    [1144, 10, 16, 17, 27, 28, 36, 6],
+    [1143, 2, 8, 28, 30, 37, 41, 22],
+    [1142, 7, 11, 12, 21, 26, 35, 20],
+    [1141, 7, 10, 22, 29, 31, 38, 15],
+    [1140, 5, 12, 15, 30, 37, 40, 18],
+    [1139, 14, 16, 19, 20, 29, 34, 35],
+    [1138, 4, 9, 12, 15, 33, 45, 26],
+    [1137, 21, 33, 35, 38, 42, 44, 1],
+    [1136, 1, 6, 13, 19, 21, 33, 4],
+    [1135, 3, 7, 9, 13, 19, 24, 23],
+    [1134, 13, 14, 20, 28, 29, 34, 23],
+    [1133, 6, 7, 19, 28, 34, 41, 5],
+    [1132, 1, 2, 6, 14, 27, 38, 33],
+    [1131, 15, 19, 21, 25, 27, 28, 40],
+    [1130, 5, 10, 11, 17, 28, 34, 22],
+    [1129, 1, 5, 8, 16, 28, 33, 45],
+    [1128, 10, 15, 24, 30, 31, 37, 32],
+    [1127, 4, 5, 9, 11, 37, 40, 7],
+    [1126, 6, 14, 25, 33, 40, 44, 30],
+    [1125, 3, 8, 17, 30, 33, 34, 28],
+    [1124, 13, 19, 21, 24, 34, 35, 26],
+    [1123, 3, 6, 21, 30, 34, 35, 22],
+    [1122, 6, 24, 31, 32, 38, 44, 8],
+    [1121, 2, 19, 26, 31, 38, 41, 34],
+    [1120, 1, 9, 12, 13, 20, 45, 3],
+    [1119, 11, 13, 14, 15, 16, 45, 3],
+    [1118, 3, 4, 9, 30, 33, 36, 7],
+    [1117, 15, 16, 17, 25, 30, 31, 32],
+    [1116, 7, 12, 23, 32, 34, 36, 8],
+    [1115, 10, 16, 19, 32, 33, 38, 3],
+    [1114, 11, 13, 20, 21, 32, 44, 8],
+    [1113, 16, 20, 26, 36, 42, 44, 24],
+    [1112, 3, 13, 30, 33, 43, 45, 4],
+    [1111, 3, 7, 11, 20, 22, 41, 24],
+    [1110, 10, 12, 13, 19, 33, 40, 2],
+    [1109, 7, 19, 26, 37, 39, 44, 27],
+    [1108, 6, 14, 30, 31, 40, 41, 29],
+    [1107, 1, 3, 4, 29, 42, 45, 36],
+    [1106, 6, 16, 34, 37, 39, 40, 11],
+    [1105, 1, 7, 21, 30, 35, 38, 2],
+    [1104, 10, 12, 29, 31, 40, 44, 2],
+    [1103, 13, 14, 22, 26, 37, 38, 20],
+    [1102, 6, 7, 13, 28, 36, 42, 41],
+    [1101, 17, 26, 29, 30, 31, 43, 12],
+    [1100, 3, 20, 28, 38, 40, 43, 4],
+    [1099, 12, 16, 21, 24, 41, 43, 15],
+    [1098, 14, 33, 34, 35, 37, 40, 4],
+    [1097, 1, 12, 16, 19, 23, 43, 34],
+    [1096, 8, 14, 28, 29, 34, 40, 12],
+    [1095, 6, 7, 15, 22, 26, 40, 41],
+    [1094, 10, 17, 22, 30, 35, 43, 44],
+    [1093, 7, 18, 19, 26, 33, 45, 37],
+    [1092, 6, 20, 23, 24, 28, 30, 44],
+    [1091, 12, 19, 21, 29, 40, 45, 1],
+    [1090, 4, 18, 31, 37, 42, 43, 40],
+    [1089, 11, 21, 22, 30, 39, 44, 31],
+    [1088, 13, 14, 18, 21, 34, 44, 16],
+    [1087, 11, 16, 25, 27, 35, 36, 37],
+    [1086, 4, 7, 17, 18, 38, 44, 36],
+    [1085, 8, 12, 13, 29, 33, 42, 5],
+    [1084, 3, 7, 14, 15, 22, 38, 17],
+    [1083, 21, 26, 27, 32, 34, 42, 31],
+    [1082, 1, 9, 16, 23, 24, 38, 17],
+    [1081, 13, 16, 23, 31, 36, 44, 38],
+    [1080, 4, 8, 18, 24, 37, 45, 6],
+    [1079, 6, 10, 11, 14, 36, 38, 43],
+    [1078, 4, 8, 17, 30, 40, 43, 34],
+    [1077, 3, 7, 9, 33, 36, 37, 10],
+    [1076, 1, 23, 24, 35, 44, 45, 10],
+    [1075, 1, 6, 20, 27, 28, 41, 15],
+    [1074, 6, 18, 28, 30, 32, 38, 15],
+    [1073, 16, 18, 20, 23, 32, 43, 27],
+    [1072, 1, 2, 11, 21, 30, 35, 39],
+    [1071, 3, 6, 14, 22, 30, 41, 36],
+    [1070, 1, 10, 18, 22, 28, 31, 44],
+    [1069, 4, 7, 19, 26, 33, 35, 3],
+    [1068, 7, 10, 19, 23, 28, 33, 18],
+    [1067, 6, 11, 16, 19, 21, 32, 45],
+    [1066, 3, 18, 19, 23, 32, 45, 24],
+    [1065, 3, 6, 9, 18, 22, 35, 14],
+    [1064, 3, 6, 22, 23, 24, 38, 30],
+    [1063, 20, 31, 32, 40, 41, 45, 12],
+    [1062, 4, 24, 27, 35, 37, 45, 15],
+    [1061, 3, 10, 24, 33, 38, 45, 36],
+    [1060, 7, 10, 22, 25, 34, 40, 27],
+    [1059, 11, 23, 25, 30, 32, 40, 42],
+    [1058, 8, 13, 19, 27, 40, 45, 12],
+    [1057, 13, 20, 24, 32, 36, 45, 29],
+    [1056, 4, 7, 12, 14, 22, 33, 31],
+    [1055, 14, 19, 27, 28, 30, 45, 33],
+    [1054, 22, 26, 29, 30, 34, 45, 15],
+    [1053, 5, 17, 26, 27, 35, 38, 1],
+    [1052, 21, 26, 30, 32, 33, 35, 44],
+    [1051, 6, 12, 31, 35, 38, 43, 17],
+    [1050, 3, 5, 13, 20, 21, 37, 17],
+    [1049, 6, 12, 17, 21, 32, 39, 30],
+    [1048, 2, 20, 33, 40, 42, 44, 32],
+    [1047, 7, 16, 25, 29, 35, 36, 28],
+    [1046, 6, 14, 15, 19, 21, 41, 37],
+    [1045, 12, 17, 20, 26, 28, 36, 4],
+    [1044, 3, 5, 12, 22, 26, 31, 19],
+    [1043, 5, 14, 15, 23, 34, 43, 4],
+    [1042, 6, 7, 9, 11, 17, 18, 45],
+    [1041, 8, 16, 26, 29, 31, 36, 11],
+    [1040, 2, 3, 6, 19, 36, 39, 26],
+    [1039, 7, 16, 24, 27, 37, 44, 2],
+    [1038, 2, 14, 15, 22, 27, 33, 31],
+    [1037, 2, 5, 22, 32, 34, 45, 39],
+    [1036, 9, 14, 34, 35, 41, 42, 2],
+    [1035, 26, 31, 32, 33, 38, 40, 11],
+    [1034, 3, 11, 15, 20, 35, 44, 10],
+    [1033, 1, 6, 12, 19, 36, 42, 28],
+    [1032, 6, 7, 22, 32, 35, 36, 19],
+    [1031, 2, 5, 11, 17, 24, 29, 9],
+    [1030, 12, 30, 32, 37, 39, 41, 24],
+    [1029, 5, 7, 12, 13, 18, 35, 23],
+    [1028, 14, 16, 27, 35, 39, 45, 5],
+    [1027, 5, 12, 13, 31, 32, 41, 34],
+    [1026, 8, 9, 20, 25, 29, 33, 7],
+    [1025, 9, 18, 20, 22, 38, 44, 10],
+    [1024, 10, 14, 16, 18, 29, 35, 25],
+    [1023, 5, 6, 11, 29, 42, 45, 28],
+    [1022, 12, 15, 17, 24, 29, 45, 16],
+    [1021, 12, 27, 29, 38, 41, 45, 6],
+    [1020, 1, 4, 13, 17, 34, 39, 6],
+    [1019, 3, 19, 21, 25, 37, 45, 35],
+    [1018, 12, 18, 22, 23, 30, 34, 32],
+    [1017, 15, 26, 28, 34, 41, 42, 44],
+    [1016, 14, 23, 31, 33, 37, 40, 44],
+    [1015, 3, 11, 14, 18, 26, 27, 21],
+    [1014, 21, 22, 26, 34, 36, 41, 32],
+    [1013, 5, 11, 18, 20, 35, 45, 3],
+    [1012, 1, 9, 12, 26, 35, 38, 42],
+    [1011, 9, 12, 15, 25, 34, 36, 3],
+    [1010, 15, 23, 29, 34, 40, 44, 20],
+    [1009, 9, 11, 30, 31, 41, 44, 33],
+    [1008, 8, 11, 16, 19, 21, 25, 40],
+    [1007, 8, 11, 15, 16, 17, 37, 36],
+    [1006, 8, 13, 18, 24, 27, 29, 17],
+    [1005, 7, 15, 30, 37, 39, 44, 18],
+    [1004, 1, 4, 29, 39, 43, 45, 31],
+    [1003, 17, 25, 33, 35, 38, 45, 15],
+    [1002, 6, 10, 12, 14, 20, 42, 15],
+    [1001, 2, 8, 19, 22, 32, 42, 39],
+    [1000, 1, 3, 9, 14, 18, 28, 34]
 ];
 
 // ===================== 전역 변수 =====================
-const REFERENCE_COUNT = 10;
 const STORAGE_FIXED = 'lottoFixedNumbers';
 const STORAGE_TRASH = 'lottoTrash';
 const STORAGE_USER_NAME = 'lottoUserName';
 const STORAGE_CUSTOM_SURVIVORS = 'lottoCustomSurvivors';
 
-let currentCompress = 26;
-let intervalExclude = 3;
-let intervalAi = 3;
+let currentCompress = 10;
+let intervalExclude = 4;  // 기본 간격 4로 변경
+let intervalAi = 3;       // AI 간격은 3 유지
 let fixedNumbers = [];
 let myFixedPool = [];
 let userName = "";
@@ -411,7 +624,6 @@ let trashNumbers = [];
 let customSurvivors = null;
 let isAnalyzing = false;
 let aiRealScores = Array(46).fill(0);
-let genMode = 'random';
 
 // ===================== 유틸 =====================
 function shuffleArray(arr) {
@@ -693,14 +905,14 @@ function clearCustomSurvivors() {
     showToast('커스텀 초기화');
 }
 
-// ===================== 특수생존 =====================
+// ===================== 특수생존 (20개) =====================
 function calculateSpecialSurvivors() {
     if (customSurvivors && customSurvivors.length > 0) return [...customSurvivors];
     let pastData = FULL_DATA.filter(r => r[0] <= analyzeRound && r[0] > 0);
     if (pastData.length === 0) return [];
     let scores = Array(46).fill(0);
     
-    let recentLimit = Math.min(15, pastData.length);
+    let recentLimit = Math.min(20, pastData.length);
     for (let i = 0; i < recentLimit; i++) {
         let targetRound = analyzeRound - intervalExclude * i;
         let found = pastData.find(r => r[0] === targetRound);
@@ -712,17 +924,17 @@ function calculateSpecialSurvivors() {
     }
     
     let patternScores = Array(46).fill(0);
-    let last15Rounds = pastData.slice(-15);
-    for (let round of last15Rounds) {
+    let last20Rounds = pastData.slice(-20);
+    for (let round of last20Rounds) {
         let wins = round.slice(1, 7);
         let bonus = round[7];
         let allNums = [...wins];
         if (bonus) allNums.push(bonus);
         for (let n = 1; n <= 45; n++) {
             for (let wn of allNums) {
-                if (wn % 10 === n % 10 && wn !== n) patternScores[n] += 18;
-                if (Math.abs(n - wn) === 1) patternScores[n] += 22;
-                if (Math.abs(n - wn) === 2) patternScores[n] += 14;
+                if (wn % 10 === n % 10 && wn !== n) patternScores[n] += 15;
+                if (Math.abs(n - wn) === 1) patternScores[n] += 20;
+                if (Math.abs(n - wn) === 2) patternScores[n] += 12;
                 if (Math.abs(n - wn) === 3) patternScores[n] += 8;
                 let wnGroup = Math.ceil(wn / 10);
                 let nGroup = Math.ceil(n / 10);
@@ -731,29 +943,16 @@ function calculateSpecialSurvivors() {
         }
     }
     
-    let last15Wins = pastData.slice(-15).flatMap(r => r.slice(1, 7));
+    let last20Wins = pastData.slice(-20).flatMap(r => r.slice(1, 7));
     let freqMap = {};
-    for (let n of last15Wins) freqMap[n] = (freqMap[n] || 0) + 1;
+    for (let n of last20Wins) freqMap[n] = (freqMap[n] || 0) + 1;
     let missBonus = Array(46).fill(0);
     for (let n = 1; n <= 45; n++) {
         let freq = freqMap[n] || 0;
-        if (freq === 0) missBonus[n] = 22;
-        else if (freq === 1) missBonus[n] = 14;
-        else if (freq === 2) missBonus[n] = 8;
-        else if (freq === 3) missBonus[n] = 4;
-    }
-    
-    let last3Rounds = pastData.slice(-3);
-    let consecutiveMap = {};
-    for (let n = 1; n <= 45; n++) {
-        let count = 0;
-        for (let round of last3Rounds) {
-            if (round.slice(1, 7).includes(n)) count++;
-        }
-        if (count >= 2) consecutiveMap[n] = count;
-    }
-    for (let n in consecutiveMap) {
-        scores[parseInt(n)] -= consecutiveMap[n] * 8;
+        if (freq === 0) missBonus[n] = 20;
+        else if (freq === 1) missBonus[n] = 12;
+        else if (freq === 2) missBonus[n] = 6;
+        else if (freq === 3) missBonus[n] = 3;
     }
     
     let finalScores = Array(46).fill(0);
@@ -764,10 +963,10 @@ function calculateSpecialSurvivors() {
     let candidates = [];
     for (let n = 1; n <= 45; n++) candidates.push({ num: n, score: finalScores[n] });
     candidates.sort((a, b) => b.score - a.score);
-    return candidates.slice(0, 15).map(x => x.num);
+    return candidates.slice(0, 20).map(x => x.num);
 }
 
-// ===================== AI 생존수 =====================
+// ===================== AI 생존수 (20개) =====================
 function calculateAiSurvivors() {
     let pastData = FULL_DATA.filter(r => r[0] <= analyzeRound && r[0] > 0);
     if (pastData.length === 0) return [];
@@ -775,7 +974,7 @@ function calculateAiSurvivors() {
     pastData.forEach(round => {
         round.slice(1, 7).forEach(num => totalCount[num]++);
     });
-    let recentLimit = Math.max(5, Math.floor(25 / intervalAi));
+    let recentLimit = Math.max(5, Math.floor(30 / intervalAi));
     let recentSet = new Set();
     for (let i = 0; i < recentLimit; i++) {
         let targetRound = analyzeRound - intervalAi * i;
@@ -796,7 +995,7 @@ function calculateAiSurvivors() {
     let gapScore = Array(46).fill(0);
     for (let n = 1; n <= 45; n++) gapScore[n] = Math.min(50, lastAppearanceInterval[n] * (1 + intervalAi * 0.3));
     let neighborBonus = Array(46).fill(0);
-    let recentRoundsCount = Math.min(5, Math.floor(15 / intervalAi) + 2);
+    let recentRoundsCount = Math.min(6, Math.floor(18 / intervalAi) + 3);
     let recentRounds = pastData.slice(-recentRoundsCount);
     recentRounds.forEach(round => {
         let bonusFactor = 1 + intervalAi * 0.2;
@@ -804,6 +1003,8 @@ function calculateAiSurvivors() {
             neighborBonus[win] += 20 * bonusFactor;
             if (win > 1) neighborBonus[win - 1] += 12 * bonusFactor;
             if (win < 45) neighborBonus[win + 1] += 12 * bonusFactor;
+            if (win > 2) neighborBonus[win - 2] += 6 * bonusFactor;
+            if (win < 44) neighborBonus[win + 2] += 6 * bonusFactor;
         });
         if (round[7]) neighborBonus[round[7]] += 15 * bonusFactor;
     });
@@ -817,15 +1018,14 @@ function calculateAiSurvivors() {
     let candidates = [];
     for (let n = 1; n <= 45; n++) candidates.push({ num: n, score: scores[n] });
     candidates.sort((a, b) => b.score - a.score);
-    return candidates.slice(0, 15).map(x => x.num);
+    return candidates.slice(0, 20).map(x => x.num);
 }
 
-// ===================== 합집합 30개 =====================
-function calculateRecommendPool_Union30() {
+// ===================== 합집합 (최대 40개) =====================
+function calculateRecommendPool_Union() {
     let unionSet = new Set([...specialSurvivors, ...aiSurvivors]);
     let unionPool = Array.from(unionSet);
-    
-    if (unionPool.length < 30) {
+    if (unionPool.length < 40) {
         let allNumbers = [];
         for (let n = 1; n <= 45; n++) {
             if (!unionPool.includes(n)) {
@@ -833,16 +1033,146 @@ function calculateRecommendPool_Union30() {
             }
         }
         allNumbers.sort((a, b) => (aiRealScores[b] || 0) - (aiRealScores[a] || 0));
-        let need = 30 - unionPool.length;
+        let need = 40 - unionPool.length;
         for (let i = 0; i < need && i < allNumbers.length; i++) {
             unionPool.push(allNumbers[i]);
         }
     }
-    
     return unionPool.sort((a, b) => a - b);
 }
 
-// ===================== 🔥 구간별 조합 =====================
+// ===================== 🔥 압축 순위 V3 =====================
+function compressRecommendPool(compressCount) {
+    if (!recommendPool || recommendPool.length === 0) return [];
+    if (compressCount >= recommendPool.length) return [...recommendPool];
+    if (compressCount < 1) compressCount = 1;
+    
+    let pastData = FULL_DATA.filter(r => r[0] <= analyzeRound && r[0] > 0);
+    let scored = [];
+    
+    let intersection = specialSurvivors.filter(n => aiSurvivors.includes(n));
+    let intersectionSet = new Set(intersection);
+    
+    for (let n of recommendPool) {
+        let score = 0;
+        
+        // 1. AI 점수
+        score += (aiRealScores[n] || 0) * 0.5;
+        
+        // 2. 특수생존 포함 (+60) + 순위 보너스
+        if (specialSurvivors.includes(n)) {
+            score += 60;
+            let spIndex = specialSurvivors.indexOf(n);
+            let rankBonus = Math.max(2, 40 - spIndex * 2);
+            score += rankBonus;
+        }
+        
+        // 3. AI생존 포함 (+40) + 순위 보너스
+        if (aiSurvivors.includes(n)) {
+            score += 40;
+            let aiIndex = aiSurvivors.indexOf(n);
+            let rankBonus = Math.max(1, 30 - aiIndex * 1.5);
+            score += rankBonus;
+        }
+        
+        // 4. 교집합 (+25)
+        if (intersectionSet.has(n)) score += 25;
+        
+        // 5. 최근 5회 출현 (+10/회)
+        let recent5 = pastData.slice(-5);
+        let recentCount = 0;
+        recent5.forEach(round => {
+            if (round.slice(1, 7).includes(n)) recentCount++;
+        });
+        score += recentCount * 10;
+        
+        // 6. 미출현 기간
+        let lastAppear = 0;
+        for (let i = 0; i < 30; i++) {
+            let targetRound = analyzeRound - i;
+            let found = pastData.find(r => r[0] === targetRound);
+            if (found && found.slice(1, 7).includes(n)) {
+                lastAppear = i;
+                break;
+            }
+        }
+        if (lastAppear >= 8 && lastAppear <= 22) score += 18;
+        else if (lastAppear > 22) score += 10;
+        else if (lastAppear >= 1 && lastAppear <= 3) score += 12;
+        
+        // 7. 당첨번호 패턴 학습 (최근 10회)
+        let last10Rounds = pastData.slice(-10);
+        last10Rounds.forEach(round => {
+            round.slice(1, 7).forEach(win => {
+                if (Math.abs(n - win) <= 2) {
+                    score += 14 - Math.abs(n - win) * 4;
+                }
+            });
+            if (round[7] && Math.abs(n - round[7]) <= 2) {
+                score += 12 - Math.abs(n - round[7]) * 3;
+            }
+        });
+        
+        // 8. 끝자리 다양성
+        let endDigit = n % 10;
+        let sameEndCount = recommendPool.filter(x => x % 10 === endDigit).length;
+        if (sameEndCount <= 2) score += 8;
+        else if (sameEndCount <= 3) score += 4;
+        
+        // 9. 구간 다양성
+        let range = Math.floor((n - 1) / 9);
+        if (range > 4) range = 4;
+        let sameRangeCount = recommendPool.filter(x => Math.floor((x - 1) / 9) === range).length;
+        if (sameRangeCount <= 3) score += 6;
+        else if (sameRangeCount <= 4) score += 3;
+        
+        // 10. 홀짝 균형
+        let isOdd = n % 2 === 1;
+        let oddCount = recommendPool.filter(x => x % 2 === 1).length;
+        let evenCount = recommendPool.length - oddCount;
+        if ((isOdd && oddCount <= evenCount) || (!isOdd && evenCount <= oddCount)) {
+            score += 5;
+        }
+        
+        scored.push({ num: n, score: score });
+    }
+    
+    scored.sort((a, b) => b.score - a.score);
+    
+    let selected = [];
+    for (let c of scored) {
+        if (selected.length >= compressCount) break;
+        let num = c.num;
+        if (selected.includes(num)) continue;
+        
+        let endDigit = num % 10;
+        let endCount = selected.filter(n => n % 10 === endDigit).length;
+        if (endCount >= 3) continue;
+        
+        let range = Math.floor((num - 1) / 9);
+        if (range > 4) range = 4;
+        let rangeCount = selected.filter(n => {
+            let r = Math.floor((n - 1) / 9);
+            return r > 4 ? 4 : r;
+        }).filter(r => r === range).length;
+        if (rangeCount >= 4) continue;
+        
+        selected.push(num);
+    }
+    
+    if (selected.length < compressCount) {
+        for (let c of scored) {
+            if (selected.length >= compressCount) break;
+            if (!selected.includes(c.num)) {
+                selected.push(c.num);
+            }
+        }
+    }
+    
+    return selected.sort((a, b) => a - b);
+}
+
+// ===================== 구간별 조합 =====================
 function generateZoneCombos(count) {
     let pool = compressRecommendPool(currentCompress);
     if (pool.length < 6) {
@@ -859,11 +1189,9 @@ function generateZoneCombos(count) {
     };
     
     let combos = [], usedKeys = new Set(), maxAttempts = 5000, attempts = 0;
-    
     while (combos.length < count && attempts < maxAttempts) {
         attempts++;
         let selected = [];
-        
         if (myFixedPool.length > 0) {
             let fixedAvailable = myFixedPool.filter(n => pool.includes(n));
             let useFixed = Math.min(fixedAvailable.length, 4);
@@ -872,7 +1200,6 @@ function generateZoneCombos(count) {
                 if (!selected.includes(shuffledFixed[i])) selected.push(shuffledFixed[i]);
             }
         }
-        
         let zoneKeys = shuffleArray(['z1', 'z2', 'z3', 'z4', 'z5']);
         for (let z of zoneKeys) {
             if (selected.length >= 6) break;
@@ -889,7 +1216,6 @@ function generateZoneCombos(count) {
                 }
             }
         }
-        
         if (selected.length < 6) {
             let shuffledPool = shuffleArray([...pool]);
             for (let n of shuffledPool) {
@@ -897,11 +1223,9 @@ function generateZoneCombos(count) {
                 if (!selected.includes(n)) selected.push(n);
             }
         }
-        
         if (selected.length < 6) continue;
         selected.sort((a, b) => a - b);
         if (hasThreeConsecutive(selected)) continue;
-        
         let key = selected.join(',');
         if (usedKeys.has(key)) continue;
         usedKeys.add(key);
@@ -910,7 +1234,7 @@ function generateZoneCombos(count) {
     return combos;
 }
 
-// ===================== 🔥 혼합랜덤 조합 =====================
+// ===================== 혼합랜덤 조합 =====================
 function generateMixRandomCombos(count) {
     let pool = compressRecommendPool(currentCompress);
     if (pool.length < 6) {
@@ -927,12 +1251,9 @@ function generateMixRandomCombos(count) {
     };
     
     let combos = [], usedKeys = new Set(), maxAttempts = 5000, attempts = 0;
-    
     while (combos.length < count && attempts < maxAttempts) {
         attempts++;
         let selected = [];
-        
-        // 고정번호 (최대 4개)
         if (myFixedPool.length > 0) {
             let fixedAvailable = myFixedPool.filter(n => pool.includes(n));
             let useFixed = Math.min(fixedAvailable.length, 4);
@@ -941,12 +1262,9 @@ function generateMixRandomCombos(count) {
                 if (!selected.includes(shuffledFixed[i])) selected.push(shuffledFixed[i]);
             }
         }
-        
-        // 구간에서 2~3개 선택
         let zoneKeys = shuffleArray(['z1', 'z2', 'z3', 'z4', 'z5']);
         let zonePicked = 0;
-        let targetZoneCount = Math.floor(Math.random() * 2) + 2; // 2 또는 3
-        
+        let targetZoneCount = Math.floor(Math.random() * 2) + 2;
         for (let z of zoneKeys) {
             if (zonePicked >= targetZoneCount) break;
             let zonePool = zones[z] || [];
@@ -961,8 +1279,6 @@ function generateMixRandomCombos(count) {
                 }
             }
         }
-        
-        // 나머지는 랜덤
         let shuffledPool = shuffleArray([...pool]);
         let randomPicked = 0;
         let targetRandom = 6 - selected.length;
@@ -973,11 +1289,9 @@ function generateMixRandomCombos(count) {
                 randomPicked++;
             }
         }
-        
         if (selected.length < 6) continue;
         selected.sort((a, b) => a - b);
         if (hasThreeConsecutive(selected)) continue;
-        
         let key = selected.join(',');
         if (usedKeys.has(key)) continue;
         usedKeys.add(key);
@@ -986,43 +1300,7 @@ function generateMixRandomCombos(count) {
     return combos;
 }
 
-// ===================== 압축 =====================
-function compressRecommendPool(compressCount) {
-    if (!recommendPool || recommendPool.length === 0) return [];
-    if (compressCount >= 30) return [...recommendPool];
-    if (compressCount < 1) compressCount = 1;
-    
-    let scored = [];
-    for (let n of recommendPool) {
-        let score = aiRealScores[n] || 0;
-        scored.push({ num: n, score: score });
-    }
-    scored.sort((a, b) => b.score - a.score);
-    
-    let selected = [];
-    for (let c of scored) {
-        if (selected.length >= compressCount) break;
-        let num = c.num;
-        let tooClose = false;
-        for (let s of selected) {
-            if (Math.abs(num - s) <= 2) {
-                tooClose = true;
-                break;
-            }
-        }
-        if (tooClose) continue;
-        selected.push(num);
-    }
-    if (selected.length < compressCount) {
-        for (let c of scored) {
-            if (selected.length >= compressCount) break;
-            if (!selected.includes(c.num)) selected.push(c.num);
-        }
-    }
-    return selected.sort((a, b) => a - b);
-}
-
-// ===================== 나머지 함수들 =====================
+// ===================== 기타 함수들 =====================
 function hasThreeConsecutive(arr) {
     for (let i = 0; i < arr.length - 2; i++) {
         if (arr[i] + 1 === arr[i + 1] && arr[i + 1] + 1 === arr[i + 2]) return true;
@@ -1039,7 +1317,7 @@ function generateZoneCombo(count) {
 function generateMixRandomCombo(count) {
     let combos = generateMixRandomCombos(count);
     if (!combos || combos.length === 0) { showToast('혼합랜덤 조합 실패'); return; }
-    generatedCombos = combos; showCombos(); showToast('🎲 혼합랜덤 ' + combos.length + '개 (구간+랜덤)');
+    generatedCombos = combos; showCombos(); showToast('🎲 혼합랜덤 ' + combos.length + '개');
 }
 
 function showCombos() {
@@ -1052,7 +1330,7 @@ function showCombos() {
         html += winNumbers.map(n => '<span class="combo-ball winning">' + n + '</span>').join('');
         if (bonus) html += '<span class="combo-ball bonus">+' + bonus + '</span>';
     } else {
-        html += '<span style="color:#ffaa00;">⚠️ 미발표 회차 (당첨번호 없음)</span>';
+        html += '<span style="color:#ffaa00;">⚠️ 미발표 회차</span>';
     }
     html += '</div><div style="max-height:400px; overflow-y:auto;">';
     let third = 0, fourth = 0, fifth = 0;
@@ -1221,15 +1499,19 @@ function setRoundFromInput() {
     if (val > MAX_ROUND) val = MAX_ROUND;
     if (val !== currentBaseRound) {
         currentBaseRound = val;
+        analyzeRound = currentBaseRound - 1;
         analyze();
         showToast('예상회차 ' + currentBaseRound);
     }
     document.getElementById('roundInput').value = currentBaseRound;
+    document.getElementById('targetRound').innerText = currentBaseRound;
+    document.getElementById('analyzeRoundDisplay').innerText = analyzeRound;
 }
 
 function increaseRound() {
     if (currentBaseRound < MAX_ROUND) {
         currentBaseRound++;
+        analyzeRound = currentBaseRound - 1;
         analyze();
         showToast('예상회차 ' + currentBaseRound);
     } else {
@@ -1240,6 +1522,7 @@ function increaseRound() {
 function decreaseRound() {
     if (currentBaseRound > MIN_ROUND) {
         currentBaseRound--;
+        analyzeRound = currentBaseRound - 1;
         analyze();
         showToast('예상회차 ' + currentBaseRound);
     } else {
@@ -1297,7 +1580,7 @@ function analyze() {
         document.getElementById('analyzeRoundDisplay').innerText = analyzeRound;
         specialSurvivors = calculateSpecialSurvivors();
         aiSurvivors = calculateAiSurvivors();
-        recommendPool = calculateRecommendPool_Union30();
+        recommendPool = calculateRecommendPool_Union();
         trashNumbers = specialSurvivors.filter(n => !aiSurvivors.includes(n));
         saveTrash();
         updateUI();
@@ -1332,7 +1615,7 @@ function updateUI() {
         '<div class="stat-row survivor-row"><span class="stat-label">🤖AI생존(간격' + intervalAi + ')</span><div class="number-group">' + formatList(aiSurvivors) + ' (' + aiSurvivors.length + ')</div></div>' +
         '<div class="stat-row" style="border-left-color:#ffd700;"><span class="stat-label">⭐교집합</span><div class="number-group">' + intersectionCount + '개</div></div>' +
         '<div class="stat-row" style="border-left-color:#4caf50;"><span class="stat-label">🧬합집합</span><div class="number-group">' + unionCount + '개</div></div>' +
-        '<div class="stat-row"><span class="stat-label">⭐추천수(30개)</span><div class="number-group">' + formatList(recommendPool) + ' (' + recommendPool.filter(n => targetWinNumbers.includes(n)).length + ')</div></div>' +
+        '<div class="stat-row"><span class="stat-label">⭐추천수(' + unionCount + '개)</span><div class="number-group">' + formatList(recommendPool) + ' (' + recommendPool.filter(n => targetWinNumbers.includes(n)).length + ')</div></div>' +
         '<div class="stat-row" style="border-left-color:#ff6b6b;"><span class="stat-label">🔽압축(' + currentCompress + '개)</span><div class="number-group">' + formatList(compressed) + ' (' + compressed.filter(n => targetWinNumbers.includes(n)).length + ')</div></div>' +
         '<div class="stat-row" onclick="openTrashPopup()" style="cursor:pointer;"><span class="stat-label">🗑️휴지통</span><div class="number-group">총 ' + trashNumbers.length + '개</div></div>' +
         '<div class="stat-row"><span class="stat-label">⭐내가고정 <button class="reset-fixed-btn" onclick="resetMyFixed()">초기화</button></span><div class="number-group">' + (myFixedPool.length ? myFixedPool.map(n => '<span class="fixed-only-yellow" style="cursor:default;">' + n + '</span>').join(' ') : '없음') + '</div></div>';
@@ -1347,6 +1630,7 @@ function updateUI() {
 
     document.getElementById('roundInput').value = currentBaseRound;
     document.getElementById('targetRound').innerText = currentBaseRound;
+    document.getElementById('analyzeRoundDisplay').innerText = analyzeRound;
 
     let targetContainer = document.getElementById('targetWinContainer');
     if (!targetContainer) {
@@ -1385,14 +1669,19 @@ function toggleMyFixed(num) {
 }
 
 window.onload = function () {
+    // 간격 표시 업데이트 (기본 4로 변경)
+    document.getElementById('intervalExcludeValue').innerText = intervalExclude;
+    document.getElementById('intervalAiValue').innerText = intervalAi;
+    
     initUser();
     loadFixedNumbers();
     loadTrash();
     loadCustomSurvivors();
     document.getElementById('compressSlider').value = currentCompress;
     document.getElementById('compressValue').innerText = currentCompress;
-    document.getElementById('intervalExcludeValue').innerText = intervalExclude;
-    document.getElementById('intervalAiValue').innerText = intervalAi;
+    document.getElementById('roundInput').value = currentBaseRound;
+    document.getElementById('targetRound').innerText = currentBaseRound;
+    document.getElementById('analyzeRoundDisplay').innerText = analyzeRound;
     analyze();
 };
 </script>
