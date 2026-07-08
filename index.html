@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SHIN-UI-SON · 로또 분석기 V6.0</title>
+    <title>SHIN-UI-SON · 로또 분석기 V6.3</title>
     <style>
         * { margin:0; padding:0; box-sizing:border-box; }
         body {
@@ -308,6 +308,7 @@
         .badge { background: #ffd700; color: #000; font-size: 7px; padding: 1px 6px; border-radius: 30px; margin-left: 4px; font-weight: 800; }
         .badge2 { background: #ff6b6b; color: #fff; font-size: 7px; padding: 1px 6px; border-radius: 30px; margin-left: 4px; font-weight: 800; }
         .hit-badge { background: #4caf50; color: #fff; font-size: 8px; padding: 0px 6px; border-radius: 30px; margin-left: 4px; font-weight: 700; }
+        .inter-badge { background: #ff8c00; color: #fff; font-size: 8px; padding: 0px 6px; border-radius: 30px; margin-left: 4px; font-weight: 700; }
     </style>
 </head>
 <body>
@@ -322,14 +323,14 @@
     <div class="row-2">
         <div class="compress-row">
             <span class="compress-icon">⭐ 압축1</span>
-            <div class="slider-wrap"><input type="range" id="compressSlider1" min="2" max="40" value="9" step="1" oninput="updateCompressValue1(this.value)"></div>
-            <span class="compress-value" id="compressValue1">9</span>
+            <div class="slider-wrap"><input type="range" id="compressSlider1" min="2" max="40" value="10" step="1" oninput="updateCompressValue1(this.value)"></div>
+            <span class="compress-value" id="compressValue1">10</span>
             <button class="apply-btn" onclick="applyCompress1()">적용</button>
         </div>
         <div class="compress-row-2">
             <span class="compress-icon">🔽 압축2</span>
-            <div class="slider-wrap"><input type="range" id="compressSlider2" min="2" max="40" value="9" step="1" oninput="updateCompressValue2(this.value)"></div>
-            <span class="compress-value" id="compressValue2">9</span>
+            <div class="slider-wrap"><input type="range" id="compressSlider2" min="2" max="40" value="10" step="1" oninput="updateCompressValue2(this.value)"></div>
+            <span class="compress-value" id="compressValue2">10</span>
             <button class="apply-btn" onclick="applyCompress2()">적용</button>
         </div>
     </div>
@@ -365,7 +366,7 @@
         <button onclick="openHelp()">❓ 도움말</button>
     </div>
     <div class="fixed-numbers"><div class="fixed-left"><span id="fixedExtra"></span></div><div class="fixed-right"><button onclick="window.open('https://www.naver.com', '_blank')">🌐 네이버</button><button onclick="clearFixed()">초기화</button><button onclick="openFixedPopup()">⏳ 추가</button></div></div>
-    <div class="small-note">🎯 예상회차: <span id="targetRound">1232</span> | 분석기준: <span id="analyzeRoundDisplay">1231</span>회까지 데이터<br>※ 특수간격4, AI간격10 | 압축1/2 = 9개 | 순수 랜덤 조합</div>
+    <div class="small-note">🎯 예상회차: <span id="targetRound">1232</span> | 분석기준: <span id="analyzeRoundDisplay">1231</span>회까지 데이터<br>※ 특수간격4, AI간격10 | 통합교집합 = 생존교집합 ∩ 압축교집합 + 보충</div>
 </div>
 <div class="toast" id="toast"><span>✅ 저장됨</span></div>
 <div id="fixedPopup" class="popup-overlay"><div class="popup-content"><h3>🔒 고정 번호 선택</h3><p style="text-align:center;">최대 6개까지 선택 가능</p><div class="number-grid" id="fixedNumberGrid"></div><div style="text-align:center;"><button onclick="saveFixedPopup()">저장</button><button class="close-btn" onclick="closeFixedPopup()">닫기</button></div></div></div>
@@ -374,11 +375,13 @@
 <div id="reviewPopup" class="popup-overlay"><div class="popup-content"><h3>📊 당첨 확인</h3><div style="margin:15px 0; display:flex; flex-direction:column; gap:8px;"><p>회차: <input type="number" id="reviewRound" value="1232" min="900" max="1232" style="width:100px; padding:5px; background:#3a3a3a; color:#fff; border:1px solid #aaa; border-radius:30px;"></p><p>당첨번호: <input type="text" id="reviewWinning" placeholder="예: 1,2,3,4,5,6" style="width:100%; padding:5px; background:#3a3a3a; color:#fff; border:1px solid #aaa; border-radius:30px;"></p><p>보너스: <input type="number" id="reviewBonus" min="1" max="45" style="width:100px; padding:5px; background:#3a3a3a; color:#fff; border:1px solid #aaa; border-radius:30px;"></p></div><div id="reviewResult" style="background:#2a2a2a; border-radius:20px; padding:10px;"></div><div style="text-align:center;"><button onclick="compareNumbers()">비교</button><button onclick="saveWinningNumbers()">저장</button><button class="close-btn" onclick="closeReviewPopup()">닫기</button></div></div></div>
 <div id="statusZoomPopup" class="popup-overlay"><div class="popup-content"><h3>🔍 상세 분석</h3><div id="statusZoomContent"></div><div style="text-align:center;"><button class="close-btn" onclick="closeStatusZoomPopup()">닫기</button></div></div></div>
 <div id="helpPopup" class="popup-overlay"><div class="popup-content"><h3>❓ 도움말</h3><div style="margin:10px 0;">
-<h4>🎯 V6.0 (순수 랜덤 조합)</h4>
+<h4>🎯 V6.3 (통합교집합 = 생존 ∩ 압축)</h4>
 <p>⭐ 특수생존 간격: 4, AI생존 간격: 10</p>
-<p>⭐ 압축1/2 = 9개 (순위50% + 궁합50%)</p>
+<p>⭐ 압축1/2 = 10개 (순위50% + 궁합50%)</p>
+<p>✅ 통합교집합 = (생존교집합) ∩ (압축1∩2)</p>
+<p>✅ 개수가 압축1보다 부족하면 압축1∪2에서 보충 (점수 높은 순)</p>
+<p>✅ 항상 압축1 개수와 동일하게 유지</p>
 <p>✅ 구간/혼합 모두 순수 랜덤 추출 (구간 균형 없음)</p>
-<p>✅ 이월수 표시 제거 (주황색 없음)</p>
 </div><div style="text-align:center;"><button class="close-btn" onclick="closeHelpPopup()">닫기</button></div></div></div>
 <div id="trashPopup" class="popup-overlay"><div class="popup-content"><h3>🗑️ 휴지통 (압축 제외 번호)</h3><div id="trashStats" class="trash-stats"></div><div style="text-align:center; margin:10px 0;"><button onclick="generateTrashCombo(1)">🎲 휴지통 1조합</button><button onclick="generateTrashCombo(5)">🎲 휴지통 5조합</button><button onclick="generateTrashCombo(10)">🎲 휴지통 10조합</button></div><div id="trashContent" class="trash-numbers-area"></div><div style="text-align:center; margin-top:15px;"><button onclick="copyTrashToCustom()">📋 휴지통→커스텀</button><button onclick="clearTrash()">휴지통 비우기</button><button class="close-btn" onclick="closeTrashPopup()">닫기</button></div></div></div>
 
@@ -628,8 +631,8 @@ const STORAGE_TRASH = 'lottoTrash';
 const STORAGE_USER_NAME = 'lottoUserName';
 const STORAGE_CUSTOM_SURVIVORS = 'lottoCustomSurvivors';
 
-let currentCompress1 = 9;
-let currentCompress2 = 9;
+let currentCompress1 = 10;
+let currentCompress2 = 10;
 let intervalExclude = 4;
 let intervalAi = 10;
 let fixedNumbers = [];
@@ -1346,7 +1349,6 @@ function generateRandomCombos(count, type) {
         attempts++;
         let selected = [];
         
-        // 내가고정 번호 우선 포함 (최대 4개)
         if (myFixedPool.length > 0) {
             let fixedAvailable = myFixedPool.filter(n => pool.includes(n));
             let useFixed = Math.min(fixedAvailable.length, 4);
@@ -1356,7 +1358,6 @@ function generateRandomCombos(count, type) {
             }
         }
         
-        // 나머지를 pool에서 랜덤 추출
         let shuffledPool = shuffleArray([...pool]);
         for (let n of shuffledPool) {
             if (selected.length >= 6) break;
@@ -1368,7 +1369,6 @@ function generateRandomCombos(count, type) {
         if (selected.length < 6) continue;
         selected.sort((a, b) => a - b);
         
-        // 연속 3개 방지
         let hasSeq = false;
         for (let k = 0; k < selected.length - 2; k++) {
             if (selected[k] + 1 === selected[k + 1] && selected[k + 1] + 1 === selected[k + 2]) {
@@ -1386,7 +1386,6 @@ function generateRandomCombos(count, type) {
     return combos;
 }
 
-// ===================== 버튼 연결 =====================
 function generateRandomCombo(count, type) {
     let combos = generateRandomCombos(count, type);
     if (!combos || combos.length === 0) { showToast('조합 실패'); return; }
@@ -1396,7 +1395,6 @@ function generateRandomCombo(count, type) {
     showToast('📐 ' + label + ' ' + combos.length + '개 (랜덤)');
 }
 
-// ===================== 기존 함수 유지 =====================
 function generateZoneCombo(count) {
     generateRandomCombo(count, 'zone');
 }
@@ -1689,14 +1687,39 @@ function updateUI() {
     let targetWinData = FULL_DATA.find(r => r[0] === currentBaseRound);
     let targetWinNumbers = targetWinData ? targetWinData.slice(1, 7) : [];
     let targetBonus = targetWinData ? targetWinData[7] : null;
-    let intersectionCount = specialSurvivors.filter(n => aiSurvivors.includes(n)).length;
-    let intersectionNumbers = specialSurvivors.filter(n => aiSurvivors.includes(n));
+    
+    // 생존수 교집합
+    let interSurvivors = specialSurvivors.filter(n => aiSurvivors.includes(n));
+    
     let unionCount = recommendPool.length;
     let compressed1 = compressRecommendPool1(currentCompress1);
     let compressed2 = compressRecommendPool2(currentCompress2);
     
-    let inter = compressed1.filter(n => compressed2.includes(n));
+    // 압축1 ∩ 압축2
+    let interCompress = compressed1.filter(n => compressed2.includes(n));
+    
+    // ----- 통합교집합 = interSurvivors ∩ interCompress -----
+    let common = interSurvivors.filter(n => interCompress.includes(n));
+    let targetCount = currentCompress1; // 압축1 개수
+    let finalInter = [...common];
+    
+    if (finalInter.length < targetCount) {
+        // 부족한 만큼 압축1 ∪ 압축2에서 보충 (점수 높은 순)
+        let unionCompress = [...new Set([...compressed1, ...compressed2])];
+        let candidates = unionCompress.filter(n => !finalInter.includes(n));
+        candidates.sort((a, b) => (aiRealScores[b] || 0) - (aiRealScores[a] || 0));
+        let need = targetCount - finalInter.length;
+        let added = candidates.slice(0, need);
+        finalInter = [...finalInter, ...added];
+    } else if (finalInter.length > targetCount) {
+        // 초과하면 점수 높은 순으로 targetCount 개만 유지
+        finalInter.sort((a, b) => (aiRealScores[b] || 0) - (aiRealScores[a] || 0));
+        finalInter = finalInter.slice(0, targetCount);
+    }
+    finalInter.sort((a, b) => a - b);
+    let displayInter = finalInter;
 
+    // ---- 표시 함수 ----
     function formatNum(num, type) {
         let isWinning = targetWinNumbers.includes(num);
         let isBonus = targetBonus === num;
@@ -1720,12 +1743,14 @@ function updateUI() {
     document.getElementById('status').innerHTML = 
         '<div class="stat-row survivor-row"><span class="stat-label">👥특수생존(간격' + intervalExclude + ')</span><div class="number-group">' + formatList(specialSurvivors, '') + ' (' + specialSurvivors.length + ')</div></div>' +
         '<div class="stat-row survivor-row"><span class="stat-label">🤖AI생존(간격' + intervalAi + ')</span><div class="number-group">' + formatList(aiSurvivors, '') + ' (' + aiSurvivors.length + ')</div></div>' +
-        '<div class="stat-row" style="border-left-color:#ffd700;"><span class="stat-label">⭐교집합</span><div class="number-group">' + formatList(intersectionNumbers, '') + ' (' + intersectionCount + '개)</div></div>' +
+        '<div class="stat-row" style="border-left-color:#ffd700;"><span class="stat-label">⭐생존 교집합</span><div class="number-group">' + formatList(interSurvivors, '') + ' (' + interSurvivors.length + '개)</div></div>' +
         '<div class="stat-row" style="border-left-color:#4caf50;"><span class="stat-label">🧬합집합(추천수)</span><div class="number-group">' + unionCount + '개</div></div>' +
         '<div class="stat-row"><span class="stat-label">⭐추천수(' + unionCount + '개)</span><div class="number-group">' + formatList(recommendPool, '') + ' (' + recommendPool.filter(n => targetWinNumbers.includes(n)).length + ')</div></div>' +
         '<div class="stat-row" style="border-left-color:#ffd700;"><span class="stat-label">⭐압축1(' + compressed1.length + '개) <span class="badge">순위50%+궁합50%</span> <span class="hit-badge">🎯' + hit1 + '개</span></span><div class="number-group">' + formatList(compressed1, 'c1') + '</div></div>' +
         '<div class="stat-row" style="border-left-color:#ff6b6b;"><span class="stat-label">🔽압축2(' + compressed2.length + '개) <span class="badge2">순위50%+궁합50%</span> <span class="hit-badge">🎯' + hit2 + '개</span></span><div class="number-group">' + formatList(compressed2, 'c2') + '</div></div>' +
-        '<div class="stat-row" style="border-left-color:#ffd700;"><span class="stat-label">🔗교집합(압축1∩2)</span><div class="number-group">' + (inter.length ? inter.map(n => formatNum(n, '')).join(', ') : '없음') + ' (' + inter.length + '개)</div></div>' +
+        '<div class="stat-row" style="border-left-color:#ff8c00;"><span class="stat-label">🔗통합교집합(생존∩압축)</span><div class="number-group">' + 
+            (displayInter.length ? displayInter.map(n => formatNum(n, '')).join(', ') : '없음') + 
+            ' (' + displayInter.length + '개)</div></div>' +
         '<div class="stat-row" onclick="openTrashPopup()" style="cursor:pointer;"><span class="stat-label">🗑️휴지통</span><div class="number-group">총 ' + trashNumbers.length + '개</div></div>' +
         '<div class="stat-row"><span class="stat-label">⭐내가고정 <button class="reset-fixed-btn" onclick="resetMyFixed()">초기화</button></span><div class="number-group">' + (myFixedPool.length ? myFixedPool.map(n => '<span class="fixed-only-yellow" style="cursor:default;">' + n + '</span>').join(' ') : '없음') + '</div></div>';
 
