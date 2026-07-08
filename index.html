@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SHIN-UI-SON · 로또 분석기 V7.4</title>
+    <title>SHIN-UI-SON · 로또 분석기 V7.5</title>
     <style>
         * { margin:0; padding:0; box-sizing:border-box; }
         body {
@@ -255,6 +255,7 @@
         }
         .btn-zone { background: #2e7d32 !important; color: #fff !important; border-color: #4caf50 !important; }
         .btn-mix { background: #ffd700 !important; color: #000 !important; border-color: #ffd700 !important; }
+        .btn-cover { background: #8e24aa !important; color: #fff !important; border-color: #ab47bc !important; }
         .fixed-numbers {
             display:flex;
             align-items:center;
@@ -361,6 +362,7 @@
     <div class="btn-group">
         <button class="btn-zone" onclick="generateZoneCombo(5)">📐구간5</button>
         <button class="btn-mix" onclick="generateMixRandomCombo(5)">🎲혼합랜덤5</button>
+        <button class="btn-cover" onclick="generateCoveringCombos()">🔐보장형6</button>
         <button onclick="openBasket()">📦 보관함</button>
         <button onclick="clearStorage()">초기화</button>
         <button onclick="location.reload()">새로고침</button>
@@ -369,7 +371,7 @@
         <button onclick="openHelp()">❓ 도움말</button>
     </div>
     <div class="fixed-numbers"><div class="fixed-left"><span id="fixedExtra"></span></div><div class="fixed-right"><button onclick="window.open('https://www.naver.com', '_blank')">🌐 네이버</button><button onclick="clearFixed()">초기화</button><button onclick="openFixedPopup()">⏳ 추가</button></div></div>
-    <div class="small-note">🎯 예상회차: <span id="targetRound">1232</span> | 분석기준: <span id="analyzeRoundDisplay">1231</span>회까지 데이터<br>※ 기본간격 4/6 | 구간/혼합 모두 완전 랜덤 추출</div>
+    <div class="small-note">🎯 예상회차: <span id="targetRound">1232</span> | 분석기준: <span id="analyzeRoundDisplay">1231</span>회까지 데이터<br>※ 기본간격 4/6 | 구간/혼합/보장형 모두 추출</div>
 </div>
 <div class="toast" id="toast"><span>✅ 저장됨</span></div>
 <div id="fixedPopup" class="popup-overlay"><div class="popup-content"><h3>🔒 고정 번호 선택</h3><p style="text-align:center;">최대 6개까지 선택 가능</p><div class="number-grid" id="fixedNumberGrid"></div><div style="text-align:center;"><button onclick="saveFixedPopup()">저장</button><button class="close-btn" onclick="closeFixedPopup()">닫기</button></div></div></div>
@@ -378,13 +380,12 @@
 <div id="reviewPopup" class="popup-overlay"><div class="popup-content"><h3>📊 당첨 확인</h3><div style="margin:15px 0; display:flex; flex-direction:column; gap:8px;"><p>회차: <input type="number" id="reviewRound" value="1232" min="900" max="1232" style="width:100px; padding:5px; background:#3a3a3a; color:#fff; border:1px solid #aaa; border-radius:30px;"></p><p>당첨번호: <input type="text" id="reviewWinning" placeholder="예: 1,2,3,4,5,6" style="width:100%; padding:5px; background:#3a3a3a; color:#fff; border:1px solid #aaa; border-radius:30px;"></p><p>보너스: <input type="number" id="reviewBonus" min="1" max="45" style="width:100px; padding:5px; background:#3a3a3a; color:#fff; border:1px solid #aaa; border-radius:30px;"></p></div><div id="reviewResult" style="background:#2a2a2a; border-radius:20px; padding:10px;"></div><div style="text-align:center;"><button onclick="compareNumbers()">비교</button><button onclick="saveWinningNumbers()">저장</button><button class="close-btn" onclick="closeReviewPopup()">닫기</button></div></div></div>
 <div id="statusZoomPopup" class="popup-overlay"><div class="popup-content"><h3>🔍 상세 분석</h3><div id="statusZoomContent"></div><div style="text-align:center;"><button class="close-btn" onclick="closeStatusZoomPopup()">닫기</button></div></div></div>
 <div id="helpPopup" class="popup-overlay"><div class="popup-content"><h3>❓ 도움말</h3><div style="margin:10px 0;">
-<h4>🎯 V7.4 (기본간격 4/6)</h4>
+<h4>🎯 V7.5 (보장형 스타일 구간/혼합 + 커버링)</h4>
 <p>⭐ 특수생존 간격: 4, AI생존 간격: 6</p>
-<p>⭐ 압축1/2 = 10개</p>
-<p>✅ <b>압축1</b>: 순위 점수 100% (aiRealScores 기준)</p>
-<p>✅ <b>압축2</b>: 동반/궁합 점수 100% (직전 당첨 동반 출현 + 궁합)</p>
-<p>✅ 구간조합 = 압축1 완전랜덤, 혼합랜덤 = 압축2 완전랜덤</p>
-<p>✅ <b>통합교집합</b> = 압축1 + 압축2 점수 합산 상위 N개 (트레이드)</p>
+<p>⭐ 압축1/2 = 10개 (조절 가능)</p>
+<p>✅ <b>구간5</b>: 압축1에서 트리플 커버리지 최대화 (합계90~160, 3연번 제외)</p>
+<p>✅ <b>혼합랜덤5</b>: 압축2에서 트리플 커버리지 최대화 (합계90~160, 3연번 제외)</p>
+<p>✅ <b>보장형 6조합</b>: 통합교집합 기반 C(10,6,3)=6 커버링 (모든 트리플 100% 커버)</p>
 </div><div style="text-align:center;"><button class="close-btn" onclick="closeHelpPopup()">닫기</button></div></div></div>
 <div id="trashPopup" class="popup-overlay"><div class="popup-content"><h3>🗑️ 휴지통 (압축 제외 번호)</h3><div id="trashStats" class="trash-stats"></div><div style="text-align:center; margin:10px 0;"><button onclick="generateTrashCombo(1)">🎲 휴지통 1조합</button><button onclick="generateTrashCombo(5)">🎲 휴지통 5조합</button><button onclick="generateTrashCombo(10)">🎲 휴지통 10조합</button></div><div id="trashContent" class="trash-numbers-area"></div><div style="text-align:center; margin-top:15px;"><button onclick="copyTrashToCustom()">📋 휴지통→커스텀</button><button onclick="clearTrash()">휴지통 비우기</button><button class="close-btn" onclick="closeTrashPopup()">닫기</button></div></div></div>
 
@@ -668,6 +669,13 @@ function showToast(msg) {
     t.querySelector('span').innerText = msg;
     t.style.display = 'block';
     setTimeout(() => t.style.display = 'none', 800);
+}
+
+function hasThreeConsecutive(arr) {
+    for (let i = 0; i < arr.length - 2; i++) {
+        if (arr[i] + 1 === arr[i + 1] && arr[i + 1] + 1 === arr[i + 2]) return true;
+    }
+    return false;
 }
 
 // ===================== 고정번호 =====================
@@ -1139,7 +1147,7 @@ function compressRecommendPool2(compressCount) {
     return selected.sort((a, b) => a - b);
 }
 
-// ===================== 구간조합 (완전랜덤, 압축1 사용) =====================
+// ===================== 구간조합 (압축1, 보장형 스타일 - 트리플 커버리지 최대화) =====================
 function generateZoneCombos(count) {
     let pool = compressRecommendPool1(currentCompress1);
     if (pool.length < 6) {
@@ -1147,40 +1155,92 @@ function generateZoneCombos(count) {
     }
     if (pool.length < 6) return [];
     
-    let combos = [], usedKeys = new Set(), maxAttempts = 5000, attempts = 0;
-    while (combos.length < count && attempts < maxAttempts) {
-        attempts++;
-        let selected = [];
-        
-        if (myFixedPool.length > 0) {
-            let fixedAvailable = myFixedPool.filter(n => pool.includes(n));
-            let useFixed = Math.min(fixedAvailable.length, 4);
-            let shuffledFixed = shuffleArray([...fixedAvailable]);
-            for (let i = 0; i < useFixed; i++) {
-                if (!selected.includes(shuffledFixed[i])) selected.push(shuffledFixed[i]);
-            }
-        }
-        
-        let shuffledPool = shuffleArray([...pool]);
-        for (let n of shuffledPool) {
-            if (selected.length >= 6) break;
-            if (!selected.includes(n)) {
-                selected.push(n);
-            }
-        }
-        
-        if (selected.length < 6) continue;
-        selected.sort((a, b) => a - b);
-        if (hasThreeConsecutive(selected)) continue;
-        let key = selected.join(',');
-        if (usedKeys.has(key)) continue;
-        usedKeys.add(key);
-        combos.push(selected);
+    const minSum = 90;
+    const maxSum = 160;
+    
+    function getCombinations(arr, k) {
+        if (k === 0) return [[]];
+        if (arr.length === 0) return [];
+        const [first, ...rest] = arr;
+        const withFirst = getCombinations(rest, k - 1).map(c => [first, ...c]);
+        const withoutFirst = getCombinations(rest, k);
+        return [...withFirst, ...withoutFirst];
     }
-    return combos;
+    
+    // 1. 조건에 맞는 모든 6개 조합 생성
+    const allSix = getCombinations(pool, 6);
+    const validSix = allSix.filter(combo => {
+        const sum = combo.reduce((a, b) => a + b, 0);
+        if (sum < minSum || sum > maxSum) return false;
+        const sorted = [...combo].sort((a, b) => a - b);
+        return !hasThreeConsecutive(sorted);
+    });
+    
+    if (validSix.length === 0) {
+        showToast('조건을 만족하는 조합이 없습니다.');
+        return [];
+    }
+    
+    // 2. Greedy로 가장 많은 트리플을 커버하는 count개 조합 선택
+    const allTriples = getCombinations(pool, 3);
+    const tripleSet = new Set(allTriples.map(t => t.sort((a,b)=>a-b).join(',')));
+    
+    let remainingTriples = new Set(tripleSet);
+    let selected = [];
+    let usedKeys = new Set();
+    
+    while (selected.length < count && remainingTriples.size > 0) {
+        let bestCombo = null;
+        let bestCover = new Set();
+        let bestKey = '';
+        
+        for (let combo of validSix) {
+            const key = combo.sort((a,b)=>a-b).join(',');
+            if (usedKeys.has(key)) continue;
+            if (selected.some(s => s.join(',') === key)) continue;
+            
+            const comboSet = new Set(combo);
+            let tempCover = new Set();
+            for (let triple of remainingTriples) {
+                const t = triple.split(',').map(Number);
+                if (t.every(v => comboSet.has(v))) {
+                    tempCover.add(triple);
+                }
+            }
+            if (tempCover.size > bestCover.size) {
+                bestCover = tempCover;
+                bestCombo = combo;
+                bestKey = key;
+            }
+        }
+        
+        if (bestCombo === null || bestCover.size === 0) break;
+        
+        for (let t of bestCover) remainingTriples.delete(t);
+        usedKeys.add(bestKey);
+        selected.push([...bestCombo].sort((a,b)=>a-b));
+    }
+    
+    // 3. 만약 count개가 안되면 랜덤으로 채움
+    while (selected.length < count) {
+        let shuffled = shuffleArray(validSix);
+        let found = false;
+        for (let combo of shuffled) {
+            const key = combo.sort((a,b)=>a-b).join(',');
+            if (!usedKeys.has(key)) {
+                usedKeys.add(key);
+                selected.push([...combo].sort((a,b)=>a-b));
+                found = true;
+                break;
+            }
+        }
+        if (!found) break;
+    }
+    
+    return selected;
 }
 
-// ===================== 혼합랜덤 (완전랜덤, 압축2 사용) =====================
+// ===================== 혼합랜덤 (압축2, 보장형 스타일 - 트리플 커버리지 최대화) =====================
 function generateMixRandomCombos(count) {
     let pool = compressRecommendPool2(currentCompress2);
     if (pool.length < 6) {
@@ -1188,50 +1248,202 @@ function generateMixRandomCombos(count) {
     }
     if (pool.length < 6) return [];
     
-    let combos = [], usedKeys = new Set(), maxAttempts = 5000, attempts = 0;
-    while (combos.length < count && attempts < maxAttempts) {
-        attempts++;
-        let selected = [];
-        if (myFixedPool.length > 0) {
-            let fixedAvailable = myFixedPool.filter(n => pool.includes(n));
-            let useFixed = Math.min(fixedAvailable.length, 4);
-            let shuffledFixed = shuffleArray([...fixedAvailable]);
-            for (let i = 0; i < useFixed; i++) {
-                if (!selected.includes(shuffledFixed[i])) selected.push(shuffledFixed[i]);
-            }
-        }
-        let shuffledPool = shuffleArray([...pool]);
-        for (let n of shuffledPool) {
-            if (selected.length >= 6) break;
-            if (!selected.includes(n)) {
-                selected.push(n);
-            }
-        }
-        if (selected.length < 6) continue;
-        selected.sort((a, b) => a - b);
-        if (hasThreeConsecutive(selected)) continue;
-        let key = selected.join(',');
-        if (usedKeys.has(key)) continue;
-        usedKeys.add(key);
-        combos.push(selected);
+    const minSum = 90;
+    const maxSum = 160;
+    
+    function getCombinations(arr, k) {
+        if (k === 0) return [[]];
+        if (arr.length === 0) return [];
+        const [first, ...rest] = arr;
+        const withFirst = getCombinations(rest, k - 1).map(c => [first, ...c]);
+        const withoutFirst = getCombinations(rest, k);
+        return [...withFirst, ...withoutFirst];
     }
-    return combos;
+    
+    // 1. 조건에 맞는 모든 6개 조합 생성
+    const allSix = getCombinations(pool, 6);
+    const validSix = allSix.filter(combo => {
+        const sum = combo.reduce((a, b) => a + b, 0);
+        if (sum < minSum || sum > maxSum) return false;
+        const sorted = [...combo].sort((a, b) => a - b);
+        return !hasThreeConsecutive(sorted);
+    });
+    
+    if (validSix.length === 0) {
+        showToast('조건을 만족하는 조합이 없습니다.');
+        return [];
+    }
+    
+    // 2. Greedy로 가장 많은 트리플을 커버하는 count개 조합 선택
+    const allTriples = getCombinations(pool, 3);
+    const tripleSet = new Set(allTriples.map(t => t.sort((a,b)=>a-b).join(',')));
+    
+    let remainingTriples = new Set(tripleSet);
+    let selected = [];
+    let usedKeys = new Set();
+    
+    while (selected.length < count && remainingTriples.size > 0) {
+        let bestCombo = null;
+        let bestCover = new Set();
+        let bestKey = '';
+        
+        for (let combo of validSix) {
+            const key = combo.sort((a,b)=>a-b).join(',');
+            if (usedKeys.has(key)) continue;
+            if (selected.some(s => s.join(',') === key)) continue;
+            
+            const comboSet = new Set(combo);
+            let tempCover = new Set();
+            for (let triple of remainingTriples) {
+                const t = triple.split(',').map(Number);
+                if (t.every(v => comboSet.has(v))) {
+                    tempCover.add(triple);
+                }
+            }
+            if (tempCover.size > bestCover.size) {
+                bestCover = tempCover;
+                bestCombo = combo;
+                bestKey = key;
+            }
+        }
+        
+        if (bestCombo === null || bestCover.size === 0) break;
+        
+        for (let t of bestCover) remainingTriples.delete(t);
+        usedKeys.add(bestKey);
+        selected.push([...bestCombo].sort((a,b)=>a-b));
+    }
+    
+    // 3. 만약 count개가 안되면 랜덤으로 채움
+    while (selected.length < count) {
+        let shuffled = shuffleArray(validSix);
+        let found = false;
+        for (let combo of shuffled) {
+            const key = combo.sort((a,b)=>a-b).join(',');
+            if (!usedKeys.has(key)) {
+                usedKeys.add(key);
+                selected.push([...combo].sort((a,b)=>a-b));
+                found = true;
+                break;
+            }
+        }
+        if (!found) break;
+    }
+    
+    return selected;
+}
+
+// ===================== 보장형 커버링 6조합 (통합교집합 기반) =====================
+function generateCoveringCombos() {
+    // 1. 통합교집합 계산 (압축1 + 압축2 점수 합산)
+    let pool1 = compressRecommendPool1(currentCompress1);
+    let pool2 = compressRecommendPool2(currentCompress2);
+    let unionCompress = [...new Set([...pool1, ...pool2])];
+    if (unionCompress.length < 6) {
+        showToast('통합교집합 수가 6개 미만입니다.');
+        return;
+    }
+    // 점수 계산
+    let prevData = FULL_DATA.find(r => r[0] === analyzeRound);
+    let prevWins = prevData ? prevData.slice(1, 7) : [];
+    let prevBonus = prevData ? prevData[7] : null;
+    let allPrev = [...prevWins];
+    if (prevBonus) allPrev.push(prevBonus);
+    let compFreq = getCompanionFrequency(allPrev, 30);
+    let scored = unionCompress.map(n => {
+        let score1 = aiRealScores[n] || 0;
+        let score2 = (compFreq[n] || 0) * 15 + getCompatibilityScore(n, 5) * 0.5;
+        return { num: n, total: score1 + score2 };
+    });
+    scored.sort((a, b) => b.total - a.total);
+    // 상위 10개 (또는 currentCompress1개, 최대 10)
+    let takeCount = Math.min(currentCompress1, 10);
+    let pool = scored.slice(0, takeCount).map(x => x.num);
+    if (pool.length < 6) {
+        showToast('통합교집합 상위 ' + takeCount + '개 중 6개 미만입니다.');
+        return;
+    }
+
+    const minSum = 90;
+    const maxSum = 160;
+
+    // 모든 6개 조합 생성 (pool에서 6개 뽑기)
+    function getCombinations(arr, k) {
+        if (k === 0) return [[]];
+        if (arr.length === 0) return [];
+        const [first, ...rest] = arr;
+        const withFirst = getCombinations(rest, k - 1).map(c => [first, ...c]);
+        const withoutFirst = getCombinations(rest, k);
+        return [...withFirst, ...withoutFirst];
+    }
+
+    const allSix = getCombinations(pool, 6);
+    // 조건 필터: 합계 90~160, 3연번 제외
+    const validSix = allSix.filter(combo => {
+        const sum = combo.reduce((a, b) => a + b, 0);
+        if (sum < minSum || sum > maxSum) return false;
+        const sorted = [...combo].sort((a, b) => a - b);
+        return !hasThreeConsecutive(sorted);
+    });
+
+    if (validSix.length === 0) {
+        showToast('조건을 만족하는 6개 조합이 없습니다. 합계 범위를 넓히거나 3연번을 허용하세요.');
+        return;
+    }
+
+    // 모든 트리플(3개 조합) 생성 (pool 기준)
+    const allTriples = getCombinations(pool, 3);
+    const tripleSet = new Set(allTriples.map(t => t.sort((a,b)=>a-b).join(',')));
+
+    // Greedy 알고리즘으로 6개 조합 선택 (커버 최대화)
+    let remainingTriples = new Set(tripleSet);
+    let selected = [];
+
+    while (remainingTriples.size > 0 && selected.length < 10) {
+        let bestCombo = null;
+        let bestCover = new Set();
+
+        for (let combo of validSix) {
+            if (selected.some(s => s.join(',') === combo.join(','))) continue;
+            const comboSet = new Set(combo);
+            let tempCover = new Set();
+            for (let triple of remainingTriples) {
+                const t = triple.split(',').map(Number);
+                if (t.every(v => comboSet.has(v))) {
+                    tempCover.add(triple);
+                }
+            }
+            if (tempCover.size > bestCover.size) {
+                bestCover = tempCover;
+                bestCombo = combo;
+            }
+        }
+
+        if (bestCombo === null || bestCover.size === 0) break;
+
+        for (let t of bestCover) remainingTriples.delete(t);
+        selected.push(bestCombo);
+    }
+
+    if (remainingTriples.size > 0) {
+        showToast('⚠️ ' + remainingTriples.size + '개의 트리플을 커버하지 못했습니다. 조건을 완화하세요.');
+        generatedCombos = selected.map(c => [...c].sort((a,b)=>a-b));
+        showCombos();
+        return;
+    }
+
+    generatedCombos = selected.map(c => [...c].sort((a,b)=>a-b));
+    showCombos();
+    showToast('🔐 보장형 6조합 생성 완료 (통합교집합 기반, 모든 트리플 커버)');
 }
 
 // ===================== 기타 함수들 =====================
-function hasThreeConsecutive(arr) {
-    for (let i = 0; i < arr.length - 2; i++) {
-        if (arr[i] + 1 === arr[i + 1] && arr[i + 1] + 1 === arr[i + 2]) return true;
-    }
-    return false;
-}
-
 function generateZoneCombo(count) {
     let combos = generateZoneCombos(count);
     if (!combos || combos.length === 0) { showToast('구간 조합 실패'); return; }
     generatedCombos = combos;
     showCombos();
-    showToast('📐 구간 ' + combos.length + '개 (압축1)');
+    showToast('📐 구간 ' + combos.length + '개 (압축1, 트리플 커버리지 최대화)');
 }
 
 function generateMixRandomCombo(count) {
@@ -1239,7 +1451,7 @@ function generateMixRandomCombo(count) {
     if (!combos || combos.length === 0) { showToast('혼합랜덤 조합 실패'); return; }
     generatedCombos = combos;
     showCombos();
-    showToast('🎲 혼합랜덤 ' + combos.length + '개 (압축2)');
+    showToast('🎲 혼합랜덤 ' + combos.length + '개 (압축2, 트리플 커버리지 최대화)');
 }
 
 function showCombos() {
@@ -1279,7 +1491,8 @@ function showCombos() {
         let fixedUsed = combo.filter(n => myFixedPool.includes(n)).length;
         let odds = combo.filter(n => n % 2 === 1).length;
         let evens = combo.filter(n => n % 2 === 0).length;
-        html += '<div style="margin:8px 0; padding:6px; background:#3a3a3a; border-radius:30px; text-align:center; font-size:11px;">' + (idx + 1) + ': ' + comboHtml + ' ' + rank + ' <span style="font-size:8px; color:#ffd700;">(홀' + odds + ':짝' + evens + ', 고정' + fixedUsed + '개)</span></div>';
+        let sum = combo.reduce((a,b)=>a+b,0);
+        html += '<div style="margin:8px 0; padding:6px; background:#3a3a3a; border-radius:30px; text-align:center; font-size:11px;">' + (idx + 1) + ': ' + comboHtml + ' ' + rank + ' <span style="font-size:8px; color:#ffd700;">(홀' + odds + ':짝' + evens + ', 합' + sum + ', 고정' + fixedUsed + '개)</span></div>';
     });
     if (winNumbers.some(v => v !== 0)) {
         html += '<div style="margin-top:10px; padding:8px; background:#2a2a2a; border-radius:30px; text-align:center; font-size:10px;">📊 통계: 3등 ' + third + '개 | 4등 ' + fourth + '개 | 5등 ' + fifth + '개</div>';
