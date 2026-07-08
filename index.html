@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SHIN-UI-SON · 로또 분석기 V6.3</title>
+    <title>SHIN-UI-SON · 로또 분석기 V6.7</title>
     <style>
         * { margin:0; padding:0; box-sizing:border-box; }
         body {
@@ -308,7 +308,6 @@
         .badge { background: #ffd700; color: #000; font-size: 7px; padding: 1px 6px; border-radius: 30px; margin-left: 4px; font-weight: 800; }
         .badge2 { background: #ff6b6b; color: #fff; font-size: 7px; padding: 1px 6px; border-radius: 30px; margin-left: 4px; font-weight: 800; }
         .hit-badge { background: #4caf50; color: #fff; font-size: 8px; padding: 0px 6px; border-radius: 30px; margin-left: 4px; font-weight: 700; }
-        .inter-badge { background: #ff8c00; color: #fff; font-size: 8px; padding: 0px 6px; border-radius: 30px; margin-left: 4px; font-weight: 700; }
     </style>
 </head>
 <body>
@@ -366,7 +365,7 @@
         <button onclick="openHelp()">❓ 도움말</button>
     </div>
     <div class="fixed-numbers"><div class="fixed-left"><span id="fixedExtra"></span></div><div class="fixed-right"><button onclick="window.open('https://www.naver.com', '_blank')">🌐 네이버</button><button onclick="clearFixed()">초기화</button><button onclick="openFixedPopup()">⏳ 추가</button></div></div>
-    <div class="small-note">🎯 예상회차: <span id="targetRound">1232</span> | 분석기준: <span id="analyzeRoundDisplay">1231</span>회까지 데이터<br>※ 특수간격4, AI간격10 | 통합교집합 = 생존교집합 ∩ 압축교집합 + 보충</div>
+    <div class="small-note">🎯 예상회차: <span id="targetRound">1232</span> | 분석기준: <span id="analyzeRoundDisplay">1231</span>회까지 데이터<br>※ 생존수에 이월수(직전 당첨번호) 완전 배제 | 순수 점수 기반</div>
 </div>
 <div class="toast" id="toast"><span>✅ 저장됨</span></div>
 <div id="fixedPopup" class="popup-overlay"><div class="popup-content"><h3>🔒 고정 번호 선택</h3><p style="text-align:center;">최대 6개까지 선택 가능</p><div class="number-grid" id="fixedNumberGrid"></div><div style="text-align:center;"><button onclick="saveFixedPopup()">저장</button><button class="close-btn" onclick="closeFixedPopup()">닫기</button></div></div></div>
@@ -375,13 +374,12 @@
 <div id="reviewPopup" class="popup-overlay"><div class="popup-content"><h3>📊 당첨 확인</h3><div style="margin:15px 0; display:flex; flex-direction:column; gap:8px;"><p>회차: <input type="number" id="reviewRound" value="1232" min="900" max="1232" style="width:100px; padding:5px; background:#3a3a3a; color:#fff; border:1px solid #aaa; border-radius:30px;"></p><p>당첨번호: <input type="text" id="reviewWinning" placeholder="예: 1,2,3,4,5,6" style="width:100%; padding:5px; background:#3a3a3a; color:#fff; border:1px solid #aaa; border-radius:30px;"></p><p>보너스: <input type="number" id="reviewBonus" min="1" max="45" style="width:100px; padding:5px; background:#3a3a3a; color:#fff; border:1px solid #aaa; border-radius:30px;"></p></div><div id="reviewResult" style="background:#2a2a2a; border-radius:20px; padding:10px;"></div><div style="text-align:center;"><button onclick="compareNumbers()">비교</button><button onclick="saveWinningNumbers()">저장</button><button class="close-btn" onclick="closeReviewPopup()">닫기</button></div></div></div>
 <div id="statusZoomPopup" class="popup-overlay"><div class="popup-content"><h3>🔍 상세 분석</h3><div id="statusZoomContent"></div><div style="text-align:center;"><button class="close-btn" onclick="closeStatusZoomPopup()">닫기</button></div></div></div>
 <div id="helpPopup" class="popup-overlay"><div class="popup-content"><h3>❓ 도움말</h3><div style="margin:10px 0;">
-<h4>🎯 V6.3 (통합교집합 = 생존 ∩ 압축)</h4>
-<p>⭐ 특수생존 간격: 4, AI생존 간격: 10</p>
-<p>⭐ 압축1/2 = 10개 (순위50% + 궁합50%)</p>
-<p>✅ 통합교집합 = (생존교집합) ∩ (압축1∩2)</p>
-<p>✅ 개수가 압축1보다 부족하면 압축1∪2에서 보충 (점수 높은 순)</p>
-<p>✅ 항상 압축1 개수와 동일하게 유지</p>
-<p>✅ 구간/혼합 모두 순수 랜덤 추출 (구간 균형 없음)</p>
+<h4>🎯 V6.7 (이월수 완전 배제)</h4>
+<p>⭐ 특수생존: 간격4, AI생존: 간격10</p>
+<p>⭐ 생존수 계산 시 직전 당첨번호(이월수) 관련 가중치 완전 제거</p>
+<p>⭐ 추천수(합집합)에도 이월수 미포함</p>
+<p>⭐ 압축 점수에서도 이월수 가중치 제거 → 순수 점수 기반</p>
+<p>⭐ 이월수는 어떤 단계에서도 반영되지 않음</p>
 </div><div style="text-align:center;"><button class="close-btn" onclick="closeHelpPopup()">닫기</button></div></div></div>
 <div id="trashPopup" class="popup-overlay"><div class="popup-content"><h3>🗑️ 휴지통 (압축 제외 번호)</h3><div id="trashStats" class="trash-stats"></div><div style="text-align:center; margin:10px 0;"><button onclick="generateTrashCombo(1)">🎲 휴지통 1조합</button><button onclick="generateTrashCombo(5)">🎲 휴지통 5조합</button><button onclick="generateTrashCombo(10)">🎲 휴지통 10조합</button></div><div id="trashContent" class="trash-numbers-area"></div><div style="text-align:center; margin-top:15px;"><button onclick="copyTrashToCustom()">📋 휴지통→커스텀</button><button onclick="clearTrash()">휴지통 비우기</button><button class="close-btn" onclick="closeTrashPopup()">닫기</button></div></div></div>
 
@@ -930,7 +928,7 @@ function clearCustomSurvivors() {
     showToast('커스텀 초기화');
 }
 
-// ===================== 특수생존 (20개) =====================
+// ===================== 특수생존 (이월수 완전 배제) =====================
 function calculateSpecialSurvivors() {
     if (customSurvivors && customSurvivors.length > 0) return [...customSurvivors];
     let pastData = FULL_DATA.filter(r => r[0] <= analyzeRound && r[0] > 0);
@@ -980,6 +978,7 @@ function calculateSpecialSurvivors() {
         else if (freq === 3) missBonus[n] = 3;
     }
     
+    // ★ 이월수 가중치 (compFreq) 완전 제거
     let finalScores = Array(46).fill(0);
     for (let n = 1; n <= 45; n++) {
         finalScores[n] = scores[n] + patternScores[n] + missBonus[n];
@@ -991,7 +990,7 @@ function calculateSpecialSurvivors() {
     return candidates.slice(0, 20).map(x => x.num);
 }
 
-// ===================== AI 생존수 (20개) =====================
+// ===================== AI 생존수 (이월수 완전 배제) =====================
 function calculateAiSurvivors() {
     let pastData = FULL_DATA.filter(r => r[0] <= analyzeRound && r[0] > 0);
     if (pastData.length === 0) return [];
@@ -1033,6 +1032,8 @@ function calculateAiSurvivors() {
         });
         if (round[7]) neighborBonus[round[7]] += 15 * bonusFactor;
     });
+    
+    // ★ 이월수 가중치 (compFreq) 완전 제거
     let scores = Array(46).fill(0);
     for (let n = 1; n <= 45; n++) {
         let freqScore = (30 - totalCount[n]) * (1 + intervalAi * 0.5);
@@ -1046,17 +1047,17 @@ function calculateAiSurvivors() {
     return candidates.slice(0, 20).map(x => x.num);
 }
 
-// ===================== 합집합 (특수+AI) =====================
+// ===================== 합집합 (이월수 미포함) =====================
 function calculateRecommendPool_Union() {
     let unionSet = new Set([...specialSurvivors, ...aiSurvivors]);
+    // ★ 이월수 추가 코드 제거
     return Array.from(unionSet).sort((a, b) => a - b);
 }
 
-// ===================== 궁합수 계산 (최근 5회, 가중치 적용) =====================
+// ===================== 궁합수 =====================
 function calculateCompatibilityNumbers(baseNums, topN = 10) {
     let pastData = FULL_DATA.filter(r => r[0] <= analyzeRound && r[0] > 0);
     let recentData = pastData.slice(-5);
-    
     let compatMap = {};
     for (let n of baseNums) {
         let friends = {};
@@ -1066,41 +1067,33 @@ function calculateCompatibilityNumbers(baseNums, topN = 10) {
             if (wins.includes(n)) {
                 let weight = Math.pow(1.6, idx + 1);
                 for (let m of wins) {
-                    if (m !== n) {
-                        friends[m] = (friends[m] || 0) + weight;
-                    }
+                    if (m !== n) friends[m] = (friends[m] || 0) + weight;
                 }
             }
         }
         let sorted = Object.entries(friends).sort((a, b) => b[1] - a[1]);
         compatMap[n] = sorted.slice(0, topN).map(x => parseInt(x[0]));
     }
-    
     let result = new Set();
     for (let n of baseNums) {
         if (compatMap[n]) {
-            for (let friend of compatMap[n]) {
-                result.add(friend);
-            }
+            for (let friend of compatMap[n]) result.add(friend);
         }
     }
     return Array.from(result);
 }
 
-// ===================== 압축1 (50% 순위 + 50% 궁합) =====================
+// ===================== 압축1 (50% 순위 + 50% 궁합) - 이월수 가중치 제거 =====================
 function compressRecommendPool1(compressCount) {
     if (compressCount < 2) compressCount = 2;
     let base = compressRecommendPool(compressCount);
     if (!base || base.length === 0) return [];
-    
     let half = Math.ceil(compressCount / 2);
     let rankPart = base.slice(0, half);
     let remain = compressCount - rankPart.length;
-    
     let compatCandidates = calculateCompatibilityNumbers(base, 15);
     let filtered = compatCandidates.filter(n => !rankPart.includes(n));
     let compatPart = filtered.slice(0, remain);
-    
     let final = [...rankPart, ...compatPart].sort((a, b) => a - b);
     return final;
 }
@@ -1110,28 +1103,23 @@ function compressRecommendPool2(compressCount) {
     if (compressCount < 2) compressCount = 2;
     let base = compressRecommendPoolReverse(compressCount);
     if (!base || base.length === 0) return [];
-    
     let half = Math.ceil(compressCount / 2);
     let rankPart = base.slice(0, half);
     let remain = compressCount - rankPart.length;
-    
     let compatCandidates = calculateCompatibilityNumbers(base, 15);
     let filtered = compatCandidates.filter(n => !rankPart.includes(n));
     let compatPart = filtered.slice(0, remain);
-    
     let final = [...rankPart, ...compatPart].sort((a, b) => a - b);
     return final;
 }
 
-// ===================== 기존 압축 함수 (순방향) =====================
+// ===================== 기존 압축 함수 (순방향) - 이월수 가중치 제거 =====================
 function compressRecommendPool(compressCount) {
     if (!recommendPool || recommendPool.length === 0) return [];
     if (compressCount >= recommendPool.length) return [...recommendPool];
     if (compressCount < 1) compressCount = 1;
-    
     let pastData = FULL_DATA.filter(r => r[0] <= analyzeRound && r[0] > 0);
     let scored = [];
-    
     let intersection = specialSurvivors.filter(n => aiSurvivors.includes(n));
     let intersectionSet = new Set(intersection);
     
@@ -1195,6 +1183,7 @@ function compressRecommendPool(compressCount) {
         if ((isOdd && oddCount <= evenCount) || (!isOdd && evenCount <= oddCount)) {
             score += 5;
         }
+        // ★ 직전 당첨번호 가중치 완전 제거
         scored.push({ num: n, score: score });
     }
     
@@ -1227,17 +1216,15 @@ function compressRecommendPool(compressCount) {
     return selected.sort((a, b) => a - b);
 }
 
-// ===================== 기존 압축 함수 (역방향) =====================
+// ===================== 기존 압축 함수 (역방향) - 이월수 가중치 제거 =====================
 function compressRecommendPoolReverse(compressCount) {
     if (!recommendPool || recommendPool.length === 0) return [];
     if (compressCount >= recommendPool.length) return [...recommendPool];
     if (compressCount < 1) compressCount = 1;
-    
     let pastData = FULL_DATA.filter(r => r[0] <= analyzeRound && r[0] > 0);
     let scored = [];
     let intersection = specialSurvivors.filter(n => aiSurvivors.includes(n));
     let intersectionSet = new Set(intersection);
-    
     for (let n of recommendPool) {
         let score = 0;
         score += (aiRealScores[n] || 0) * 0.5;
@@ -1298,9 +1285,9 @@ function compressRecommendPoolReverse(compressCount) {
         if ((isOdd && oddCount <= evenCount) || (!isOdd && evenCount <= oddCount)) {
             score += 5;
         }
+        // ★ 직전 당첨번호 가중치 완전 제거
         scored.push({ num: n, score: score });
     }
-    
     scored.sort((a, b) => a.score - b.score);
     let selected = [];
     for (let c of scored) {
@@ -1330,7 +1317,7 @@ function compressRecommendPoolReverse(compressCount) {
     return selected.sort((a, b) => a - b);
 }
 
-// ===================== 순수 랜덤 조합 생성 (구간 없음) =====================
+// ===================== 랜덤 조합 생성 =====================
 function generateRandomCombos(count, type) {
     let pool = [];
     if (type === 'zone') {
@@ -1338,17 +1325,14 @@ function generateRandomCombos(count, type) {
     } else {
         pool = compressRecommendPool2(currentCompress2);
     }
-    
     if (pool.length < 6) {
         pool = [...recommendPool];
     }
     if (pool.length < 6) return [];
-    
     let combos = [], usedKeys = new Set(), maxAttempts = 5000, attempts = 0;
     while (combos.length < count && attempts < maxAttempts) {
         attempts++;
         let selected = [];
-        
         if (myFixedPool.length > 0) {
             let fixedAvailable = myFixedPool.filter(n => pool.includes(n));
             let useFixed = Math.min(fixedAvailable.length, 4);
@@ -1357,18 +1341,13 @@ function generateRandomCombos(count, type) {
                 if (!selected.includes(shuffledFixed[i])) selected.push(shuffledFixed[i]);
             }
         }
-        
         let shuffledPool = shuffleArray([...pool]);
         for (let n of shuffledPool) {
             if (selected.length >= 6) break;
-            if (!selected.includes(n)) {
-                selected.push(n);
-            }
+            if (!selected.includes(n)) selected.push(n);
         }
-        
         if (selected.length < 6) continue;
         selected.sort((a, b) => a - b);
-        
         let hasSeq = false;
         for (let k = 0; k < selected.length - 2; k++) {
             if (selected[k] + 1 === selected[k + 1] && selected[k + 1] + 1 === selected[k + 2]) {
@@ -1377,7 +1356,6 @@ function generateRandomCombos(count, type) {
             }
         }
         if (hasSeq) continue;
-        
         let key = selected.join(',');
         if (usedKeys.has(key)) continue;
         usedKeys.add(key);
@@ -1395,13 +1373,8 @@ function generateRandomCombo(count, type) {
     showToast('📐 ' + label + ' ' + combos.length + '개 (랜덤)');
 }
 
-function generateZoneCombo(count) {
-    generateRandomCombo(count, 'zone');
-}
-
-function generateMixRandomCombo(count) {
-    generateRandomCombo(count, 'mix');
-}
+function generateZoneCombo(count) { generateRandomCombo(count, 'zone'); }
+function generateMixRandomCombo(count) { generateRandomCombo(count, 'mix'); }
 
 function showCombos() {
     if (!generatedCombos.length) { alert('생성된 조합 없음'); return; }
@@ -1449,18 +1422,13 @@ function showCombos() {
     document.getElementById('comboList').innerHTML = html;
     document.getElementById('comboPopup').style.display = 'flex';
 }
-
-function closeComboPopup() {
-    document.getElementById('comboPopup').style.display = 'none';
-}
-
+function closeComboPopup() { document.getElementById('comboPopup').style.display = 'none'; }
 function saveAllCombos() {
     if (!generatedCombos.length) { showToast('저장할 조합 없음'); return; }
     savedNumbers.push(...generatedCombos);
     localStorage.setItem('lottoSave_' + userName, JSON.stringify(savedNumbers));
     showToast('보관함 저장');
 }
-
 function openBasket() {
     let basket = document.getElementById('basketList');
     basket.innerHTML = '';
@@ -1480,11 +1448,7 @@ function openBasket() {
     }
     document.getElementById('basketPopup').style.display = 'flex';
 }
-
-function closeBasketPopup() {
-    document.getElementById('basketPopup').style.display = 'none';
-}
-
+function closeBasketPopup() { document.getElementById('basketPopup').style.display = 'none'; }
 function loadFromBasket() {
     if (savedNumbers.length) {
         generatedCombos = [...savedNumbers];
@@ -1494,7 +1458,6 @@ function loadFromBasket() {
         showToast('보관함 비어있음');
     }
 }
-
 function openReview() {
     document.getElementById('reviewRound').value = currentBaseRound;
     document.getElementById('reviewWinning').value = '';
@@ -1502,11 +1465,7 @@ function openReview() {
     document.getElementById('reviewResult').innerHTML = '<p style="text-align:center;">당첨번호 입력</p>';
     document.getElementById('reviewPopup').style.display = 'flex';
 }
-
-function closeReviewPopup() {
-    document.getElementById('reviewPopup').style.display = 'none';
-}
-
+function closeReviewPopup() { document.getElementById('reviewPopup').style.display = 'none'; }
 function compareNumbers() {
     let round = parseInt(document.getElementById('reviewRound').value);
     let winningStr = document.getElementById('reviewWinning').value;
@@ -1539,7 +1498,6 @@ function compareNumbers() {
     html += '</div>';
     document.getElementById('reviewResult').innerHTML = html;
 }
-
 function saveWinningNumbers() {
     let round = parseInt(document.getElementById('reviewRound').value);
     let winningStr = document.getElementById('reviewWinning').value;
@@ -1554,7 +1512,6 @@ function saveWinningNumbers() {
         alert('올바른 번호 입력');
     }
 }
-
 function changeIntervalExclude(delta) {
     let newVal = intervalExclude + delta;
     if (newVal < 1) newVal = 1;
@@ -1564,7 +1521,6 @@ function changeIntervalExclude(delta) {
     analyze();
     showToast('특수 간격 ' + intervalExclude + '주');
 }
-
 function changeIntervalAi(delta) {
     let newVal = intervalAi + delta;
     if (newVal < 1) newVal = 1;
@@ -1574,7 +1530,6 @@ function changeIntervalAi(delta) {
     analyze();
     showToast('AI 간격 ' + intervalAi + '주');
 }
-
 function setRoundFromInput() {
     let val = parseInt(document.getElementById('roundInput').value);
     if (isNaN(val)) val = currentBaseRound;
@@ -1590,7 +1545,6 @@ function setRoundFromInput() {
     document.getElementById('targetRound').innerText = currentBaseRound;
     document.getElementById('analyzeRoundDisplay').innerText = analyzeRound;
 }
-
 function increaseRound() {
     if (currentBaseRound < MAX_ROUND) {
         currentBaseRound++;
@@ -1601,7 +1555,6 @@ function increaseRound() {
         showToast('최대 회차');
     }
 }
-
 function decreaseRound() {
     if (currentBaseRound > MIN_ROUND) {
         currentBaseRound--;
@@ -1612,29 +1565,18 @@ function decreaseRound() {
         showToast('최소 회차');
     }
 }
-
 function updateCompressValue1(val) {
     currentCompress1 = parseInt(val);
     document.getElementById('compressValue1').innerText = currentCompress1;
     updateUI();
 }
-
 function updateCompressValue2(val) {
     currentCompress2 = parseInt(val);
     document.getElementById('compressValue2').innerText = currentCompress2;
     updateUI();
 }
-
-function applyCompress1() {
-    updateUI();
-    showToast('압축1: ' + currentCompress1);
-}
-
-function applyCompress2() {
-    updateUI();
-    showToast('압축2: ' + currentCompress2);
-}
-
+function applyCompress1() { updateUI(); showToast('압축1: ' + currentCompress1); }
+function applyCompress2() { updateUI(); showToast('압축2: ' + currentCompress2); }
 function clearStorage() {
     if (confirm('모든 데이터 초기화?')) {
         localStorage.clear();
@@ -1642,24 +1584,13 @@ function clearStorage() {
         location.reload();
     }
 }
-
-function openHelp() {
-    document.getElementById('helpPopup').style.display = 'flex';
-}
-
-function closeHelpPopup() {
-    document.getElementById('helpPopup').style.display = 'none';
-}
-
+function openHelp() { document.getElementById('helpPopup').style.display = 'flex'; }
+function closeHelpPopup() { document.getElementById('helpPopup').style.display = 'none'; }
 function openStatusZoomPopup() {
     document.getElementById('statusZoomContent').innerHTML = document.getElementById('status').innerHTML;
     document.getElementById('statusZoomPopup').style.display = 'flex';
 }
-
-function closeStatusZoomPopup() {
-    document.getElementById('statusZoomPopup').style.display = 'none';
-}
-
+function closeStatusZoomPopup() { document.getElementById('statusZoomPopup').style.display = 'none'; }
 function resetMyFixed() {
     myFixedPool = [];
     updateUI();
@@ -1688,23 +1619,17 @@ function updateUI() {
     let targetWinNumbers = targetWinData ? targetWinData.slice(1, 7) : [];
     let targetBonus = targetWinData ? targetWinData[7] : null;
     
-    // 생존수 교집합
     let interSurvivors = specialSurvivors.filter(n => aiSurvivors.includes(n));
-    
     let unionCount = recommendPool.length;
     let compressed1 = compressRecommendPool1(currentCompress1);
     let compressed2 = compressRecommendPool2(currentCompress2);
-    
-    // 압축1 ∩ 압축2
     let interCompress = compressed1.filter(n => compressed2.includes(n));
     
-    // ----- 통합교집합 = interSurvivors ∩ interCompress -----
+    // 통합교집합
     let common = interSurvivors.filter(n => interCompress.includes(n));
-    let targetCount = currentCompress1; // 압축1 개수
+    let targetCount = currentCompress1;
     let finalInter = [...common];
-    
     if (finalInter.length < targetCount) {
-        // 부족한 만큼 압축1 ∪ 압축2에서 보충 (점수 높은 순)
         let unionCompress = [...new Set([...compressed1, ...compressed2])];
         let candidates = unionCompress.filter(n => !finalInter.includes(n));
         candidates.sort((a, b) => (aiRealScores[b] || 0) - (aiRealScores[a] || 0));
@@ -1712,14 +1637,12 @@ function updateUI() {
         let added = candidates.slice(0, need);
         finalInter = [...finalInter, ...added];
     } else if (finalInter.length > targetCount) {
-        // 초과하면 점수 높은 순으로 targetCount 개만 유지
         finalInter.sort((a, b) => (aiRealScores[b] || 0) - (aiRealScores[a] || 0));
         finalInter = finalInter.slice(0, targetCount);
     }
     finalInter.sort((a, b) => a - b);
     let displayInter = finalInter;
 
-    // ---- 표시 함수 ----
     function formatNum(num, type) {
         let isWinning = targetWinNumbers.includes(num);
         let isBonus = targetBonus === num;
@@ -1809,7 +1732,6 @@ window.onload = function () {
     document.getElementById('compressValue1').innerText = currentCompress1;
     document.getElementById('compressSlider2').value = currentCompress2;
     document.getElementById('compressValue2').innerText = currentCompress2;
-    
     initUser();
     loadFixedNumbers();
     loadTrash();
