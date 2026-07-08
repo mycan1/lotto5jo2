@@ -384,6 +384,7 @@
 <p>✅ <b>압축1</b>: 순위 점수 100% (aiRealScores 기준)</p>
 <p>✅ <b>압축2</b>: 동반/궁합 점수 100% (직전 당첨 동반 출현 + 궁합)</p>
 <p>✅ 구간조합 = 압축1 완전랜덤, 혼합랜덤 = 압축2 완전랜덤</p>
+<p>✅ <b>통합교집합</b> = 압축1 + 압축2 점수 합산 상위 N개 (트레이드)</p>
 </div><div style="text-align:center;"><button class="close-btn" onclick="closeHelpPopup()">닫기</button></div></div></div>
 <div id="trashPopup" class="popup-overlay"><div class="popup-content"><h3>🗑️ 휴지통 (압축 제외 번호)</h3><div id="trashStats" class="trash-stats"></div><div style="text-align:center; margin:10px 0;"><button onclick="generateTrashCombo(1)">🎲 휴지통 1조합</button><button onclick="generateTrashCombo(5)">🎲 휴지통 5조합</button><button onclick="generateTrashCombo(10)">🎲 휴지통 10조합</button></div><div id="trashContent" class="trash-numbers-area"></div><div style="text-align:center; margin-top:15px;"><button onclick="copyTrashToCustom()">📋 휴지통→커스텀</button><button onclick="clearTrash()">휴지통 비우기</button><button class="close-btn" onclick="closeTrashPopup()">닫기</button></div></div></div>
 
@@ -1489,24 +1490,27 @@ function updateUI() {
     let unionCount = recommendPool.length;
     let compressed1 = compressRecommendPool1(currentCompress1);
     let compressed2 = compressRecommendPool2(currentCompress2);
-    let interCompress = compressed1.filter(n => compressed2.includes(n));
     
-    let common = interSurvivors.filter(n => interCompress.includes(n));
+    // --- 통합교집합 (압축1 + 압축2 트레이드) ---
+    let unionCompress = [...new Set([...compressed1, ...compressed2])];
+    let prevData = FULL_DATA.find(r => r[0] === analyzeRound);
+    let prevWins = prevData ? prevData.slice(1, 7) : [];
+    let prevBonus = prevData ? prevData[7] : null;
+    let allPrev = [...prevWins];
+    if (prevBonus) allPrev.push(prevBonus);
+    let compFreq = getCompanionFrequency(allPrev, 30);
+
+    let scored = unionCompress.map(n => {
+        let score1 = aiRealScores[n] || 0;
+        let score2 = (compFreq[n] || 0) * 15 + getCompatibilityScore(n, 5) * 0.5;
+        return { num: n, total: score1 + score2 };
+    });
+    scored.sort((a, b) => b.total - a.total);
     let targetCount = currentCompress1;
-    let finalInter = [...common];
-    if (finalInter.length < targetCount) {
-        let unionCompress = [...new Set([...compressed1, ...compressed2])];
-        let candidates = unionCompress.filter(n => !finalInter.includes(n));
-        candidates.sort((a, b) => (aiRealScores[b] || 0) - (aiRealScores[a] || 0));
-        let need = targetCount - finalInter.length;
-        let added = candidates.slice(0, need);
-        finalInter = [...finalInter, ...added];
-    } else if (finalInter.length > targetCount) {
-        finalInter.sort((a, b) => (aiRealScores[b] || 0) - (aiRealScores[a] || 0));
-        finalInter = finalInter.slice(0, targetCount);
-    }
+    let finalInter = scored.slice(0, targetCount).map(x => x.num);
     finalInter.sort((a, b) => a - b);
     let displayInter = finalInter;
+    // ---
 
     function formatNum(num, type) {
         let isWinning = targetWinNumbers.includes(num);
@@ -1536,7 +1540,7 @@ function updateUI() {
         '<div class="stat-row"><span class="stat-label">⭐추천수(' + unionCount + '개)</span><div class="number-group">' + formatList(recommendPool, '') + ' (' + recommendPool.filter(n => targetWinNumbers.includes(n)).length + ')</div></div>' +
         '<div class="stat-row" style="border-left-color:#ffd700;"><span class="stat-label">⭐압축1(' + compressed1.length + '개) <span class="hit-badge">🎯' + hit1 + '개</span></span><div class="number-group">' + formatList(compressed1, 'c1') + '</div></div>' +
         '<div class="stat-row" style="border-left-color:#ff6b6b;"><span class="stat-label">🔽압축2(' + compressed2.length + '개) <span class="hit-badge">🎯' + hit2 + '개</span></span><div class="number-group">' + formatList(compressed2, 'c2') + '</div></div>' +
-        '<div class="stat-row" style="border-left-color:#ff8c00;"><span class="stat-label">🔗통합교집합(생존∩압축)</span><div class="number-group">' + 
+        '<div class="stat-row" style="border-left-color:#ff8c00;"><span class="stat-label">🔗통합교집합(압축1+압축2 트레이드)</span><div class="number-group">' + 
             (displayInter.length ? displayInter.map(n => formatNum(n, '')).join(', ') : '없음') + 
             ' (' + displayInter.length + '개)</div></div>' +
         '<div class="stat-row" onclick="openTrashPopup()" style="cursor:pointer;"><span class="stat-label">🗑️휴지통</span><div class="number-group">총 ' + trashNumbers.length + '개</div></div>' +
