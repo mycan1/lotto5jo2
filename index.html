@@ -327,13 +327,13 @@
     <div class="row-2">
         <div class="compress-row">
             <span class="compress-icon">⭐ 압축1</span>
-            <div class="slider-wrap"><input type="range" id="compressSlider1" min="2" max="40" value="10" step="1" oninput="updateCompressValue1(this.value)"></div>
+            <div class="slider-wrap"><input type="range" id="compressSlider1" min="2" max="15" value="10" step="1" oninput="updateCompressValue1(this.value)"></div>
             <span class="compress-value" id="compressValue1">10</span>
             <button class="apply-btn" onclick="applyCompress1()">적용</button>
         </div>
         <div class="compress-row-2">
             <span class="compress-icon">🔽 압축2</span>
-            <div class="slider-wrap"><input type="range" id="compressSlider2" min="2" max="40" value="10" step="1" oninput="updateCompressValue2(this.value)"></div>
+            <div class="slider-wrap"><input type="range" id="compressSlider2" min="2" max="15" value="10" step="1" oninput="updateCompressValue2(this.value)"></div>
             <span class="compress-value" id="compressValue2">10</span>
             <button class="apply-btn" onclick="applyCompress2()">적용</button>
         </div>
@@ -382,7 +382,7 @@
 <div id="helpPopup" class="popup-overlay"><div class="popup-content"><h3>❓ 도움말</h3><div style="margin:10px 0;">
 <h4>🎯 V7.5 (보장형 스타일 구간/혼합 + 커버링)</h4>
 <p>⭐ 특수생존 간격: 4, AI생존 간격: 6</p>
-<p>⭐ 압축1/2 = 10개 (조절 가능)</p>
+<p>⭐ 압축1/2 = 10개 (조절 가능, 최대 15)</p>
 <p>✅ <b>구간5</b>: 압축1에서 트리플 커버리지 최대화 (합계90~160, 3연번 제외)</p>
 <p>✅ <b>혼합랜덤5</b>: 압축2에서 트리플 커버리지 최대화 (합계90~160, 3연번 제외)</p>
 <p>✅ <b>보장형 6조합</b>: 통합교집합 기반 C(10,6,3)=6 커버링 (모든 트리플 100% 커버)</p>
@@ -1108,7 +1108,7 @@ function getCompatibilityScore(num, topN = 5) {
     return score;
 }
 
-// ===================== 압축1 (순위 점수 100%) =====================
+// ===================== 압축1 (순위 점수 100%) - 점수 순서 유지 =====================
 function compressRecommendPool1(compressCount) {
     if (compressCount < 2) compressCount = 2;
     if (recommendPool.length === 0) return [];
@@ -1120,10 +1120,11 @@ function compressRecommendPool1(compressCount) {
     sorted.sort((a, b) => b.score - a.score);
     
     let selected = sorted.slice(0, compressCount).map(x => x.num);
-    return selected.sort((a, b) => a - b);
+    // 최대 15개로 제한, 점수 순서 유지 (오름차순 정렬 제거)
+    return selected.slice(0, 15);
 }
 
-// ===================== 압축2 (동반/궁합 점수 100%) =====================
+// ===================== 압축2 (동반/궁합 점수 100%) - 점수 순서 유지 =====================
 function compressRecommendPool2(compressCount) {
     if (compressCount < 2) compressCount = 2;
     if (recommendPool.length === 0) return [];
@@ -1144,7 +1145,8 @@ function compressRecommendPool2(compressCount) {
     scored.sort((a, b) => b.score - a.score);
 
     let selected = scored.slice(0, compressCount).map(x => x.num);
-    return selected.sort((a, b) => a - b);
+    // 최대 15개로 제한, 점수 순서 유지
+    return selected.slice(0, 15);
 }
 
 // ===================== 구간조합 (압축1, 보장형 스타일 - 트리플 커버리지 최대화) =====================
@@ -1153,6 +1155,8 @@ function generateZoneCombos(count) {
     if (pool.length < 6) {
         pool = [...recommendPool];
     }
+    // 안전하게 15개로 제한
+    if (pool.length > 15) pool = pool.slice(0, 15);
     if (pool.length < 6) return [];
     
     const minSum = 90;
@@ -1246,6 +1250,7 @@ function generateMixRandomCombos(count) {
     if (pool.length < 6) {
         pool = [...recommendPool];
     }
+    if (pool.length > 15) pool = pool.slice(0, 15);
     if (pool.length < 6) return [];
     
     const minSum = 90;
@@ -1363,6 +1368,8 @@ function generateCoveringCombos() {
         showToast('통합교집합 상위 ' + takeCount + '개 중 6개 미만입니다.');
         return;
     }
+    // pool 15개로 제한 (안전)
+    if (pool.length > 15) pool = pool.slice(0, 15);
 
     const minSum = 90;
     const maxSum = 160;
