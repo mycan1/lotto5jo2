@@ -449,7 +449,7 @@
 <p>⭐ 압축3 = 생존교집합(S∩AI) 전체 포함 + 부족분 점수순 보충 (슬라이더 크기 따름)</p>
 <p>✅ <b>구간5</b>: 압축1에서 트리플 커버리지 최대화 (합계90~160, 3연번 제외)</p>
 <p>✅ <b>혼합랜덤5</b>: 압축2에서 트리플 커버리지 최대화 (합계90~160, 3연번 제외)</p>
-<p>✅ <b>보장형 6조합</b>: 압축3 기반 커버링 (모든 트리플 100% 커버)</p>
+<p>✅ <b>보장형 6조합 (최적화)</b>: 압축3 기반 커버링 (모든 트리플 100% 커버, 빠른 속도)</p>
 <p>📋 <b>번호 복사</b>: 번호 클릭 시 개별 복사, 📋 버튼 클릭 시 해당 행 전체 복사, <b>📋 전체 복사</b> 버튼으로 모든 번호 한 번에 복사</p>
 <p>⭐ <b>내가고정</b>: 번호를 더블 클릭하면 고정/해제됩니다.</p>
 </div><div style="text-align:center;"><button class="close-btn" onclick="closeHelpPopup()">닫기</button></div></div></div>
@@ -1256,15 +1256,11 @@ function compressRecommendPool2(compressCount) {
 function compressRecommendPool3(compressCount) {
     if (compressCount < 2) compressCount = 2;
     
-    // 1. 생존 교집합(S∩AI) 전체
     let interSurvivors = specialSurvivors.filter(n => aiSurvivors.includes(n));
-    
-    // 2. 압축1 ∪ 압축2
     let compressed1 = compressRecommendPool1(currentCompress1);
     let compressed2 = compressRecommendPool2(currentCompress2);
     let unionCompress = [...new Set([...compressed1, ...compressed2])];
     
-    // 3. 보충용 합집합 (생존교집합 ∪ 압축1 ∪ 압축2)
     let unionSet = new Set([...interSurvivors, ...compressed1, ...compressed2]);
     if (unionSet.size === 0) return [];
 
@@ -1282,11 +1278,9 @@ function compressRecommendPool3(compressCount) {
     });
     scored.sort((a, b) => b.total - a.total);
 
-    // 4. 결과 구성: 생존교집합 전체를 먼저 추가, 부족분 점수순
     let result = [];
     let addedSet = new Set();
     
-    // 생존교집합 전체 추가 (compressCount 제한)
     for (let n of interSurvivors) {
         if (result.length >= compressCount) break;
         if (!addedSet.has(n)) {
@@ -1295,7 +1289,6 @@ function compressRecommendPool3(compressCount) {
         }
     }
     
-    // 점수순으로 나머지 채우기 (최대 compressCount)
     for (let item of scored) {
         if (result.length >= compressCount) break;
         if (!addedSet.has(item.num)) {
@@ -1490,7 +1483,7 @@ function generateMixRandomCombos(count) {
     return selected;
 }
 
-// ===================== 보장형 커버링 (압축3 기반) =====================
+// ===================== 보장형 커버링 (압축3 기반, 최적화) =====================
 function generateCoveringCombos() {
     // 1. 압축3 결과만 사용
     let pool = compressRecommendPool3(currentCompress3);
@@ -1498,7 +1491,6 @@ function generateCoveringCombos() {
         showToast('압축3의 수가 6개 미만입니다. (현재 ' + pool.length + '개)');
         return;
     }
-    // 안전하게 15개로 제한 (성능 및 커버링 효율)
     if (pool.length > 15) pool = pool.slice(0, 15);
 
     const minSum = 90;
@@ -1526,40 +1518,61 @@ function generateCoveringCombos() {
         return;
     }
 
+    // 모든 트리플 생성 (pool 기준)
     const allTriples = getCombinations(pool, 3);
-    const tripleSet = new Set(allTriples.map(t => t.sort((a,b)=>a-b).join(',')));
+    const tripleMap = new Map();
+    allTriples.forEach((triple, idx) => {
+        tripleMap.set(triple.sort((a,b)=>a-b).join(','), idx);
+    });
+    const totalTriples = allTriples.length;
 
-    let remainingTriples = new Set(tripleSet);
+    // 각 6개 조합이 포함하는 트리플 인덱스 목록 미리 계산
+    const comboData = validSix.map(combo => {
+        const tripleIndices = [];
+        const triplesInCombo = getCombinations(combo, 3);
+        for (let t of triplesInCombo) {
+            const key = t.sort((a,b)=>a-b).join(',');
+            const idx = tripleMap.get(key);
+            if (idx !== undefined) tripleIndices.push(idx);
+        }
+        return { nums: combo, indices: tripleIndices };
+    });
+
+    // Greedy 커버링
+    let remaining = new Array(totalTriples).fill(true);
     let selected = [];
+    let usedSet = new Set();
 
-    while (remainingTriples.size > 0 && selected.length < 10) {
+    while (selected.length < 10) {
         let bestCombo = null;
-        let bestCover = new Set();
+        let bestCount = 0;
 
-        for (let combo of validSix) {
-            if (selected.some(s => s.join(',') === combo.join(','))) continue;
-            const comboSet = new Set(combo);
-            let tempCover = new Set();
-            for (let triple of remainingTriples) {
-                const t = triple.split(',').map(Number);
-                if (t.every(v => comboSet.has(v))) {
-                    tempCover.add(triple);
-                }
+        for (let cd of comboData) {
+            const key = cd.nums.join(',');
+            if (usedSet.has(key)) continue;
+
+            let count = 0;
+            for (let idx of cd.indices) {
+                if (remaining[idx]) count++;
             }
-            if (tempCover.size > bestCover.size) {
-                bestCover = tempCover;
-                bestCombo = combo;
+            if (count > bestCount) {
+                bestCount = count;
+                bestCombo = cd;
             }
         }
 
-        if (bestCombo === null || bestCover.size === 0) break;
+        if (bestCount === 0) break;
 
-        for (let t of bestCover) remainingTriples.delete(t);
-        selected.push(bestCombo);
+        for (let idx of bestCombo.indices) {
+            remaining[idx] = false;
+        }
+        usedSet.add(bestCombo.nums.join(','));
+        selected.push(bestCombo.nums);
     }
 
-    if (remainingTriples.size > 0) {
-        showToast('⚠️ ' + remainingTriples.size + '개의 트리플을 커버하지 못했습니다. 압축3의 개수를 늘려보세요.');
+    const uncovered = remaining.filter(v => v === true).length;
+    if (uncovered > 0) {
+        showToast('⚠️ ' + uncovered + '개의 트리플을 커버하지 못했습니다. 압축3의 개수를 늘려보세요.');
         generatedCombos = selected.map(c => [...c].sort((a,b)=>a-b));
         showCombos();
         return;
@@ -1567,7 +1580,7 @@ function generateCoveringCombos() {
 
     generatedCombos = selected.map(c => [...c].sort((a,b)=>a-b));
     showCombos();
-    showToast('🔐 보장형 조합 생성 완료 (압축3 기반)');
+    showToast('🔐 보장형 조합 생성 완료 (압축3 기반, 최적화)');
 }
 
 // ===================== 기타 함수들 =====================
