@@ -130,6 +130,22 @@
             cursor:pointer;
             flex-shrink: 1;
         }
+        .copy-all-btn {
+            background: #ffd700;
+            color: #000;
+            border: none;
+            border-radius: 30px;
+            padding: 3px 12px;
+            font-size: 10px;
+            font-weight: 800;
+            cursor: pointer;
+            flex-shrink: 0;
+            height: 26px;
+            line-height: 26px;
+            transition: background 0.2s;
+            margin-left: auto;
+        }
+        .copy-all-btn:hover { background: #ffed4a; }
         .stat-row {
             display:flex;
             align-items:center;
@@ -155,6 +171,7 @@
             padding:1px 0;
             flex:1;
             align-items:center;
+            user-select: text;
         }
         .number-group span {
             display:inline-flex;
@@ -172,17 +189,33 @@
             flex-shrink:0;
             cursor:pointer;
             transition: all 0.1s ease;
+            user-select: none;
         }
         .number-group span.clickable { cursor: pointer; }
         .number-group span.clickable:hover { transform: scale(1.05); border-color: #ffd700; }
         .number-group span.winning-num { background: #2e7d32 !important; border: 2px solid #2e7d32 !important; color: #fff !important; }
         .number-group span.bonus-num { background: #bf360c !important; border: 2px solid #bf360c !important; color: #fff !important; }
+        .number-group span.fixed-only-yellow { background: #ffd700 !important; color: #000 !important; border: 2px solid #ffd700 !important; }
         .survivor-row .number-group span {
             width: 1.6em;
             height: 1.6em;
             font-size: 9px !important;
         }
-        .row-2, .row-3 {
+        .copy-group-btn {
+            background: #666;
+            color: #fff;
+            border: none;
+            border-radius: 30px;
+            padding: 1px 6px;
+            font-size: 8px;
+            cursor: pointer;
+            flex-shrink: 0;
+            height: 20px;
+            line-height: 20px;
+            transition: background 0.2s;
+        }
+        .copy-group-btn:hover { background: #888; }
+        .row-2, .row-3, .row-compress3 {
             display: flex;
             align-items: center;
             gap: 6px;
@@ -289,7 +322,6 @@
         .combo-ball.winning { background: #2e7d32 !important; border: 2px solid #2e7d32 !important; }
         .combo-ball.bonus { background: #bf360c !important; border: 2px solid #bf360c !important; }
         .combo-ball.fixed-winning { background: #ffd700 !important; color: #000 !important; border: 2px solid #ffd700 !important; }
-        .fixed-only-yellow { background: #ffd700 !important; color: #000 !important; border: 2px solid #ffd700 !important; font-weight: 900; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; width: 2em; height: 2em; font-size: 10px; }
         .reset-fixed-btn { background: #bf360c; color: #fff; border: none; border-radius: 30px; padding: 2px 8px; font-size: 10px; font-weight: bold; cursor: pointer; margin-left: 8px; }
         .review-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 10px; }
         .review-combo-card { background: #2a2a2a; border-radius: 20px; padding: 8px 4px; display: flex; flex-direction: column; align-items: center; border: 1px solid #555; }
@@ -313,6 +345,24 @@
         .badge { background: #ffd700; color: #000; font-size: 7px; padding: 1px 6px; border-radius: 30px; margin-left: 4px; font-weight: 800; }
         .badge2 { background: #ff6b6b; color: #fff; font-size: 7px; padding: 1px 6px; border-radius: 30px; margin-left: 4px; font-weight: 800; }
         .hit-badge { background: #4caf50; color: #fff; font-size: 8px; padding: 0px 6px; border-radius: 30px; margin-left: 4px; font-weight: 700; }
+        .status-header {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin: 2px 0 2px 0;
+            flex-shrink: 0;
+        }
+        .status-header .label {
+            color: #ddd;
+            font-size: 10px;
+            font-weight: 700;
+            flex: 1;
+        }
+        .compress-row-3 .compress-icon { font-size: 11px; color: #ddd; min-width: 20px; text-align: center; }
+        .compress-row-3 .slider-wrap { flex: 1; min-width: 0; }
+        .compress-row-3 .slider-wrap input { width: 100%; height: 4px; accent-color: #4caf50; }
+        .compress-row-3 .compress-value { background: #1a1a1a; border: 1px solid #aaa; border-radius: 30px; padding: 2px 0; min-width: 32px; text-align: center; font-size: 11px; color: #fff; }
+        .compress-row-3 .apply-btn { background: #666; border: none; border-radius: 30px; padding: 4px 8px; font-size: 10px; font-weight: bold; color: #fff; cursor: pointer; white-space: nowrap; }
     </style>
 </head>
 <body>
@@ -322,6 +372,10 @@
         <span class="title-main">SHIN-UI-SON</span>
         <span id="trashIcon" class="trash-icon" onclick="openTrashPopup()">🗑️ 0</span>
         <span id="userDisplay" class="user-info"></span>
+    </div>
+    <div class="status-header">
+        <span class="label">📊 상태창</span>
+        <button class="copy-all-btn" onclick="copyAllNumbers()">📋 전체 복사</button>
     </div>
     <div id="status" class="status-info" onclick="openStatusZoomPopup()">분석 중...</div>
     <div class="row-2">
@@ -336,6 +390,14 @@
             <div class="slider-wrap"><input type="range" id="compressSlider2" min="2" max="15" value="10" step="1" oninput="updateCompressValue2(this.value)"></div>
             <span class="compress-value" id="compressValue2">10</span>
             <button class="apply-btn" onclick="applyCompress2()">적용</button>
+        </div>
+    </div>
+    <div class="row-compress3">
+        <div class="compress-row-3 compress-row">
+            <span class="compress-icon">🔄 압축3(생존교집합+보충)</span>
+            <div class="slider-wrap"><input type="range" id="compressSlider3" min="2" max="15" value="10" step="1" oninput="updateCompressValue3(this.value)"></div>
+            <span class="compress-value" id="compressValue3">10</span>
+            <button class="apply-btn" onclick="applyCompress3()">적용</button>
         </div>
     </div>
     <div class="custom-survivor-row">
@@ -353,16 +415,16 @@
         <div class="interval-box">
             <span class="interval-label">🤖</span>
             <button onclick="changeIntervalAi(-1)">−</button>
-            <span id="intervalAiValue">6</span>
+            <span id="intervalAiValue">7</span>
             <button onclick="changeIntervalAi(1)">+</button>
         </div>
-        <div class="round-box"><button onclick="decreaseRound()">−</button><input type="number" id="roundInput" value="1232" min="901" max="1232" onchange="setRoundFromInput()"><button onclick="increaseRound()">+</button></div>
+        <div class="round-box"><button onclick="decreaseRound()">−</button><input type="number" id="roundInput" value="1233" min="901" max="1233" onchange="setRoundFromInput()"><button onclick="increaseRound()">+</button></div>
         <div class="fixed-btn" onclick="openFixedPopup()">🔒고정</div>
     </div>
     <div class="btn-group">
         <button class="btn-zone" onclick="generateZoneCombo(5)">📐구간5</button>
         <button class="btn-mix" onclick="generateMixRandomCombo(5)">🎲혼합랜덤5</button>
-        <button class="btn-cover" onclick="generateCoveringCombos()">🔐보장형6</button>
+        <button class="btn-cover" onclick="generateCoveringCombos()">🔐보장형6(압축3)</button>
         <button onclick="openBasket()">📦 보관함</button>
         <button onclick="clearStorage()">초기화</button>
         <button onclick="location.reload()">새로고침</button>
@@ -371,30 +433,40 @@
         <button onclick="openHelp()">❓ 도움말</button>
     </div>
     <div class="fixed-numbers"><div class="fixed-left"><span id="fixedExtra"></span></div><div class="fixed-right"><button onclick="window.open('https://www.naver.com', '_blank')">🌐 네이버</button><button onclick="clearFixed()">초기화</button><button onclick="openFixedPopup()">⏳ 추가</button></div></div>
-    <div class="small-note">🎯 예상회차: <span id="targetRound">1232</span> | 분석기준: <span id="analyzeRoundDisplay">1231</span>회까지 데이터<br>※ 기본간격 4/6 | 구간/혼합/보장형 모두 추출</div>
+    <div class="small-note">🎯 예상회차: <span id="targetRound">1233</span> | 분석기준: <span id="analyzeRoundDisplay">1232</span>회까지 데이터<br>※ 특수간격 4 / AI간격 7 | 구간/혼합/보장형 모두 추출</div>
 </div>
 <div class="toast" id="toast"><span>✅ 저장됨</span></div>
 <div id="fixedPopup" class="popup-overlay"><div class="popup-content"><h3>🔒 고정 번호 선택</h3><p style="text-align:center;">최대 6개까지 선택 가능</p><div class="number-grid" id="fixedNumberGrid"></div><div style="text-align:center;"><button onclick="saveFixedPopup()">저장</button><button class="close-btn" onclick="closeFixedPopup()">닫기</button></div></div></div>
 <div id="comboPopup" class="popup-overlay"><div class="popup-content"><h3>📋 생성된 조합</h3><div id="comboList"></div><div style="text-align:center;"><button onclick="saveAllCombos()">보관함 저장</button><button class="close-btn" onclick="closeComboPopup()">닫기</button></div></div></div>
 <div id="basketPopup" class="popup-overlay"><div class="popup-content"><h3>📦 보관함</h3><div id="basketList"></div><div style="text-align:center;"><button onclick="loadFromBasket()">불러오기</button><button class="close-btn" onclick="closeBasketPopup()">닫기</button></div></div></div>
-<div id="reviewPopup" class="popup-overlay"><div class="popup-content"><h3>📊 당첨 확인</h3><div style="margin:15px 0; display:flex; flex-direction:column; gap:8px;"><p>회차: <input type="number" id="reviewRound" value="1232" min="900" max="1232" style="width:100px; padding:5px; background:#3a3a3a; color:#fff; border:1px solid #aaa; border-radius:30px;"></p><p>당첨번호: <input type="text" id="reviewWinning" placeholder="예: 1,2,3,4,5,6" style="width:100%; padding:5px; background:#3a3a3a; color:#fff; border:1px solid #aaa; border-radius:30px;"></p><p>보너스: <input type="number" id="reviewBonus" min="1" max="45" style="width:100px; padding:5px; background:#3a3a3a; color:#fff; border:1px solid #aaa; border-radius:30px;"></p></div><div id="reviewResult" style="background:#2a2a2a; border-radius:20px; padding:10px;"></div><div style="text-align:center;"><button onclick="compareNumbers()">비교</button><button onclick="saveWinningNumbers()">저장</button><button class="close-btn" onclick="closeReviewPopup()">닫기</button></div></div></div>
+<div id="reviewPopup" class="popup-overlay"><div class="popup-content"><h3>📊 당첨 확인</h3><div style="margin:15px 0; display:flex; flex-direction:column; gap:8px;"><p>회차: <input type="number" id="reviewRound" value="1232" min="900" max="1233" style="width:100px; padding:5px; background:#3a3a3a; color:#fff; border:1px solid #aaa; border-radius:30px;"></p><p>당첨번호: <input type="text" id="reviewWinning" placeholder="예: 1,2,3,4,5,6" style="width:100%; padding:5px; background:#3a3a3a; color:#fff; border:1px solid #aaa; border-radius:30px;"></p><p>보너스: <input type="number" id="reviewBonus" min="1" max="45" style="width:100px; padding:5px; background:#3a3a3a; color:#fff; border:1px solid #aaa; border-radius:30px;"></p></div><div id="reviewResult" style="background:#2a2a2a; border-radius:20px; padding:10px;"></div><div style="text-align:center;"><button onclick="compareNumbers()">비교</button><button onclick="saveWinningNumbers()">저장</button><button class="close-btn" onclick="closeReviewPopup()">닫기</button></div></div></div>
 <div id="statusZoomPopup" class="popup-overlay"><div class="popup-content"><h3>🔍 상세 분석</h3><div id="statusZoomContent"></div><div style="text-align:center;"><button class="close-btn" onclick="closeStatusZoomPopup()">닫기</button></div></div></div>
 <div id="helpPopup" class="popup-overlay"><div class="popup-content"><h3>❓ 도움말</h3><div style="margin:10px 0;">
 <h4>🎯 V7.5 (보장형 스타일 구간/혼합 + 커버링)</h4>
-<p>⭐ 특수생존 간격: 4, AI생존 간격: 6</p>
-<p>⭐ 압축1/2 = 10개 (조절 가능, 최대 15)</p>
+<p>⭐ 특수생존 간격: 4 (조절 가능), AI생존 간격: 7 (조절 가능)</p>
+<p>⭐ 추가 생존수: 간격5, 간격6 (고정) → 3개 생존수 교집합 표시</p>
+<p>⭐ 압축1 = AI 점수, 압축2 = 동반/궁합 점수</p>
+<p>⭐ 압축3 = 생존교집합(S∩AI) 전체 포함 + 부족분 점수순 보충 (슬라이더 크기 따름)</p>
 <p>✅ <b>구간5</b>: 압축1에서 트리플 커버리지 최대화 (합계90~160, 3연번 제외)</p>
 <p>✅ <b>혼합랜덤5</b>: 압축2에서 트리플 커버리지 최대화 (합계90~160, 3연번 제외)</p>
-<p>✅ <b>보장형 6조합</b>: 통합교집합 기반 C(10,6,3)=6 커버링 (모든 트리플 100% 커버)</p>
+<p>✅ <b>보장형 6조합</b>: 압축3 기반 커버링 (모든 트리플 100% 커버)</p>
+<p>📋 <b>번호 복사</b>: 번호 클릭 시 개별 복사, 📋 버튼 클릭 시 해당 행 전체 복사, <b>📋 전체 복사</b> 버튼으로 모든 번호 한 번에 복사</p>
+<p>⭐ <b>내가고정</b>: 번호를 더블 클릭하면 고정/해제됩니다.</p>
 </div><div style="text-align:center;"><button class="close-btn" onclick="closeHelpPopup()">닫기</button></div></div></div>
-<div id="trashPopup" class="popup-overlay"><div class="popup-content"><h3>🗑️ 휴지통 (압축 제외 번호)</h3><div id="trashStats" class="trash-stats"></div><div style="text-align:center; margin:10px 0;"><button onclick="generateTrashCombo(1)">🎲 휴지통 1조합</button><button onclick="generateTrashCombo(5)">🎲 휴지통 5조합</button><button onclick="generateTrashCombo(10)">🎲 휴지통 10조합</button></div><div id="trashContent" class="trash-numbers-area"></div><div style="text-align:center; margin-top:15px;"><button onclick="copyTrashToCustom()">📋 휴지통→커스텀</button><button onclick="clearTrash()">휴지통 비우기</button><button class="close-btn" onclick="closeTrashPopup()">닫기</button></div></div></div>
+<div id="trashPopup" class="popup-overlay"><div class="popup-content"><h3>🗑️ 휴지통 (압축 제외 번호)</h3><div id="trashStats" class="trash-stats"></div><div style="text-align:center; margin:10px 0;">
+    <button onclick="generateTrashCombo(1)">🎲 휴지통 1조합</button>
+    <button onclick="generateTrashCombo(5)">🎲 휴지통 5조합</button>
+    <button onclick="generateTrashCombo(10)">🎲 휴지통 10조합</button>
+    <button onclick="copyTrashNumbers()" style="background:#ffd700; color:#000;">📋 번호 복사</button>
+</div><div id="trashContent" class="trash-numbers-area"></div><div style="text-align:center; margin-top:15px;"><button onclick="copyTrashToCustom()">📋 휴지통→커스텀</button><button onclick="clearTrash()">휴지통 비우기</button><button class="close-btn" onclick="closeTrashPopup()">닫기</button></div></div></div>
 
 <script>
 // ===================== 데이터 =====================
-const MAX_ROUND = 1232;
+const MAX_ROUND = 1233;
 const MIN_ROUND = 901;
 
 const FULL_DATA = [
+    [1232, 12, 15, 19, 22, 24, 36, 3],
     [1231, 4, 13, 14, 18, 31, 38, 15],
     [1230, 3, 8, 9, 22, 28, 42, 45],
     [1229, 12, 13, 29, 34, 37, 42, 16],
@@ -637,16 +709,19 @@ const STORAGE_CUSTOM_SURVIVORS = 'lottoCustomSurvivors';
 
 let currentCompress1 = 10;
 let currentCompress2 = 10;
+let currentCompress3 = 10;
 let intervalExclude = 4;
-let intervalAi = 6;
+let intervalAi = 7;
 let fixedNumbers = [];
 let myFixedPool = [];
 let userName = "";
 let savedNumbers = [];
 let generatedCombos = [];
-let currentBaseRound = 1232;
-let analyzeRound = 1231;
+let currentBaseRound = 1233;
+let analyzeRound = 1232;
 let specialSurvivors = [];
+let specialSurvivors2 = [];
+let specialSurvivors3 = [];
 let aiSurvivors = [];
 let recommendPool = [];
 let trashNumbers = [];
@@ -784,7 +859,27 @@ function clearTrash() {
         trashNumbers = [];
         saveTrash();
         analyze();
+        closeTrashPopup();
     }
+}
+
+function copyTrashNumbers() {
+    if (trashNumbers.length === 0) {
+        showToast('휴지통 비어있음');
+        return;
+    }
+    let text = trashNumbers.join(', ');
+    navigator.clipboard.writeText(text).then(() => {
+        showToast('📋 휴지통 번호 ' + trashNumbers.length + '개 복사됨');
+    }).catch(() => {
+        const textArea = document.createElement('textarea');
+        textArea.value = text;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        textArea.remove();
+        showToast('📋 휴지통 번호 ' + trashNumbers.length + '개 복사됨');
+    });
 }
 
 function copyTrashToCustom() {
@@ -941,8 +1036,8 @@ function clearCustomSurvivors() {
     showToast('커스텀 초기화');
 }
 
-// ===================== 특수생존 =====================
-function calculateSpecialSurvivors() {
+// ===================== 특수생존 계산 (간격 + 궁합) =====================
+function calculateSpecialSurvivorsWithGap(gap) {
     if (customSurvivors && customSurvivors.length > 0) return [...customSurvivors];
     let pastData = FULL_DATA.filter(r => r[0] <= analyzeRound && r[0] > 0);
     if (pastData.length === 0) return [];
@@ -950,7 +1045,7 @@ function calculateSpecialSurvivors() {
     
     let recentLimit = Math.min(20, pastData.length);
     for (let i = 0; i < recentLimit; i++) {
-        let targetRound = analyzeRound - intervalExclude * i;
+        let targetRound = analyzeRound - gap * i;
         let found = pastData.find(r => r[0] === targetRound);
         if (found) {
             let weight = Math.pow(0.85, i) * 100;
@@ -994,6 +1089,16 @@ function calculateSpecialSurvivors() {
     let finalScores = Array(46).fill(0);
     for (let n = 1; n <= 45; n++) {
         finalScores[n] = scores[n] + patternScores[n] + missBonus[n];
+    }
+
+    let lastDrawData = pastData.length > 0 ? pastData[pastData.length - 1] : null;
+    if (lastDrawData) {
+        let lastWins = lastDrawData.slice(1, 7);
+        let compFreq = getCompanionFrequency(lastWins, 30);
+        for (let n = 1; n <= 45; n++) {
+            let compScore = Math.min((compFreq[n] || 0) * 45, 500);
+            finalScores[n] += compScore;
+        }
     }
     
     let candidates = [];
@@ -1108,7 +1213,7 @@ function getCompatibilityScore(num, topN = 5) {
     return score;
 }
 
-// ===================== 압축1 (순위 점수 100%) - 점수 순서 유지 =====================
+// ===================== 압축1 (순위 점수 100%) =====================
 function compressRecommendPool1(compressCount) {
     if (compressCount < 2) compressCount = 2;
     if (recommendPool.length === 0) return [];
@@ -1120,11 +1225,10 @@ function compressRecommendPool1(compressCount) {
     sorted.sort((a, b) => b.score - a.score);
     
     let selected = sorted.slice(0, compressCount).map(x => x.num);
-    // 최대 15개로 제한, 점수 순서 유지 (오름차순 정렬 제거)
     return selected.slice(0, 15);
 }
 
-// ===================== 압축2 (동반/궁합 점수 100%) - 점수 순서 유지 =====================
+// ===================== 압축2 (동반/궁합 점수 100%) =====================
 function compressRecommendPool2(compressCount) {
     if (compressCount < 2) compressCount = 2;
     if (recommendPool.length === 0) return [];
@@ -1145,17 +1249,71 @@ function compressRecommendPool2(compressCount) {
     scored.sort((a, b) => b.score - a.score);
 
     let selected = scored.slice(0, compressCount).map(x => x.num);
-    // 최대 15개로 제한, 점수 순서 유지
     return selected.slice(0, 15);
 }
 
-// ===================== 구간조합 (압축1, 보장형 스타일 - 트리플 커버리지 최대화) =====================
+// ===================== 압축3 (생존교집합 전체 + 점수순 보충) =====================
+function compressRecommendPool3(compressCount) {
+    if (compressCount < 2) compressCount = 2;
+    
+    // 1. 생존 교집합(S∩AI) 전체
+    let interSurvivors = specialSurvivors.filter(n => aiSurvivors.includes(n));
+    
+    // 2. 압축1 ∪ 압축2
+    let compressed1 = compressRecommendPool1(currentCompress1);
+    let compressed2 = compressRecommendPool2(currentCompress2);
+    let unionCompress = [...new Set([...compressed1, ...compressed2])];
+    
+    // 3. 보충용 합집합 (생존교집합 ∪ 압축1 ∪ 압축2)
+    let unionSet = new Set([...interSurvivors, ...compressed1, ...compressed2]);
+    if (unionSet.size === 0) return [];
+
+    let prevData = FULL_DATA.find(r => r[0] === analyzeRound);
+    let prevWins = prevData ? prevData.slice(1, 7) : [];
+    let prevBonus = prevData ? prevData[7] : null;
+    let allPrev = [...prevWins];
+    if (prevBonus) allPrev.push(prevBonus);
+    let compFreq = getCompanionFrequency(allPrev, 30);
+
+    let scored = Array.from(unionSet).map(n => {
+        let score1 = aiRealScores[n] || 0;
+        let score2 = (compFreq[n] || 0) * 15 + getCompatibilityScore(n, 5) * 0.5;
+        return { num: n, total: score1 + score2 };
+    });
+    scored.sort((a, b) => b.total - a.total);
+
+    // 4. 결과 구성: 생존교집합 전체를 먼저 추가, 부족분 점수순
+    let result = [];
+    let addedSet = new Set();
+    
+    // 생존교집합 전체 추가 (compressCount 제한)
+    for (let n of interSurvivors) {
+        if (result.length >= compressCount) break;
+        if (!addedSet.has(n)) {
+            result.push(n);
+            addedSet.add(n);
+        }
+    }
+    
+    // 점수순으로 나머지 채우기 (최대 compressCount)
+    for (let item of scored) {
+        if (result.length >= compressCount) break;
+        if (!addedSet.has(item.num)) {
+            result.push(item.num);
+            addedSet.add(item.num);
+        }
+    }
+    
+    result.sort((a, b) => a - b);
+    return result;
+}
+
+// ===================== 구간조합 (압축1) =====================
 function generateZoneCombos(count) {
     let pool = compressRecommendPool1(currentCompress1);
     if (pool.length < 6) {
         pool = [...recommendPool];
     }
-    // 안전하게 15개로 제한
     if (pool.length > 15) pool = pool.slice(0, 15);
     if (pool.length < 6) return [];
     
@@ -1171,7 +1329,6 @@ function generateZoneCombos(count) {
         return [...withFirst, ...withoutFirst];
     }
     
-    // 1. 조건에 맞는 모든 6개 조합 생성
     const allSix = getCombinations(pool, 6);
     const validSix = allSix.filter(combo => {
         const sum = combo.reduce((a, b) => a + b, 0);
@@ -1185,7 +1342,6 @@ function generateZoneCombos(count) {
         return [];
     }
     
-    // 2. Greedy로 가장 많은 트리플을 커버하는 count개 조합 선택
     const allTriples = getCombinations(pool, 3);
     const tripleSet = new Set(allTriples.map(t => t.sort((a,b)=>a-b).join(',')));
     
@@ -1225,7 +1381,6 @@ function generateZoneCombos(count) {
         selected.push([...bestCombo].sort((a,b)=>a-b));
     }
     
-    // 3. 만약 count개가 안되면 랜덤으로 채움
     while (selected.length < count) {
         let shuffled = shuffleArray(validSix);
         let found = false;
@@ -1244,7 +1399,7 @@ function generateZoneCombos(count) {
     return selected;
 }
 
-// ===================== 혼합랜덤 (압축2, 보장형 스타일 - 트리플 커버리지 최대화) =====================
+// ===================== 혼합랜덤 (압축2) =====================
 function generateMixRandomCombos(count) {
     let pool = compressRecommendPool2(currentCompress2);
     if (pool.length < 6) {
@@ -1265,7 +1420,6 @@ function generateMixRandomCombos(count) {
         return [...withFirst, ...withoutFirst];
     }
     
-    // 1. 조건에 맞는 모든 6개 조합 생성
     const allSix = getCombinations(pool, 6);
     const validSix = allSix.filter(combo => {
         const sum = combo.reduce((a, b) => a + b, 0);
@@ -1279,7 +1433,6 @@ function generateMixRandomCombos(count) {
         return [];
     }
     
-    // 2. Greedy로 가장 많은 트리플을 커버하는 count개 조합 선택
     const allTriples = getCombinations(pool, 3);
     const tripleSet = new Set(allTriples.map(t => t.sort((a,b)=>a-b).join(',')));
     
@@ -1319,7 +1472,6 @@ function generateMixRandomCombos(count) {
         selected.push([...bestCombo].sort((a,b)=>a-b));
     }
     
-    // 3. 만약 count개가 안되면 랜덤으로 채움
     while (selected.length < count) {
         let shuffled = shuffleArray(validSix);
         let found = false;
@@ -1338,43 +1490,20 @@ function generateMixRandomCombos(count) {
     return selected;
 }
 
-// ===================== 보장형 커버링 6조합 (통합교집합 기반) =====================
+// ===================== 보장형 커버링 (압축3 기반) =====================
 function generateCoveringCombos() {
-    // 1. 통합교집합 계산 (압축1 + 압축2 점수 합산)
-    let pool1 = compressRecommendPool1(currentCompress1);
-    let pool2 = compressRecommendPool2(currentCompress2);
-    let unionCompress = [...new Set([...pool1, ...pool2])];
-    if (unionCompress.length < 6) {
-        showToast('통합교집합 수가 6개 미만입니다.');
-        return;
-    }
-    // 점수 계산
-    let prevData = FULL_DATA.find(r => r[0] === analyzeRound);
-    let prevWins = prevData ? prevData.slice(1, 7) : [];
-    let prevBonus = prevData ? prevData[7] : null;
-    let allPrev = [...prevWins];
-    if (prevBonus) allPrev.push(prevBonus);
-    let compFreq = getCompanionFrequency(allPrev, 30);
-    let scored = unionCompress.map(n => {
-        let score1 = aiRealScores[n] || 0;
-        let score2 = (compFreq[n] || 0) * 15 + getCompatibilityScore(n, 5) * 0.5;
-        return { num: n, total: score1 + score2 };
-    });
-    scored.sort((a, b) => b.total - a.total);
-    // 상위 10개 (또는 currentCompress1개, 최대 10)
-    let takeCount = Math.min(currentCompress1, 10);
-    let pool = scored.slice(0, takeCount).map(x => x.num);
+    // 1. 압축3 결과만 사용
+    let pool = compressRecommendPool3(currentCompress3);
     if (pool.length < 6) {
-        showToast('통합교집합 상위 ' + takeCount + '개 중 6개 미만입니다.');
+        showToast('압축3의 수가 6개 미만입니다. (현재 ' + pool.length + '개)');
         return;
     }
-    // pool 15개로 제한 (안전)
+    // 안전하게 15개로 제한 (성능 및 커버링 효율)
     if (pool.length > 15) pool = pool.slice(0, 15);
 
     const minSum = 90;
     const maxSum = 160;
 
-    // 모든 6개 조합 생성 (pool에서 6개 뽑기)
     function getCombinations(arr, k) {
         if (k === 0) return [[]];
         if (arr.length === 0) return [];
@@ -1385,7 +1514,6 @@ function generateCoveringCombos() {
     }
 
     const allSix = getCombinations(pool, 6);
-    // 조건 필터: 합계 90~160, 3연번 제외
     const validSix = allSix.filter(combo => {
         const sum = combo.reduce((a, b) => a + b, 0);
         if (sum < minSum || sum > maxSum) return false;
@@ -1394,15 +1522,13 @@ function generateCoveringCombos() {
     });
 
     if (validSix.length === 0) {
-        showToast('조건을 만족하는 6개 조합이 없습니다. 합계 범위를 넓히거나 3연번을 허용하세요.');
+        showToast('압축3에서 조건을 만족하는 6개 조합이 없습니다. 합계 범위를 넓히거나 3연번을 허용하세요.');
         return;
     }
 
-    // 모든 트리플(3개 조합) 생성 (pool 기준)
     const allTriples = getCombinations(pool, 3);
     const tripleSet = new Set(allTriples.map(t => t.sort((a,b)=>a-b).join(',')));
 
-    // Greedy 알고리즘으로 6개 조합 선택 (커버 최대화)
     let remainingTriples = new Set(tripleSet);
     let selected = [];
 
@@ -1433,7 +1559,7 @@ function generateCoveringCombos() {
     }
 
     if (remainingTriples.size > 0) {
-        showToast('⚠️ ' + remainingTriples.size + '개의 트리플을 커버하지 못했습니다. 조건을 완화하세요.');
+        showToast('⚠️ ' + remainingTriples.size + '개의 트리플을 커버하지 못했습니다. 압축3의 개수를 늘려보세요.');
         generatedCombos = selected.map(c => [...c].sort((a,b)=>a-b));
         showCombos();
         return;
@@ -1441,16 +1567,82 @@ function generateCoveringCombos() {
 
     generatedCombos = selected.map(c => [...c].sort((a,b)=>a-b));
     showCombos();
-    showToast('🔐 보장형 6조합 생성 완료 (통합교집합 기반, 모든 트리플 커버)');
+    showToast('🔐 보장형 조합 생성 완료 (압축3 기반)');
 }
 
 // ===================== 기타 함수들 =====================
+function copyNumber(num) {
+    navigator.clipboard.writeText(num.toString()).then(() => {
+        showToast('📋 ' + num + ' 복사됨');
+    }).catch(() => {
+        const textArea = document.createElement('textarea');
+        textArea.value = num;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        textArea.remove();
+        showToast('📋 ' + num + ' 복사됨');
+    });
+}
+
+function copyGroupNumbers(label, nums) {
+    if (!nums || nums.length === 0) {
+        showToast('복사할 번호가 없습니다.');
+        return;
+    }
+    let text = nums.join(', ');
+    navigator.clipboard.writeText(text).then(() => {
+        showToast('📋 ' + label + ' ' + nums.length + '개 복사됨');
+    }).catch(() => {
+        const textArea = document.createElement('textarea');
+        textArea.value = text;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        textArea.remove();
+        showToast('📋 ' + label + ' ' + nums.length + '개 복사됨');
+    });
+}
+
+function copyAllNumbers() {
+    const tripleInter = specialSurvivors.filter(n => specialSurvivors2.includes(n) && specialSurvivors3.includes(n));
+    const interSurvivors = specialSurvivors.filter(n => aiSurvivors.includes(n));
+    const compressed1 = compressRecommendPool1(currentCompress1);
+    const compressed2 = compressRecommendPool2(currentCompress2);
+    const compressed3 = compressRecommendPool3(currentCompress3);
+    
+    let text = '';
+    text += '👥 특수생존1(간격' + intervalExclude + ' + 궁합): ' + (specialSurvivors.length ? specialSurvivors.join(', ') : '없음') + '\n';
+    text += '👥 특수생존2(간격5 + 궁합): ' + (specialSurvivors2.length ? specialSurvivors2.join(', ') : '없음') + '\n';
+    text += '👥 특수생존3(간격6 + 궁합): ' + (specialSurvivors3.length ? specialSurvivors3.join(', ') : '없음') + '\n';
+    text += '⭐ 특수생존 교집합(3개): ' + (tripleInter.length ? tripleInter.join(', ') : '없음') + '\n';
+    text += '🤖 AI생존(간격' + intervalAi + '): ' + (aiSurvivors.length ? aiSurvivors.join(', ') : '없음') + '\n';
+    text += '⭐ 생존 교집합(S∩AI): ' + (interSurvivors.length ? interSurvivors.join(', ') : '없음') + '\n';
+    text += '⭐ 추천수(' + recommendPool.length + '개): ' + (recommendPool.length ? recommendPool.join(', ') : '없음') + '\n';
+    text += '⭐ 압축1(' + compressed1.length + '개): ' + (compressed1.length ? compressed1.join(', ') : '없음') + '\n';
+    text += '🔽 압축2(' + compressed2.length + '개): ' + (compressed2.length ? compressed2.join(', ') : '없음') + '\n';
+    text += '🔄 압축3(생존교집합+보충)(' + compressed3.length + '개): ' + (compressed3.length ? compressed3.join(', ') : '없음') + '\n';
+    text += '🗑️ 휴지통: ' + (trashNumbers.length ? trashNumbers.join(', ') : '없음');
+    
+    navigator.clipboard.writeText(text).then(() => {
+        showToast('📋 전체 번호 복사됨');
+    }).catch(() => {
+        const textArea = document.createElement('textarea');
+        textArea.value = text;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        textArea.remove();
+        showToast('📋 전체 번호 복사됨');
+    });
+}
+
 function generateZoneCombo(count) {
     let combos = generateZoneCombos(count);
     if (!combos || combos.length === 0) { showToast('구간 조합 실패'); return; }
     generatedCombos = combos;
     showCombos();
-    showToast('📐 구간 ' + combos.length + '개 (압축1, 트리플 커버리지 최대화)');
+    showToast('📐 구간 ' + combos.length + '개 생성');
 }
 
 function generateMixRandomCombo(count) {
@@ -1458,7 +1650,7 @@ function generateMixRandomCombo(count) {
     if (!combos || combos.length === 0) { showToast('혼합랜덤 조합 실패'); return; }
     generatedCombos = combos;
     showCombos();
-    showToast('🎲 혼합랜덤 ' + combos.length + '개 (압축2, 트리플 커버리지 최대화)');
+    showToast('🎲 혼합랜덤 ' + combos.length + '개 생성');
 }
 
 function showCombos() {
@@ -1662,8 +1854,14 @@ function updateCompressValue2(val) {
     document.getElementById('compressValue2').innerText = currentCompress2;
     updateUI();
 }
+function updateCompressValue3(val) {
+    currentCompress3 = parseInt(val);
+    document.getElementById('compressValue3').innerText = currentCompress3;
+    updateUI();
+}
 function applyCompress1() { updateUI(); showToast('압축1: ' + currentCompress1); }
 function applyCompress2() { updateUI(); showToast('압축2: ' + currentCompress2); }
+function applyCompress3() { updateUI(); showToast('압축3 (생존교집합+보충) 적용'); }
 function clearStorage() {
     if (confirm('모든 데이터 초기화?')) {
         localStorage.clear();
@@ -1690,7 +1888,9 @@ function analyze() {
     try {
         analyzeRound = currentBaseRound - 1;
         document.getElementById('analyzeRoundDisplay').innerText = analyzeRound;
-        specialSurvivors = calculateSpecialSurvivors();
+        specialSurvivors = calculateSpecialSurvivorsWithGap(intervalExclude);
+        specialSurvivors2 = calculateSpecialSurvivorsWithGap(5);
+        specialSurvivors3 = calculateSpecialSurvivorsWithGap(6);
         aiSurvivors = calculateAiSurvivors();
         recommendPool = calculateRecommendPool_Union();
         trashNumbers = specialSurvivors.filter(n => !aiSurvivors.includes(n));
@@ -1706,31 +1906,12 @@ function updateUI() {
     let targetWinNumbers = targetWinData ? targetWinData.slice(1, 7) : [];
     let targetBonus = targetWinData ? targetWinData[7] : null;
     
+    let tripleInter = specialSurvivors.filter(n => specialSurvivors2.includes(n) && specialSurvivors3.includes(n));
     let interSurvivors = specialSurvivors.filter(n => aiSurvivors.includes(n));
     let unionCount = recommendPool.length;
     let compressed1 = compressRecommendPool1(currentCompress1);
     let compressed2 = compressRecommendPool2(currentCompress2);
-    
-    // --- 통합교집합 (압축1 + 압축2 트레이드) ---
-    let unionCompress = [...new Set([...compressed1, ...compressed2])];
-    let prevData = FULL_DATA.find(r => r[0] === analyzeRound);
-    let prevWins = prevData ? prevData.slice(1, 7) : [];
-    let prevBonus = prevData ? prevData[7] : null;
-    let allPrev = [...prevWins];
-    if (prevBonus) allPrev.push(prevBonus);
-    let compFreq = getCompanionFrequency(allPrev, 30);
-
-    let scored = unionCompress.map(n => {
-        let score1 = aiRealScores[n] || 0;
-        let score2 = (compFreq[n] || 0) * 15 + getCompatibilityScore(n, 5) * 0.5;
-        return { num: n, total: score1 + score2 };
-    });
-    scored.sort((a, b) => b.total - a.total);
-    let targetCount = currentCompress1;
-    let finalInter = scored.slice(0, targetCount).map(x => x.num);
-    finalInter.sort((a, b) => a - b);
-    let displayInter = finalInter;
-    // ---
+    let compressed3 = compressRecommendPool3(currentCompress3);
 
     function formatNum(num, type) {
         let isWinning = targetWinNumbers.includes(num);
@@ -1741,7 +1922,8 @@ function updateUI() {
         let style = '';
         if (type === 'c1') style = ' border-color: #ffd700;';
         if (type === 'c2') style = ' border-color: #ff6b6b;';
-        return '<span class="clickable ' + cls + '" style="' + style + '" onclick="toggleMyFixed(' + num + ')">' + num + '</span>';
+        if (type === 'c3') style = ' border-color: #4caf50;';
+        return '<span class="clickable ' + cls + '" style="' + style + '" onclick="copyNumber(' + num + ')" ondblclick="toggleMyFixed(' + num + ')">' + num + '</span>';
     }
 
     function formatList(nums, type) {
@@ -1751,19 +1933,23 @@ function updateUI() {
 
     let hit1 = compressed1.filter(n => targetWinNumbers.includes(n)).length;
     let hit2 = compressed2.filter(n => targetWinNumbers.includes(n)).length;
+    let hit3 = compressed3.filter(n => targetWinNumbers.includes(n)).length;
+
+    function getNumsJson(arr) { return JSON.stringify(arr || []); }
 
     document.getElementById('status').innerHTML = 
-        '<div class="stat-row survivor-row"><span class="stat-label">👥특수생존(간격' + intervalExclude + ')</span><div class="number-group">' + formatList(specialSurvivors, '') + ' (' + specialSurvivors.length + ')</div></div>' +
-        '<div class="stat-row survivor-row"><span class="stat-label">🤖AI생존(간격' + intervalAi + ')</span><div class="number-group">' + formatList(aiSurvivors, '') + ' (' + aiSurvivors.length + ')</div></div>' +
-        '<div class="stat-row" style="border-left-color:#ffd700;"><span class="stat-label">⭐생존 교집합</span><div class="number-group">' + formatList(interSurvivors, '') + ' (' + interSurvivors.length + '개)</div></div>' +
+        '<div class="stat-row survivor-row"><span class="stat-label">👥특수생존1(간격' + intervalExclude + ' + 궁합)</span><div class="number-group">' + formatList(specialSurvivors, '') + ' (' + specialSurvivors.length + ')</div><button class="copy-group-btn" onclick="copyGroupNumbers(\'특수생존1\', ' + getNumsJson(specialSurvivors) + ')">📋</button></div>' +
+        '<div class="stat-row survivor-row"><span class="stat-label">👥특수생존2(간격5 + 궁합)</span><div class="number-group">' + formatList(specialSurvivors2, '') + ' (' + specialSurvivors2.length + ')</div><button class="copy-group-btn" onclick="copyGroupNumbers(\'특수생존2\', ' + getNumsJson(specialSurvivors2) + ')">📋</button></div>' +
+        '<div class="stat-row survivor-row"><span class="stat-label">👥특수생존3(간격6 + 궁합)</span><div class="number-group">' + formatList(specialSurvivors3, '') + ' (' + specialSurvivors3.length + ')</div><button class="copy-group-btn" onclick="copyGroupNumbers(\'특수생존3\', ' + getNumsJson(specialSurvivors3) + ')">📋</button></div>' +
+        '<div class="stat-row" style="border-left-color:#9c27b0;"><span class="stat-label">⭐특수생존 교집합(3개)</span><div class="number-group">' + formatList(tripleInter, '') + ' (' + tripleInter.length + '개)</div><button class="copy-group-btn" onclick="copyGroupNumbers(\'특수교집합\', ' + getNumsJson(tripleInter) + ')">📋</button></div>' +
+        '<div class="stat-row survivor-row"><span class="stat-label">🤖AI생존(간격' + intervalAi + ')</span><div class="number-group">' + formatList(aiSurvivors, '') + ' (' + aiSurvivors.length + ')</div><button class="copy-group-btn" onclick="copyGroupNumbers(\'AI생존\', ' + getNumsJson(aiSurvivors) + ')">📋</button></div>' +
+        '<div class="stat-row" style="border-left-color:#ffd700;"><span class="stat-label">⭐생존 교집합(S∩AI)</span><div class="number-group">' + formatList(interSurvivors, '') + ' (' + interSurvivors.length + '개)</div><button class="copy-group-btn" onclick="copyGroupNumbers(\'생존교집합\', ' + getNumsJson(interSurvivors) + ')">📋</button></div>' +
         '<div class="stat-row" style="border-left-color:#4caf50;"><span class="stat-label">🧬합집합(추천수)</span><div class="number-group">' + unionCount + '개</div></div>' +
-        '<div class="stat-row"><span class="stat-label">⭐추천수(' + unionCount + '개)</span><div class="number-group">' + formatList(recommendPool, '') + ' (' + recommendPool.filter(n => targetWinNumbers.includes(n)).length + ')</div></div>' +
-        '<div class="stat-row" style="border-left-color:#ffd700;"><span class="stat-label">⭐압축1(' + compressed1.length + '개) <span class="hit-badge">🎯' + hit1 + '개</span></span><div class="number-group">' + formatList(compressed1, 'c1') + '</div></div>' +
-        '<div class="stat-row" style="border-left-color:#ff6b6b;"><span class="stat-label">🔽압축2(' + compressed2.length + '개) <span class="hit-badge">🎯' + hit2 + '개</span></span><div class="number-group">' + formatList(compressed2, 'c2') + '</div></div>' +
-        '<div class="stat-row" style="border-left-color:#ff8c00;"><span class="stat-label">🔗통합교집합(압축1+압축2 트레이드)</span><div class="number-group">' + 
-            (displayInter.length ? displayInter.map(n => formatNum(n, '')).join(', ') : '없음') + 
-            ' (' + displayInter.length + '개)</div></div>' +
-        '<div class="stat-row" onclick="openTrashPopup()" style="cursor:pointer;"><span class="stat-label">🗑️휴지통</span><div class="number-group">총 ' + trashNumbers.length + '개</div></div>' +
+        '<div class="stat-row"><span class="stat-label">⭐추천수(' + unionCount + '개)</span><div class="number-group">' + formatList(recommendPool, '') + ' (' + recommendPool.filter(n => targetWinNumbers.includes(n)).length + ')</div><button class="copy-group-btn" onclick="copyGroupNumbers(\'추천수\', ' + getNumsJson(recommendPool) + ')">📋</button></div>' +
+        '<div class="stat-row" style="border-left-color:#ffd700;"><span class="stat-label">⭐압축1(' + compressed1.length + '개) <span class="hit-badge">🎯' + hit1 + '개</span></span><div class="number-group">' + formatList(compressed1, 'c1') + '</div><button class="copy-group-btn" onclick="copyGroupNumbers(\'압축1\', ' + getNumsJson(compressed1) + ')">📋</button></div>' +
+        '<div class="stat-row" style="border-left-color:#ff6b6b;"><span class="stat-label">🔽압축2(' + compressed2.length + '개) <span class="hit-badge">🎯' + hit2 + '개</span></span><div class="number-group">' + formatList(compressed2, 'c2') + '</div><button class="copy-group-btn" onclick="copyGroupNumbers(\'압축2\', ' + getNumsJson(compressed2) + ')">📋</button></div>' +
+        '<div class="stat-row" style="border-left-color:#4caf50;"><span class="stat-label">🔄압축3(생존교집합+보충)(' + compressed3.length + '개) <span class="hit-badge">🎯' + hit3 + '개</span></span><div class="number-group">' + formatList(compressed3, 'c3') + '</div><button class="copy-group-btn" onclick="copyGroupNumbers(\'압축3\', ' + getNumsJson(compressed3) + ')">📋</button></div>' +
+        '<div class="stat-row" onclick="openTrashPopup()" style="cursor:pointer;"><span class="stat-label">🗑️휴지통</span><div class="number-group">총 ' + trashNumbers.length + '개</div><button class="copy-group-btn" onclick="event.stopPropagation();copyGroupNumbers(\'휴지통\', ' + getNumsJson(trashNumbers) + ')">📋</button></div>' +
         '<div class="stat-row"><span class="stat-label">⭐내가고정 <button class="reset-fixed-btn" onclick="resetMyFixed()">초기화</button></span><div class="number-group">' + (myFixedPool.length ? myFixedPool.map(n => '<span class="fixed-only-yellow" style="cursor:default;">' + n + '</span>').join(' ') : '없음') + '</div></div>';
 
     let prevDataInfo = FULL_DATA.find(r => r[0] === analyzeRound);
@@ -1821,6 +2007,8 @@ window.onload = function () {
     document.getElementById('compressValue1').innerText = currentCompress1;
     document.getElementById('compressSlider2').value = currentCompress2;
     document.getElementById('compressValue2').innerText = currentCompress2;
+    document.getElementById('compressSlider3').value = currentCompress3;
+    document.getElementById('compressValue3').innerText = currentCompress3;
     initUser();
     loadFixedNumbers();
     loadTrash();
