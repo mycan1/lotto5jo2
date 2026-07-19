@@ -442,11 +442,11 @@
             <span id="intervalAiValue">7</span>
             <button onclick="changeIntervalAi(1)">+</button>
         </div>
-        <div class="round-box"><button onclick="decreaseRound()">−</button><input type="number" id="roundInput" value="1233" min="901" max="1233" onchange="setRoundFromInput()"><button onclick="increaseRound()">+</button></div>
+        <div class="round-box"><button onclick="decreaseRound()">−</button><input type="number" id="roundInput" value="1234" min="901" max="1234" onchange="setRoundFromInput()"><button onclick="increaseRound()">+</button></div>
         <div class="fixed-btn" onclick="openFixedPopup()">🔒고정</div>
     </div>
     <div class="btn-group">
-        <button class="btn-zone" onclick="generateZoneCombo(5)">📐구간5</button>
+        <button class="btn-mix" onclick="generateRandomFromRecommend(5)">🎲랜덤조합</button>
         <button class="btn-mix" onclick="generateMixRandomCombo(5)">🎲혼합랜덤5</button>
         <button class="btn-cover" onclick="generateCoveringCombos()">🔐보장형6(압축3)</button>
         <button onclick="openBasket()">📦 보관함</button>
@@ -457,13 +457,13 @@
         <button onclick="openHelp()">❓ 도움말</button>
     </div>
     <div class="fixed-numbers"><div class="fixed-left"><span id="fixedExtra"></span></div><div class="fixed-right"><button onclick="window.open('https://www.naver.com', '_blank')">🌐 네이버</button><button onclick="clearFixed()">초기화</button><button onclick="openFixedPopup()">⏳ 추가</button></div></div>
-    <div class="small-note">🎯 예상회차: <span id="targetRound">1233</span> | 분석기준: <span id="analyzeRoundDisplay">1232</span>회까지 데이터<br>※ 특수간격 4 / AI간격 7 | 구간/혼합/보장형 모두 추출</div>
+    <div class="small-note">🎯 예상회차: <span id="targetRound">1234</span> | 분석기준: <span id="analyzeRoundDisplay">1233</span>회까지 데이터<br>※ 특수간격 4 / AI간격 7 | 랜덤/혼합/보장형 모두 추출</div>
 </div>
 <div class="toast" id="toast"><span>✅ 저장됨</span></div>
 <div id="fixedPopup" class="popup-overlay"><div class="popup-content"><h3>🔒 고정 번호 선택</h3><p style="text-align:center;">최대 6개까지 선택 가능</p><div class="number-grid" id="fixedNumberGrid"></div><div style="text-align:center;"><button onclick="saveFixedPopup()">저장</button><button class="close-btn" onclick="closeFixedPopup()">닫기</button></div></div></div>
 <div id="comboPopup" class="popup-overlay"><div class="popup-content"><h3>📋 생성된 조합</h3><div id="comboList"></div><div style="text-align:center;"><button onclick="saveAllCombos()">보관함 저장</button><button class="close-btn" onclick="closeComboPopup()">닫기</button></div></div></div>
 <div id="basketPopup" class="popup-overlay"><div class="popup-content"><h3>📦 보관함</h3><div id="basketList"></div><div style="text-align:center;"><button onclick="loadFromBasket()">불러오기</button><button class="close-btn" onclick="closeBasketPopup()">닫기</button></div></div></div>
-<div id="reviewPopup" class="popup-overlay"><div class="popup-content"><h3>📊 당첨 확인</h3><div style="margin:15px 0; display:flex; flex-direction:column; gap:8px;"><p>회차: <input type="number" id="reviewRound" value="1232" min="900" max="1233" style="width:100px; padding:5px; background:#3a3a3a; color:#fff; border:1px solid #aaa; border-radius:30px;"></p><p>당첨번호: <input type="text" id="reviewWinning" placeholder="예: 1,2,3,4,5,6" style="width:100%; padding:5px; background:#3a3a3a; color:#fff; border:1px solid #aaa; border-radius:30px;"></p><p>보너스: <input type="number" id="reviewBonus" min="1" max="45" style="width:100px; padding:5px; background:#3a3a3a; color:#fff; border:1px solid #aaa; border-radius:30px;"></p></div><div id="reviewResult" style="background:#2a2a2a; border-radius:20px; padding:10px;"></div><div style="text-align:center;"><button onclick="compareNumbers()">비교</button><button onclick="saveWinningNumbers()">저장</button><button class="close-btn" onclick="closeReviewPopup()">닫기</button></div></div></div>
+<div id="reviewPopup" class="popup-overlay"><div class="popup-content"><h3>📊 당첨 확인</h3><div style="margin:15px 0; display:flex; flex-direction:column; gap:8px;"><p>회차: <input type="number" id="reviewRound" value="1233" min="900" max="1234" style="width:100px; padding:5px; background:#3a3a3a; color:#fff; border:1px solid #aaa; border-radius:30px;"></p><p>당첨번호: <input type="text" id="reviewWinning" placeholder="예: 1,2,3,4,5,6" style="width:100%; padding:5px; background:#3a3a3a; color:#fff; border:1px solid #aaa; border-radius:30px;"></p><p>보너스: <input type="number" id="reviewBonus" min="1" max="45" style="width:100px; padding:5px; background:#3a3a3a; color:#fff; border:1px solid #aaa; border-radius:30px;"></p></div><div id="reviewResult" style="background:#2a2a2a; border-radius:20px; padding:10px;"></div><div style="text-align:center;"><button onclick="compareNumbers()">비교</button><button onclick="saveWinningNumbers()">저장</button><button class="close-btn" onclick="closeReviewPopup()">닫기</button></div></div></div>
 <div id="statusZoomPopup" class="popup-overlay"><div class="popup-content"><h3>🔍 상세 분석</h3><div id="statusZoomContent"></div><div style="text-align:center;"><button class="close-btn" onclick="closeStatusZoomPopup()">닫기</button></div></div></div>
 <div id="helpPopup" class="popup-overlay"><div class="popup-content"><h3>❓ 도움말</h3><div style="margin:10px 0;">
 <h4>🎯 V7.5 (보장형 스타일 구간/혼합 + 커버링)</h4>
@@ -472,7 +472,7 @@
 <p>⭐ 압축1 = AI 점수 (기본 9개), 압축2 = 동반/궁합 점수 (기본 9개)</p>
 <p>⭐ 압축3 = 생존교집합(S∩AI) + 당첨분석(최근10회) + 점수순 보충 (기본 12개)</p>
 <p>⭐ 동반추출: 분석 기준 회차의 당첨번호 7개 각각과 함께 자주 나온 숫자 3개씩 추출 (총 21개, 중복 제거)</p>
-<p>✅ <b>구간5</b>: 압축1에서 트리플 커버리지 최대화 (합계90~160, 3연번 제외)</p>
+<p>✅ <b>랜덤조합</b>: 추천 압축수에서 무작위로 5개 조합 생성 (합계90~160, 3연번 제외)</p>
 <p>✅ <b>혼합랜덤5</b>: 압축2에서 트리플 커버리지 최대화 (합계90~160, 3연번 제외)</p>
 <p>✅ <b>보장형 6조합 (최적화)</b>: 압축3 기반 커버링 (모든 트리플 100% 커버, 빠른 속도)</p>
 <p>📋 <b>번호 복사</b>: 번호 클릭 시 개별 복사, 📋 버튼 클릭 시 해당 행 전체 복사, <b>📋 전체 복사</b> 버튼으로 모든 번호 한 번에 복사</p>
@@ -499,10 +499,11 @@
 
 <script>
 // ===================== 데이터 =====================
-const MAX_ROUND = 1233;
+const MAX_ROUND = 1234;
 const MIN_ROUND = 901;
 
 const FULL_DATA = [
+    [1233, 2, 7, 20, 25, 37, 40, 29],  // ★ 1233회 추가 (2026.07.18)
     [1232, 12, 15, 19, 22, 24, 36, 3],
     [1231, 4, 13, 14, 18, 31, 38, 15],
     [1230, 3, 8, 9, 22, 28, 42, 45],
@@ -752,12 +753,11 @@ let trashCompressCount = 10;
 let intervalExclude = 4;
 let intervalAi = 7;
 let fixedNumbers = [];
-let myFixedPool = [];
 let userName = "";
 let savedNumbers = [];
 let generatedCombos = [];
-let currentBaseRound = 1233;
-let analyzeRound = 1232;
+let currentBaseRound = 1234;  // ★ 1234회 예상
+let analyzeRound = 1233;
 let specialSurvivors = [];
 let specialSurvivors2 = [];
 let specialSurvivors3 = [];
@@ -807,7 +807,7 @@ function updateFixedDisplay() {
     document.getElementById('fixedExtra').innerText = fixedNumbers.length > 0 ? '🔒 ' + fixedNumbers.join(', ') : '고정번호 없음';
 }
 function clearFixed() {
-    if (confirm('고정번호 초기화?')) { fixedNumbers = []; myFixedPool = []; saveFixedNumbers(); updateFixedDisplay(); analyze(); showToast('고정번호 초기화'); }
+    if (confirm('고정번호 초기화?')) { fixedNumbers = []; saveFixedNumbers(); updateFixedDisplay(); updateUI(); showToast('고정번호 초기화'); }
 }
 function openFixedPopup() {
     let grid = document.getElementById('fixedNumberGrid');
@@ -1098,7 +1098,7 @@ function analyzeRecentWins(lookback = 10) {
     return scores;
 }
 
-// ===================== ★ 개선된 동반번호 추출 =====================
+// ===================== 개선된 동반추출 =====================
 function calculateCompanionNumbers(round) {
     let targetData = FULL_DATA.find(r => r[0] === round);
     if (!targetData) return [];
@@ -1160,7 +1160,7 @@ function calculateCompanionNumbers(round) {
     return uniqueResult;
 }
 
-// ===================== 합집합 (동반번호 포함) =====================
+// ===================== 합집합 (순수 AI 점수 정렬) =====================
 function calculateRecommendPool_Union() {
     let unionSet = new Set([...specialSurvivors, ...aiSurvivors, ...companionPool]);
     let arr = Array.from(unionSet);
@@ -1315,16 +1315,40 @@ function generateCombosWithFixed(pool, count, minSum, maxSum) {
     return shuffled.slice(0, count);
 }
 
-// ===================== 구간조합 =====================
-function generateZoneCombos(count) {
-    let pool = compressRecommendPool1(currentCompress1);
-    if (pool.length < 6) { pool = [...recommendPool]; }
-    if (pool.length > 15) pool = pool.slice(0, 15);
-    if (pool.length < 6) { showToast('조합을 만들 수 있는 번호가 부족합니다.'); return []; }
-    const minSum = 90, maxSum = 160;
-    let combos = generateCombosWithFixed(pool, count, minSum, maxSum);
-    if (combos.length === 0) { showToast('조건을 만족하는 조합이 없습니다.'); return []; }
-    return combos;
+// ===================== 랜덤조합 =====================
+function generateRandomFromRecommend(count) {
+    let pool = recommendPool;
+    if (pool.length < 6) {
+        showToast('추천수에 6개 이상의 번호가 없습니다.');
+        return;
+    }
+    let combos = [];
+    const minSum = 90;
+    const maxSum = 160;
+    let attempts = 0;
+    const maxAttempts = count * 200;
+
+    while (combos.length < count && attempts < maxAttempts) {
+        attempts++;
+        let shuffled = shuffleArray(pool);
+        let selected = shuffled.slice(0, 6).sort((a, b) => a - b);
+        let sum = selected.reduce((a, b) => a + b, 0);
+        if (hasThreeConsecutive(selected)) continue;
+        if (sum < minSum || sum > maxSum) continue;
+
+        let key = selected.join(',');
+        if (!combos.some(c => c.join(',') === key)) {
+            combos.push(selected);
+        }
+    }
+
+    if (combos.length === 0) {
+        showToast('조건에 맞는 조합을 생성할 수 없습니다.');
+        return;
+    }
+    generatedCombos = combos;
+    showCombos();
+    showToast('🎲 랜덤조합 ' + combos.length + '개 생성');
 }
 
 // ===================== 혼합랜덤 =====================
@@ -1436,16 +1460,6 @@ function copyAllNumbers() {
     text += '🗑️ 휴지통: ' + (trashNumbers.length ? trashNumbers.join(', ') : '없음');
     navigator.clipboard.writeText(text).then(() => { showToast('📋 전체 번호 복사됨'); }).catch(() => { const textArea = document.createElement('textarea'); textArea.value = text; document.body.appendChild(textArea); textArea.select(); document.execCommand('copy'); textArea.remove(); showToast('📋 전체 번호 복사됨'); });
 }
-function generateZoneCombo(count) {
-    let combos = generateZoneCombos(count);
-    if (!combos || combos.length === 0) { showToast('구간 조합 실패'); return; }
-    generatedCombos = combos; showCombos(); showToast('📐 구간 ' + combos.length + '개 생성');
-}
-function generateMixRandomCombo(count) {
-    let combos = generateMixRandomCombos(count);
-    if (!combos || combos.length === 0) { showToast('혼합랜덤 조합 실패'); return; }
-    generatedCombos = combos; showCombos(); showToast('🎲 혼합랜덤 ' + combos.length + '개 생성');
-}
 function showCombos() {
     if (!generatedCombos.length) { alert('생성된 조합 없음'); return; }
     let targetWinData = FULL_DATA.find(r => r[0] === currentBaseRound);
@@ -1470,15 +1484,15 @@ function showCombos() {
             else if (match === 3) { rank = ' ⭐ 5등'; fifth++; }
         }
         let comboHtml = combo.map(n => {
-            let isMyFixed = myFixedPool.includes(n);
+            let isFixed = fixedNumbers.includes(n);
             let isWinning = winNumbers.includes(n);
             let isBonus = bonus === n;
-            if (isMyFixed && isWinning) return '<span class="combo-ball fixed-winning">' + n + '</span>';
+            if (isFixed && isWinning) return '<span class="combo-ball fixed-winning">' + n + '</span>';
             else if (isWinning) return '<span class="combo-ball winning">' + n + '</span>';
             else if (isBonus) return '<span class="combo-ball bonus">' + n + '</span>';
             else return '<span class="combo-ball">' + n + '</span>';
         }).join('');
-        let fixedUsed = combo.filter(n => myFixedPool.includes(n)).length;
+        let fixedUsed = combo.filter(n => fixedNumbers.includes(n)).length;
         let odds = combo.filter(n => n % 2 === 1).length;
         let evens = combo.filter(n => n % 2 === 0).length;
         let sum = combo.reduce((a,b)=>a+b,0);
@@ -1611,7 +1625,25 @@ function openStatusZoomPopup() {
     document.getElementById('statusZoomPopup').style.display = 'flex';
 }
 function closeStatusZoomPopup() { document.getElementById('statusZoomPopup').style.display = 'none'; }
-function resetMyFixed() { myFixedPool = []; updateUI(); showToast('모든 고정번호 초기화'); }
+
+// ===================== 상태창에서 더블클릭으로 고정 토글 =====================
+function toggleFixedFromStatus(num) {
+    if (fixedNumbers.includes(num)) {
+        fixedNumbers = fixedNumbers.filter(n => n !== num);
+        showToast('고정 해제: ' + num);
+    } else {
+        if (fixedNumbers.length >= 6) {
+            showToast('최대 6개까지 고정 가능');
+            return;
+        }
+        fixedNumbers.push(num);
+        fixedNumbers.sort((a, b) => a - b);
+        showToast('고정 추가: ' + num + ' (' + fixedNumbers.length + '개)');
+    }
+    saveFixedNumbers();
+    updateFixedDisplay();
+    updateUI();
+}
 
 function analyze() {
     if (isAnalyzing) return;
@@ -1678,7 +1710,7 @@ function updateUI() {
         if (type === 'c1') style = ' border-color: #ffd700;';
         if (type === 'c2') style = ' border-color: #ff6b6b;';
         if (type === 'c3') style = ' border-color: #4caf50;';
-        return '<span class="clickable ' + cls + '" style="' + style + '" onclick="copyNumber(' + num + ')" ondblclick="toggleMyFixed(' + num + ')">' + num + '</span>';
+        return '<span class="clickable ' + cls + '" style="' + style + '" onclick="copyNumber(' + num + ')" ondblclick="toggleFixedFromStatus(' + num + ')">' + num + '</span>';
     }
 
     function formatList(nums, type) {
@@ -1693,13 +1725,7 @@ function updateUI() {
     function getNumsJson(arr) { return JSON.stringify(arr || []); }
 
     let fixedStatus = fixedNumbers.length > 0 ? ' (고정적용)' : '';
-    let companionLabel = '⭐동반추출(' + analyzeRound + '회)';
     
-    // ★ 동반추출과 추천수의 교집합
-    let intersection = companionPool.filter(n => recommendPool.includes(n));
-    let intersectionLabel = '⭐동반∩추천수 (' + intersection.length + '개)';
-    
-    // ★★ 네 집합의 교집합 (AI생존 ∩ 생존교집합 ∩ 동반추출 ∩ 추천수)
     let allIntersection = aiSurvivors.filter(n => 
         interSurvivors.includes(n) && 
         companionPool.includes(n) && 
@@ -1708,15 +1734,12 @@ function updateUI() {
     let allInterLabel = '⭐전체교집합(AI∩생존∩동반∩추천수) (' + allIntersection.length + '개)';
 
     document.getElementById('status').innerHTML = 
-        '<div class="stat-row" style="border-left-color:#ffd700;"><span class="stat-label">⭐생존 교집합(S∩AI)</span><div class="number-group">' + formatList(interSurvivors, '') + ' (' + interSurvivors.length + '개)</div><button class="copy-group-btn" onclick="copyGroupNumbers(\'생존교집합\', ' + getNumsJson(interSurvivors) + ')">📋</button></div>' +
-        '<div class="stat-row" style="border-left-color:#9c27b0;"><span class="stat-label">' + companionLabel + '</span><div class="number-group">' + formatList(companionPool, '') + ' (' + companionPool.length + '개)</div><button class="copy-group-btn" onclick="copyGroupNumbers(\'동반추출\', ' + getNumsJson(companionPool) + ')">📋</button></div>' +
-        '<div class="stat-row" style="border-left-color:#e91e63;"><span class="stat-label">' + intersectionLabel + '</span><div class="number-group">' + formatList(intersection, '') + '</div><button class="copy-group-btn" onclick="copyGroupNumbers(\'동반∩추천수\', ' + getNumsJson(intersection) + ')">📋</button></div>' +
         '<div class="stat-row" style="border-left-color:#ff5722;"><span class="stat-label">' + allInterLabel + '</span><div class="number-group">' + formatList(allIntersection, '') + '</div><button class="copy-group-btn" onclick="copyGroupNumbers(\'전체교집합\', ' + getNumsJson(allIntersection) + ')">📋</button></div>' +
         '<div class="stat-row" style="border-left-color:#4caf50;"><span class="stat-label">🧬합집합(추천수)</span><div class="number-group">' + unionCount + '개</div></div>' +
         '<div class="stat-row"><span class="stat-label">⭐추천수(' + unionCount + '개)</span><div class="number-group">' + formatList(recommendPool, '') + ' (' + recommendPool.filter(n => targetWinNumbers.includes(n)).length + ')</div><button class="copy-group-btn" onclick="copyGroupNumbers(\'추천수\', ' + getNumsJson(recommendPool) + ')">📋</button></div>' +
         '<div class="stat-row" style="border-left-color:#4caf50;"><span class="stat-label">🔄압축3(당첨분석+생존)(' + compressed3.length + '개) <span class="hit-badge">🎯' + hit3 + '개</span></span><div class="number-group">' + formatList(compressed3, 'c3') + '</div><button class="copy-group-btn" onclick="copyGroupNumbers(\'압축3\', ' + getNumsJson(compressed3) + ')">📋</button></div>' +
         '<div class="stat-row" onclick="openTrashPopup()" style="cursor:pointer;"><span class="stat-label">🗑️휴지통</span><div class="number-group">총 ' + trashNumbers.length + '개 / 압축 ' + trashCompressed.length + '개</div><button class="copy-group-btn" onclick="event.stopPropagation();copyGroupNumbers(\'휴지통\', ' + getNumsJson(trashNumbers) + ')">📋</button></div>' +
-        '<div class="stat-row"><span class="stat-label">⭐내가고정' + fixedStatus + ' <button class="reset-fixed-btn" onclick="resetMyFixed()">초기화</button></span><div class="number-group">' + (myFixedPool.length ? myFixedPool.map(n => '<span class="fixed-only-yellow" style="cursor:default;">' + n + '</span>').join(' ') : '없음') + '</div></div>';
+        '<div class="stat-row"><span class="stat-label">🔒고정번호' + fixedStatus + ' <button class="reset-fixed-btn" onclick="clearFixed()">초기화</button></span><div class="number-group">' + (fixedNumbers.length ? fixedNumbers.map(n => '<span class="fixed-only-yellow" style="cursor:default;">' + n + '</span>').join(' ') : '없음') + '</div></div>';
 
     let prevDataInfo = FULL_DATA.find(r => r[0] === analyzeRound);
     if (prevDataInfo && prevDataInfo[1] !== 0) {
@@ -1744,20 +1767,6 @@ function updateUI() {
     } else {
         targetContainer.innerHTML = '<span class="target-win-label">🎯 ' + currentBaseRound + '회</span><span class="target-win-numbers">??? (미발표)</span>';
     }
-}
-
-function toggleMyFixed(num) {
-    if (!recommendPool.includes(num)) { showToast('추천수에 있는 번호만 고정 가능'); return; }
-    if (myFixedPool.includes(num)) {
-        myFixedPool = myFixedPool.filter(n => n !== num);
-        showToast('고정 해제: ' + num);
-    } else {
-        if (myFixedPool.length >= 6) { showToast('최대 6개까지 고정 가능'); return; }
-        myFixedPool.push(num);
-        myFixedPool.sort((a, b) => a - b);
-        showToast('고정 추가: ' + num + ' (' + myFixedPool.length + '개)');
-    }
-    updateUI();
 }
 
 window.onload = function () {
