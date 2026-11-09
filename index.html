@@ -1132,7 +1132,7 @@ function runAnalysis() {
     }
 
     const comboHits = {};
-    Object.entries(baseStrategies).forEach(([name, nums]) => { if (winData) { const hits = nums.filter(n => winMain.includes(n)); const bonusHit = displayBonus && nums.includes(displayBonus) ? 1 : 0; comboHits[name] = hits.length + bonusHit; } else comboHits[name] = -1; });
+    Object.entries(baseStrategies).forEach(([name, nums]) => { if (winData) { comboHits[name] = nums.filter(n => winMain.includes(n)).length; } else comboHits[name] = -1; });
     const maxComboHit = winData ? Math.max(...Object.values(comboHits), 0) : -1;
     const bothStrongNames = Object.keys(baseStrategies).filter(p => {
         const nums = baseStrategies[p];
@@ -1397,7 +1397,7 @@ function runBacktest() {
             sumHit10 += hit10;
             if (hit10 >= 3) tenPlusCount++;
             let bestCombo = 0;
-            for (const nums of Object.values(combosLimited)) { const h = nums.filter(n => win.main.includes(n)).length + (actualBonus && nums.includes(actualBonus) ? 1 : 0); if (h > bestCombo) bestCombo = h; }
+            for (const nums of Object.values(combosLimited)) { const h = nums.filter(n => win.main.includes(n)).length; if (h > bestCombo) bestCombo = h; }
             bestComboHitSum += bestCombo;
             if (bestCombo >= 3) fivePlusCount++;
 
@@ -1521,8 +1521,7 @@ function recombineCombos() {
             let idx = 0;
             for (const [name, nums] of Object.entries(combosLimited)) {
                 const hit = targetWin ? nums.filter(n => winMain.includes(n)) : [];
-                const hitBonus = targetWin && displayBonus && nums.includes(displayBonus) ? 1 : 0;
-                const totalH = hit.length + hitBonus;
+                const totalH = hit.length;
                 const color = totalH >= 3 ? '#2ecc71' : totalH >= 2 ? '#f39c12' : totalH >= 1 ? '#3498db' : '#666';
                 const zone = idx < 4 ? '🔴' : (idx < 8 ? '🟠' : (idx < 14 ? '🟣' : '🔵'));
                 displayHtml += `<div class="rr-combo-line" style="border-left-color:${color};">${zone} ${name}: <span style="color:#fff;">${nums.join(',')}</span> <span style="color:${color};font-weight:bold;">[${totalH}개]</span></div>`;
@@ -1582,8 +1581,7 @@ function generateCustomCombos() {
     const renderCombos = (combos, targetId, baseColor) => {
         const grid = combos.map((c, i) => {
             const hits = winData ? c.filter(n => winMain.includes(n)) : [];
-            const hitBonus = winData && displayBonus && c.includes(displayBonus);
-            const totalH = hits.length + (hitBonus ? 1 : 0);
+            const totalH = hits.length;
             const isHit3 = winData && totalH >= 3;
             const color = isHit3 ? '#2ecc71' : (totalH >= 2 ? '#f39c12' : (totalH >= 1 ? '#3498db' : baseColor));
             const numHtml = c.map(n => colorNumSimple(n, winMain, displayBonus)).join(' ');
