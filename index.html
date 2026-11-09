@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<title>📊 v57.6K – 최종 공식 (Case1/2/3 조건부)</title>
+<title>📊 v57.6.3 – Case1/2/3 · 20조합 · 유니크 상한 · 강력수 고정 · 커스텀 10/20조합</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:#0a0a0a;color:#fff;font-family:'Segoe UI',sans-serif;padding:20px;max-width:1400px;margin:0 auto}
@@ -175,25 +175,28 @@ button.verify-mode-btn{background:linear-gradient(135deg,#2ecc71,#00e6b8);color:
 .freq-rank-box .fr-chip .rank{font-size:9px;opacity:.7;margin-right:2px}
 .freq-rank-box .fr-chip .cnt{font-size:10px;opacity:.85;margin-left:3px}
 .freq-rank-box .fr-legend{font-size:11px;color:#888;margin-top:6px}
-.strong-score-box{background:#0a1a0a;border:2px solid #00b894;border-radius:8px;padding:8px 12px;margin:6px 0}
-.strong-score-box .ss-title{color:#00b894;font-weight:bold;font-size:13px;margin-bottom:6px}
-.strong-score-box .ss-chip{display:inline-block;background:#1a2a1a;border-radius:6px;padding:3px 10px;margin:2px;font-family:'Consolas',monospace}
-.strong-score-box .ss-chip.first{border-left:3px solid #2ecc71;background:#0a2a1a}
-.strong-score-box .ss-chip.second{border-left:3px solid #f39c12}
-.strong-score-box .ss-chip.rest{border-left:3px solid #666}
 .case-badge{background:linear-gradient(135deg,#2ecc71,#00e6b8);color:#000;padding:2px 10px;border-radius:12px;font-size:11px;margin-left:6px;font-weight:bold}
-@media (max-width:700px){.combo-grid{grid-template-columns:1fr}.set-result-display{grid-template-columns:1fr 1fr}}
+.pool-limit-box{background:#0a1a2a;border:2px solid #ffd700;border-radius:8px;padding:6px 12px;margin:6px 0;font-size:12px}
+.pool-limit-box b{color:#00e6b8}
+.fixed-note{background:#0a1a0a;border:2px solid #00e6b8;border-radius:8px;padding:6px 12px;margin:6px 0;font-size:11px;color:#00e6b8}
+.cc-combo-section{background:#0a0a0a;border:1px solid #444;border-radius:6px;padding:8px 10px;margin-top:8px;max-height:320px;overflow-y:auto}
+.cc-combo-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:4px}
+.cc-combo-item{background:#1a1a1a;padding:4px 8px;border-radius:4px;border-left:3px solid #666;font-size:12px;font-family:'Consolas',monospace;display:flex;align-items:center;gap:4px}
+.cc-combo-idx{color:#888;font-size:10px;min-width:20px;font-weight:bold}
+.cc-combo-nums{letter-spacing:1px;flex:1}
+.cc-combo-empty{color:#666;font-size:12px;padding:4px}
+@media (max-width:700px){.combo-grid{grid-template-columns:1fr}.set-result-display{grid-template-columns:1fr 1fr}.cc-combo-grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 
-<h1>📊 v57.6K – 최종 공식 (Case1/2/3 조건부)</h1>
+<h1>📊 v57.6.3 – Case1/2/3 · 20조합 · 유니크 상한 · 강력수 고정 · 커스텀 10/20조합</h1>
 <div class="update-notice">
-🎯 <strong>최종 강력수 공식 — 9회차 교차검정 67%</strong> <span class="badge-new">NEW</span><br>
-🔴 <b>Case1</b> — 이월확정 2개 이상 → 그 둘을 1수/2수 (1244: 38✅/18✅)<br>
-🟠 <b>Case2</b> — sweet 이월 존재 → sweet 이월 1수 + sweet 다른 번호 2수 (1242/1241/1240)<br>
-🟢 <b>Case3</b> — 그 외 → T4최상위 1수 + T3최상위 2수 (1248/1247/1246/1245/1243)<br>
-🔵 5수는 T4 최대2 + T3 최대2 (v57.5K 유지) | 백테스트에 2단계 재선정 반영
+🎯 <strong>기본 설정: 예상 1247 · 시작 1147 · 유니크 무제한 · 보너스제거 ON</strong> <span class="badge-new">NEW</span><br>
+🛡️ <b style="color:#ffd700;">Case2 판정 강화 / Case2 폴백 / T4 비중 확대 / f10 동적 T4 가중</b><br>
+✨ <b style="color:#2ecc71;">커스텀 조합</b> — 입력 번호로 <b>10조합 + 20조합 동시 표시</b><br>
+🎨 <b style="color:#00e6b8;">20조합 사용번호 통계</b> — <b>당번 커버리지 + Tier별 그룹화 + 빈도 분포 히트맵</b><br>
+📌 <b>1249회</b>: 2 · 11 · 16 · 25 · 34 · 35 + 보너스 <b style="color:#ff6b6b;">14</b> | 실제 이월수: <b style="color:#2ecc71;">16</b>
 </div>
 
 <div class="two-mode-area">
@@ -220,11 +223,13 @@ button.verify-mode-btn{background:linear-gradient(135deg,#2ecc71,#00e6b8);color:
 <div class="filter-group"><label>🎯 일치</label><select id="minMatch" style="width:60px;"><option value="1" selected>1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option></select></div>
 <div class="filter-group"><label>📊 정렬</label><select id="similarSort" style="width:100px;"><option value="high" selected>추세</option><option value="low">역발상</option></select></div>
 <div class="filter-group"><label>📊 개수</label><div style="display:flex;align-items:center;gap:4px;"><input type="range" id="topCount" min="3" max="40" step="1" style="width:80px;"><span class="range-value" id="topCountDisplay">5</span></div></div>
-<div class="filter-group unique-limit-group"><label>🎯 유니크 상한</label>
+<div class="filter-group unique-limit-group"><label>🎯 유니크 상한 (20조합용)</label>
 <select id="uniqueLimit" style="width:120px;background:#0a1a0a;border-color:#2ecc71;color:#2ecc71;font-weight:bold;">
-<option value="0">무제한</option>
+<option value="0" selected>무제한</option>
+<option value="35">35개</option>
+<option value="30">30개</option>
 <option value="25">25개</option>
-<option value="20" selected>20개</option>
+<option value="20">20개</option>
 <option value="15">15개</option>
 <option value="12">12개</option>
 <option value="10">10개 ⚠️</option>
@@ -242,11 +247,11 @@ button.verify-mode-btn{background:linear-gradient(135deg,#2ecc71,#00e6b8);color:
 </div>
 <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;border-top:1px solid #333;padding-top:6px;width:100%;">
 <span style="color:#888;font-size:12px;">🎲 시드:</span>
-<span id="seedDisplay" style="color:#00e6b8;font-weight:bold;font-family:'Consolas',monospace;">1248</span>
+<span id="seedDisplay" style="color:#00e6b8;font-weight:bold;font-family:'Consolas',monospace;">1247</span>
 <span style="color:#888;font-size:12px;margin-left:10px;">🔍수동:</span>
 <input type="number" id="manualRound" min="1" max="9999" style="width:70px;padding:3px 8px;border-radius:5px;border:1px solid #555;background:#2a2a2a;color:#fff;font-size:13px;">
 <div class="bonus-toggle" style="padding:2px 8px;">
-<input type="checkbox" id="excludeBonus">
+<input type="checkbox" id="excludeBonus" checked>
 <label style="font-size:11px;">보너스제거</label>
 </div>
 </div>
@@ -283,16 +288,26 @@ button.verify-mode-btn{background:linear-gradient(135deg,#2ecc71,#00e6b8);color:
 <div class="sr-item"><div class="sr-label">− B\A</div><div class="sr-value" id="srDiffBA">-</div><div class="sr-count" id="srDiffBACount">0개</div></div>
 </div>
 <div class="custom-combo-area">
-<div class="cc-title">🎯 커스텀 조합</div>
+<div class="cc-title">🎯 커스텀 조합 (10조합 / 20조합 / 압축10·20)</div>
 <div class="cc-row">
 <span style="color:#aaa;font-size:12px;">번호:</span>
 <input type="text" id="customComboInput" placeholder="예: 1,2,3,4,5,6,7">
-<button onclick="generateCustomCombos()" class="set-btn" style="background:#e67e22;color:#fff;">🎯 생성</button>
+<button onclick="generateCustomCombos()" class="set-btn" style="background:#e67e22;color:#fff;">🎯 조합생성 (10+20)</button>
+<button onclick="compressCustom(10)" class="set-btn" style="background:#3498db;color:#fff;">🚀 압축10</button>
+<button onclick="compressCustom(20)" class="set-btn" style="background:#9b59b6;color:#fff;">🚀 압축20</button>
 <button onclick="clearCustomCombo()" class="set-btn secondary" style="background:#555;">🗑️</button>
 </div>
 <div class="cc-row" style="margin-top:6px;">
-<span style="color:#aaa;font-size:12px;">결과:</span>
+<span style="color:#aaa;font-size:12px;">압축결과:</span>
 <div class="cc-result" id="customComboResult">없음</div>
+</div>
+<div class="cc-combo-section">
+<div style="color:#3498db;font-weight:bold;font-size:13px;margin-bottom:4px;">📋 10조합 <span style="font-size:10px;color:#888;">(각 6개 · 균등 샘플)</span></div>
+<div class="cc-combo-grid" id="customCombo10Result"><span class="cc-combo-empty">없음</span></div>
+</div>
+<div class="cc-combo-section">
+<div style="color:#9b59b6;font-weight:bold;font-size:13px;margin-bottom:4px;">📋 20조합 <span style="font-size:10px;color:#888;">(각 6개 · 균등 샘플)</span></div>
+<div class="cc-combo-grid" id="customCombo20Result"><span class="cc-combo-empty">없음</span></div>
 </div>
 </div>
 <div class="compression-area">
@@ -311,7 +326,7 @@ button.verify-mode-btn{background:linear-gradient(135deg,#2ecc71,#00e6b8);color:
 </div>
 </div>
 
-<div class="result-area" id="resultArea"><div class="loading">🟢 v57.6K 준비 완료! Case1/2/3 조건부 공식</div></div>
+<div class="result-area" id="resultArea"><div class="loading">🟢 v57.6.3 준비 완료! Case2 강화 · T4 확대 · f10 동적 가중 · 커스텀 10/20조합 · 통계 대시보드</div></div>
 
 <div class="modal-overlay" id="backtestModal">
 <div class="modal-box">
@@ -319,7 +334,7 @@ button.verify-mode-btn{background:linear-gradient(135deg,#2ecc71,#00e6b8);color:
 <div class="modal-body">
 <div class="range-selector">
 <div><label>시작:</label><input type="number" id="btStartRound" value="1206" min="1"></div>
-<div><label>종료:</label><input type="number" id="btEndRound" value="1248" min="2"></div>
+<div><label>종료:</label><input type="number" id="btEndRound" value="1249" min="2"></div>
 <button onclick="runBacktest()">▶ 실행</button>
 <span id="btProgress" style="color:#ffd700;font-size:12px;"></span>
 </div>
@@ -333,7 +348,7 @@ button.verify-mode-btn{background:linear-gradient(135deg,#2ecc71,#00e6b8);color:
 <div class="modal-header"><h2>🔀 조합 재생성</h2><button class="close-btn" onclick="document.getElementById('recombineModal').classList.remove('active')">✕</button></div>
 <div class="modal-body">
 <div class="recombine-area">
-<div class="rc-row"><label>회차:</label><input type="number" id="rcStartRound" value="1206" style="width:80px;"><span>~</span><input type="number" id="rcEndRound" value="1248" style="width:80px;"></div>
+<div class="rc-row"><label>회차:</label><input type="number" id="rcStartRound" value="1206" style="width:80px;"><span>~</span><input type="number" id="rcEndRound" value="1249" style="width:80px;"></div>
 <div class="rc-row"><label>오프셋:</label>
 <select id="offsetSetSelect" style="width:200px;">
 <option value="all">전체 (-1,-2,-3)</option>
@@ -353,7 +368,7 @@ button.verify-mode-btn{background:linear-gradient(135deg,#2ecc71,#00e6b8);color:
 <script>
 'use strict';
 
-const LOCK_VERSION = 'LOCK57.6K-2026';
+const LOCK_VERSION = 'LOCK57.6.3-2026-20C-UL-FIX-1249-CC-DASH';
 const LOCK_SALT = 0x4C4F434B;
 let _lockActive = false, _lockBase = 0;
 let _lockStats = { futureAccessAttempts: [], blocks: 0 };
@@ -363,6 +378,8 @@ let _lastPredictionBase = null, _lastPredictionCombos = null, _lastPredictionCod
 let _lastModeExecutedBase = null, _lastModeExecutedType = null;
 let _splitInfo = { tier1: [], tier2: [], tier3: [], tier4: [], splitApplied: false };
 let _freqRankInfo = [];
+let _poolInfo = null;
+let _f10Formula = 'T1×3+T2×2+T3×2+T4×3';
 
 function getWinning(round) { if (_lockActive && round >= _lockBase) { _lockStats.futureAccessAttempts.push(round); _lockStats.blocks++; return null; } const row = DATA.find(r => r[0] === round); return row ? { main: row.slice(1, 7), bonus: row[7] } : null; }
 function getWinningForDisplay(round) { const row = DATA.find(r => r[0] === round); return row ? { main: row.slice(1, 7), bonus: row[7] } : null; }
@@ -370,7 +387,7 @@ function computePastDataHash(baseRound) { const past = DATA.filter(row => row[0]
 function computeCombosHash(combos) { const keys = Object.keys(combos).sort(); let str = LOCK_VERSION + '|C|'; for (const k of keys) str += k + '=' + [...combos[k]].sort((a,b)=>a-b).join(',') + '|'; let h = 2166136261 ^ LOCK_SALT; for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); } return (h >>> 0).toString(16).toUpperCase().padStart(8, '0'); }
 function renderLockCode(baseRound, pastHash, combosHash, lockCode) { const display = document.getElementById('lockCodeDisplay'); display.style.display = 'block'; const lockStatus = _lockStats.futureAccessAttempts.length === 0 ? '<span class="lock-status lock-ok">✅ LOCK 통과</span>' : `<span class="lock-status lock-warn">⚠️ 차단 ${_lockStats.blocks}건</span>`; display.innerHTML = `<div class="lock-code">🔐 ${lockCode}</div><div class="lock-detail"><strong>예상회차:</strong> ${baseRound} ${lockStatus}<br><strong>과거해시:</strong> <code>${pastHash}</code> | <strong>조합해시:</strong> <code>${combosHash}</code></div>`; _lastLockCode = lockCode; _lastLockBase = baseRound; }
 function showLastLockCode() { if (!_lastLockCode) { alert('⚠️ 먼저 분석하세요'); return; } alert(`🔐 마지막 암호코드\n\n회차: ${_lastLockBase}\n암호코드: ${_lastLockCode}`); }
-function runLockSelfTest() { const baseRound = parseInt(document.getElementById('baseRound').value) || 1248; _lockActive = true; _lockBase = baseRound; _lockStats.futureAccessAttempts = []; _lockStats.blocks = 0; const blocked = getWinning(baseRound); const displayOk = getWinningForDisplay(baseRound); const pastHash1 = computePastDataHash(baseRound); _lockActive = false; alert(`🔐 LOCK 자체검증\n\n예상회차: ${baseRound}\n과거해시: ${pastHash1}\n\n① 미래차단: ${blocked === null ? '✅' : '❌'}\n② 표시우회: ${displayOk !== null ? '✅' : '❌'}`); }
+function runLockSelfTest() { const baseRound = parseInt(document.getElementById('baseRound').value) || 1247; _lockActive = true; _lockBase = baseRound; _lockStats.futureAccessAttempts = []; _lockStats.blocks = 0; const blocked = getWinning(baseRound); const displayOk = getWinningForDisplay(baseRound); const pastHash1 = computePastDataHash(baseRound); _lockActive = false; alert(`🔐 LOCK 자체검증\n\n예상회차: ${baseRound}\n과거해시: ${pastHash1}\n\n① 미래차단: ${blocked === null ? '✅' : '❌'}\n② 표시우회: ${displayOk !== null ? '✅' : '❌'}`); }
 
 function updateTwoModeStatus(text, color, executedBase, extraHtml) {
     const el = document.getElementById('twoModeStatus');
@@ -438,6 +455,7 @@ function runAnalysisAndLock() {
 }
 
 const DATA = [
+[1249,2,11,16,25,34,35,14],
 [1248,16,18,27,36,38,42,22],
 [1247,8,14,21,22,42,45,24],[1246,16,22,23,24,27,28,6],[1245,4,5,25,28,32,42,12],[1244,1,13,18,26,34,38,25],[1243,9,18,24,38,43,44,35],[1242,2,4,10,16,31,41,9],[1241,7,13,16,23,24,43,9],[1240,11,13,19,20,31,44,27],[1239,11,13,22,32,33,36,8],[1238,2,13,18,32,38,42,22],[1237,10,20,23,34,37,40,36],[1236,12,18,21,29,34,38,10],[1235,6,7,11,15,39,43,20],
 [1234,1,15,19,31,35,43,27],[1233,2,7,20,25,37,40,29],[1232,12,15,19,22,24,36,3],[1231,4,13,14,18,31,38,15],[1230,3,8,9,22,28,42,45],[1229,12,13,29,34,37,42,16],[1228,24,29,30,31,35,44,1],[1227,1,14,16,34,41,44,13],[1226,4,6,13,17,26,28,41],[1225,8,9,19,25,41,42,33],[1224,9,18,21,27,44,45,28],[1223,16,18,20,32,33,39,26],[1222,4,11,17,22,32,41,34],[1221,6,13,18,28,30,36,9],[1220,2,22,25,28,34,43,16],[1219,1,2,15,28,39,45,31],[1218,3,28,31,32,42,45,25],[1217,8,10,15,20,29,31,41],[1216,3,10,14,15,23,24,25],[1215,13,15,19,21,44,45,39],[1214,10,15,19,27,30,33,14],[1213,5,11,25,27,36,38,2],[1212,5,8,25,31,41,44,45],[1211,23,26,27,35,38,40,10],[1210,1,7,9,17,27,38,31],[1209,2,17,20,35,37,39,24],[1208,6,27,30,36,38,42,25],[1207,10,22,24,27,38,45,11],[1206,1,3,17,26,27,42,23],[1205,1,4,16,23,31,41,2],
@@ -446,22 +464,18 @@ const DATA = [
 
 let winData = null, baseNums = [], similarData = null;
 let lastTop9 = [], lastV23Result = [];
-let lastStartRound = 1148, lastBaseRound = 1248, lastFinal10 = [], lastBaseStrategies = {};
-let lastWaitTop10 = [], lastUnionArray = [], lastActualCarryovers = [];
-let lastTripleSet = [], lastDoubleSet = [], lastPool5 = [];
+let lastStartRound = 1147, lastBaseRound = 1247, lastFinal10 = [], lastBaseStrategies = {};
+let lastActualCarryovers = [];
 let lastStrong1 = null, lastStrong2 = null, lastStrong2Alt = null;
 let lastStrong1Cands = [], lastStrong2Cands = [], lastStrong2Source = '';
-let lastStrongScored = [];
-let lastTop10Intersect = [], lastOnlyWait = [], lastCarryoverAnalysis = null;
-let lastWinBonus = null, lastDisplayBonus = null, lastPool5Filtered = [], lastOnly3Filtered = [], lastCarryCandidates = [];
+let lastCarryoverAnalysis = null;
+let lastWinBonus = null, lastDisplayBonus = null, lastCarryCandidates = [];
 let lastSimilarList = [];
-let currentSeed = 1248;
+let currentSeed = 1247;
 let lastDecidedCase = '';
 
 function isBonusExcluded() { return document.getElementById('excludeBonus')?.checked !== false; }
 function checkFutureData(baseRound) { const maxRound = DATA.reduce((max, row) => Math.max(max, row[0]), 0); if (baseRound > maxRound + 1) console.warn('⚠️ 예측 회차 초과'); return baseRound; }
-
-function seededShuffle(arr, seed) { const result = [...arr]; let s = seed; for (let i = result.length - 1; i > 0; i--) { s = (s * 9301 + 49297) % 233280; const j = Math.floor((s / 233280) * (i + 1)); [result[i], result[j]] = [result[j], result[i]]; } return result; }
 
 function changeSeed() {
     currentSeed = Math.floor(Math.random() * 100000) + 1;
@@ -471,12 +485,10 @@ function changeSeed() {
     _peekMode = prevPeekMode;
 }
 
-document.getElementById('baseRound').addEventListener('input', function() { const baseVal = parseInt(this.value) || 1248; const diff = baseVal - lastBaseRound; document.getElementById('startRound').value = Math.max(1, lastStartRound + diff); document.getElementById('manualRound').value = baseVal; lastBaseRound = baseVal; lastStartRound = Math.max(1, lastStartRound + diff); currentSeed = baseVal; document.getElementById('seedDisplay').textContent = currentSeed; });
-document.getElementById('manualRound').addEventListener('input', function() { const val = parseInt(this.value) || 1248; const diff = val - lastBaseRound; document.getElementById('baseRound').value = val; document.getElementById('startRound').value = Math.max(1, lastStartRound + diff); lastBaseRound = val; lastStartRound = Math.max(1, lastStartRound + diff); currentSeed = val; document.getElementById('seedDisplay').textContent = currentSeed; });
-document.getElementById('startRound').addEventListener('input', function() { lastStartRound = parseInt(this.value) || 1148; });
+document.getElementById('baseRound').addEventListener('input', function() { const baseVal = parseInt(this.value) || 1247; const diff = baseVal - lastBaseRound; document.getElementById('startRound').value = Math.max(1, lastStartRound + diff); document.getElementById('manualRound').value = baseVal; lastBaseRound = baseVal; lastStartRound = Math.max(1, lastStartRound + diff); currentSeed = baseVal; document.getElementById('seedDisplay').textContent = currentSeed; });
+document.getElementById('manualRound').addEventListener('input', function() { const val = parseInt(this.value) || 1247; const diff = val - lastBaseRound; document.getElementById('baseRound').value = val; document.getElementById('startRound').value = Math.max(1, lastStartRound + diff); lastBaseRound = val; lastStartRound = Math.max(1, lastStartRound + diff); currentSeed = val; document.getElementById('seedDisplay').textContent = currentSeed; });
+document.getElementById('startRound').addEventListener('input', function() { lastStartRound = parseInt(this.value) || 1147; });
 document.getElementById('topCount').addEventListener('input', function() { document.getElementById('topCountDisplay').textContent = this.value; });
-
-function hasConsecutive3(arr) { if (arr.length < 3) return false; const sorted = [...arr].sort((a,b)=>a-b); for (let i = 0; i < sorted.length - 2; i++) { if (sorted[i+1] === sorted[i] + 1 && sorted[i+2] === sorted[i] + 2) return true; } return false; }
 
 function isValidLottoCombo(combo, bonusNum = null) {
     if (combo.length !== 6) return false;
@@ -494,17 +506,62 @@ function isValidLottoCombo(combo, bonusNum = null) {
 }
 
 function buildTierCombos(sortedByFreq, strong1, strong2, alt2, seed) {
+    const uniqueLimitVal = parseInt(document.getElementById('uniqueLimit')?.value) || 0;
+
     const freqMap = {};
     sortedByFreq.forEach(x => freqMap[x.num] = x.count);
-    const allPool = [];
+
+    let allPool = [];
     for (let i = 1; i <= 45; i++) {
         allPool.push({ num: i, w: Math.max(0.5, freqMap[i] || 0) });
     }
     allPool.sort((a, b) => b.w - a.w || a.num - b.num);
 
+    let limitedByUnique = false;
+    let requestedLimit = 0;
+    if (uniqueLimitVal > 0 && uniqueLimitVal < 45) {
+        limitedByUnique = true;
+        requestedLimit = uniqueLimitVal;
+        const forced = [...new Set([strong1, strong2, alt2].filter(n => n != null && n >= 1 && n <= 45))];
+        const forcedSet = new Set(forced);
+        const nonForced = allPool.filter(x => !forcedSet.has(x.num));
+        const slotsForNonForced = Math.max(0, requestedLimit - forced.length);
+        allPool = [
+            ...forced.map(n => ({ num: n, w: Math.max(0.5, freqMap[n] || 0) })),
+            ...nonForced.slice(0, slotsForNonForced)
+        ];
+        allPool.sort((a, b) => b.w - a.w || a.num - b.num);
+    }
+
+    const poolSize = allPool.length;
+    let t1Size, t2Size, t3Size;
+    if (poolSize >= 30) {
+        t1Size = 10; t2Size = 10;
+        t3Size = Math.min(10, Math.max(0, poolSize - 20));
+    } else if (poolSize >= 20) {
+        t1Size = Math.round(poolSize * 0.35);
+        t2Size = Math.round(poolSize * 0.25);
+        t3Size = Math.round(poolSize * 0.15);
+    } else if (poolSize >= 12) {
+        t1Size = Math.max(4, Math.round(poolSize * 0.45));
+        t2Size = Math.max(3, Math.round(poolSize * 0.30));
+        t3Size = Math.max(1, Math.round(poolSize * 0.15));
+    } else {
+        t1Size = Math.max(3, Math.ceil(poolSize * 0.5));
+        t2Size = Math.max(2, poolSize - t1Size);
+        t3Size = 0;
+    }
+    if (t1Size + t2Size + t3Size > poolSize) {
+        t3Size = Math.max(0, poolSize - t1Size - t2Size);
+        if (t1Size + t2Size > poolSize) {
+            t2Size = Math.max(0, poolSize - t1Size);
+            if (t1Size > poolSize) t1Size = poolSize;
+        }
+    }
+
     const forcedArr = [...new Set([strong1, strong2, alt2].filter(n => n != null && n >= 1 && n <= 45))];
-    const forcedSet = new Set(forcedArr);
-    const t1Rest = allPool.filter(x => !forcedSet.has(x.num)).slice(0, Math.max(0, 10 - forcedArr.length));
+    const forcedSet2 = new Set(forcedArr);
+    const t1Rest = allPool.filter(x => !forcedSet2.has(x.num)).slice(0, Math.max(0, t1Size - forcedArr.length));
     const T1 = [
         ...forcedArr.map(n => ({ num: n, w: Math.max(0.5, freqMap[n] || 0) })),
         ...t1Rest
@@ -512,14 +569,20 @@ function buildTierCombos(sortedByFreq, strong1, strong2, alt2, seed) {
     const t1Set = new Set(T1.map(x => x.num));
 
     const rest1 = allPool.filter(x => !t1Set.has(x.num));
-    const T2 = rest1.slice(0, 10);
+    const T2 = rest1.slice(0, Math.min(t2Size, rest1.length));
     const t2Set = new Set(T2.map(x => x.num));
 
     const rest2 = rest1.filter(x => !t2Set.has(x.num));
-    const T3 = rest2.slice(0, 10);
+    const T3 = rest2.slice(0, Math.min(t3Size, rest2.length));
     const t3Set = new Set(T3.map(x => x.num));
 
     const T4 = rest2.filter(x => !t3Set.has(x.num));
+
+    _poolInfo = {
+        poolSize, t1Len: T1.length, t2Len: T2.length,
+        t3Len: T3.length, t4Len: T4.length,
+        limitedByUnique, requestedLimit
+    };
 
     const T1only = T1.filter(x => x.num !== strong1 && x.num !== strong2);
 
@@ -553,7 +616,17 @@ function buildTierCombos(sortedByFreq, strong1, strong2, alt2, seed) {
         { s1:0, s2:1, t1:2, t2:2, t3:1, t4:0, name:'⑦ [2수+T1×2+T2×2+T3]' },
         { s1:0, s2:1, t1:1, t2:2, t3:1, t4:1, name:'⑧ [2수+T1+T2×2+T3+T4]' },
         { s1:0, s2:0, t1:2, t2:2, t3:1, t4:1, name:'⑨ [T1×2+T2×2+T3+T4]' },
-        { s1:0, s2:0, t1:1, t2:2, t3:2, t4:1, name:'⑩ [T1+T2×2+T3×2+T4]' }
+        { s1:0, s2:0, t1:1, t2:2, t3:2, t4:1, name:'⑩ [T1+T2×2+T3×2+T4]' },
+        { s1:1, s2:1, t1:1, t2:0, t3:2, t4:1, name:'⑪ [1수+2수+T1+T3×2+T4]' },
+        { s1:1, s2:1, t1:2, t2:0, t3:0, t4:2, name:'⑫ [1수+2수+T1×2+T4×2]' },
+        { s1:1, s2:1, t1:0, t2:2, t3:0, t4:2, name:'⑬ [1수+2수+T2×2+T4×2]' },
+        { s1:1, s2:0, t1:2, t2:1, t3:1, t4:1, name:'⑭ [1수+T1×2+T2+T3+T4]' },
+        { s1:0, s2:1, t1:2, t2:1, t3:1, t4:1, name:'⑮ [2수+T1×2+T2+T3+T4]' },
+        { s1:1, s2:0, t1:1, t2:1, t3:2, t4:1, name:'⑯ [1수+T1+T2+T3×2+T4]' },
+        { s1:0, s2:1, t1:1, t2:1, t3:2, t4:1, name:'⑰ [2수+T1+T2+T3×2+T4]' },
+        { s1:0, s2:0, t1:2, t2:1, t3:2, t4:1, name:'⑱ [T1×2+T2+T3×2+T4]' },
+        { s1:0, s2:0, t1:1, t2:1, t3:2, t4:2, name:'⑲ [T1+T2+T3×2+T4×2]' },
+        { s1:1, s2:1, t1:1, t2:0, t3:0, t4:3, name:'⑳ [1수+2수+T1+T4×3]' }
     ];
 
     const combos = {}, seenKeys = new Set(), builtCombos = [];
@@ -598,6 +671,9 @@ function buildTierCombos(sortedByFreq, strong1, strong2, alt2, seed) {
             if (uniq.length < 6) {
                 const fillPool = [...T1only, ...T2, ...T3, ...T4].map(x => x.num);
                 for (const n of fillPool) { if (uniq.length >= 6) break; if (!uniq.includes(n)) uniq.push(n); }
+            }
+            if (uniq.length < 6) {
+                for (let n = 1; n <= 45; n++) { if (uniq.length >= 6) break; if (!uniq.includes(n)) uniq.push(n); }
             }
             best = uniq.slice(0, 6).sort((a, b) => a - b);
         }
@@ -670,7 +746,6 @@ function getCarryoverInfo(targetRound) { const pred = predictCarryoverAdvanced(t
 function colorNum(n, winMain, winBonus, showMark = true, actualCarryovers = []) { let color = '#fff', mark = ''; if (showMark && winMain && winMain.includes(n)) { color = '#2ecc71'; mark = '★'; } else if (showMark && winBonus !== null && winBonus === n) { color = '#ff6b6b'; mark = '☆'; } else if (actualCarryovers && actualCarryovers.includes(n)) { color = '#f39c12'; mark = '이월'; } return `<span style="color:${color}; font-weight:bold;">${n}${mark}</span>`; }
 function colorNumSimple(n, winMain, winBonus) { let color = '#fff', mark = ''; if (winMain && winMain.includes(n)) { color = '#2ecc71'; mark = '★'; } else if (winBonus !== null && winBonus === n) { color = '#ff6b6b'; mark = '☆'; } return `<span style="color:${color}; font-weight:bold;">${n}${mark}</span>`; }
 
-// ★★★ v57.6K: 최종 강력수 공식 (Case1/2/3) ★★★
 function decideStrongFinal(params) {
     const { actualCarryovers, carryCandidates, final10, tier1, tier2, tier3, tier4, sortedByFreq, winBonus } = params;
     const t3S = new Set(tier3), t4S = new Set(tier4 || []);
@@ -678,51 +753,48 @@ function decideStrongFinal(params) {
     const rankMap = {}; sortedByFreq.forEach((x, i) => rankMap[x.num] = i + 1);
     const getRank = (n) => rankMap[n] || 99;
     const isSweet = (n) => { const r = getRank(n); return r >= 11 && r <= 20; };
-
     const carryConf = (actualCarryovers || []).filter(n => n !== winBonus);
     const carryAll = [...new Set([...(actualCarryovers||[]), ...(carryCandidates||[])])].filter(n => n !== winBonus);
-
-    // Case1: 이월확정 2개 이상 → 그 둘
     if (carryConf.length >= 2) {
         lastDecidedCase = 'Case1';
         return { strong1: carryConf[0], strong2: carryConf[1], source: `Case1 이월확정×${carryConf.length}`, caseType: 1 };
     }
-
-    // Case2: 이월(sweet 내) 존재
-    const sweetCarry = carryAll.find(n => isSweet(n) && f10.includes(n));
+    const carryConfSet = new Set(carryConf);
+    const topCarryCand = (carryCandidates && carryCandidates.length > 0) ? carryCandidates[0] : null;
+    let sweetCarry = null;
+    for (const n of carryAll) {
+        if (!isSweet(n) || !f10.includes(n)) continue;
+        const isConfirmed = carryConfSet.has(n);
+        const isTopCandidate = (n === topCarryCand);
+        if (!isConfirmed && !isTopCandidate) continue;
+        const scRank = getRank(n);
+        if (scRank >= 18) continue;
+        sweetCarry = n;
+        break;
+    }
     if (sweetCarry) {
         lastDecidedCase = 'Case2';
         const s1 = sweetCarry;
         const sweetOthers = f10.filter(n => n !== s1 && isSweet(n)).sort((a, b) => getRank(a) - getRank(b));
         let s2;
-        if (sweetOthers.length > 0) {
-            s2 = sweetOthers[sweetOthers.length - 1];
-        } else {
-            const t4InF10 = f10.filter(n => t4S.has(n)).sort((a, b) => getRank(a) - getRank(b));
-            s2 = t4InF10[0] || f10.find(n => n !== s1);
-        }
+        if (sweetOthers.length > 0) s2 = sweetOthers[sweetOthers.length - 1];
+        else { const t4InF10 = f10.filter(n => t4S.has(n)).sort((a, b) => getRank(a) - getRank(b)); s2 = t4InF10[0] || f10.find(n => n !== s1); }
         return { strong1: s1, strong2: s2, source: `Case2 sweet이월(${s1})`, caseType: 2 };
     }
-
-    // Case3: T4최상위 → T3최상위
     lastDecidedCase = 'Case3';
     const t4InF10 = f10.filter(n => t4S.has(n)).sort((a, b) => getRank(a) - getRank(b));
     const t3InF10 = f10.filter(n => t3S.has(n)).sort((a, b) => getRank(a) - getRank(b));
     const s1 = t4InF10[0] || t3InF10[0] || f10[0];
     let s2;
-    if (t4InF10[0] === s1) {
-        s2 = t3InF10[0] || t4InF10[1] || f10.find(n => n !== s1);
-    } else {
-        s2 = t4InF10[0] || t3InF10[1] || f10.find(n => n !== s1);
-    }
+    if (t4InF10[0] === s1) s2 = t3InF10[0] || t4InF10[1] || f10.find(n => n !== s1);
+    else s2 = t4InF10[0] || t3InF10[1] || f10.find(n => n !== s1);
     if (!s2 || s2 === s1) s2 = f10.find(n => n !== s1) || s1;
     return { strong1: s1, strong2: s2, source: `Case3 T4→T3`, caseType: 3 };
 }
 
-// 기존 decideStrongV568 (임시 4티어 계산용)
 function decideStrongV568(params) {
     const { actualCarryovers, carryCandidates, sortedByFreq, winBonus, seed } = params;
-    const s0 = seed || 1248;
+    const s0 = seed || 1247;
     const freqMap = {}, rankMap = {};
     sortedByFreq.forEach((x, idx) => { freqMap[x.num] = x.count; rankMap[x.num] = idx + 1; });
     const maxFreq = Math.max(...Object.values(freqMap), 0.1);
@@ -809,7 +881,7 @@ function computeWeightedFreqMap(effectiveSimilar, baseRound) {
         .sort((a, b) => b.count - a.count || a.num - b.num);
 }
 
-function computeBalancedFinal10(baseStrategies, tier1, tier2, tier3, tier4) {
+function computeBalancedFinal10(baseStrategies, tier1, tier2, tier3, tier4, strong1, strong2) {
     const freq = {};
     Object.values(baseStrategies).forEach(nums => nums.forEach(n => freq[n] = (freq[n] || 0) + 1));
     const t1Set = new Set(tier1), t2Set = new Set(tier2), t3Set = new Set(tier3), t4Set = new Set(tier4 || []);
@@ -821,10 +893,26 @@ function computeBalancedFinal10(baseStrategies, tier1, tier2, tier3, tier4) {
     const t4Used = sortByFreq(usedNums.filter(n => t4Set.has(n)));
     const picks = [];
     const push = (arr, cnt) => { for (let i = 0; i < Math.min(cnt, arr.length); i++) { if (!picks.includes(arr[i])) picks.push(arr[i]); } };
-    push(t1Used, 3);
-    push(t2Used, 2);
-    push(t3Used, 2);
-    push(t4Used, 3);
+    let t4Boost = (t4Set.size >= 10);
+    if (t4Boost) {
+        push(t1Used, 2);
+        push(t2Used, 2);
+        push(t3Used, 2);
+        push(t4Used, 4);
+        const miss1 = (strong1 != null && strong1 >= 1 && !picks.includes(strong1));
+        const miss2 = (strong2 != null && strong2 >= 1 && strong2 !== strong1 && !picks.includes(strong2));
+        if (miss1 || miss2) {
+            picks.length = 0;
+            t4Boost = false;
+        }
+    }
+    if (!t4Boost) {
+        push(t1Used, 3);
+        push(t2Used, 2);
+        push(t3Used, 2);
+        push(t4Used, 3);
+    }
+    _f10Formula = t4Boost ? 'T1×2+T2×2+T3×2+T4×4' : 'T1×3+T2×2+T3×2+T4×3';
     if (picks.length < 10) {
         const pool = sortByFreq(usedNums);
         for (const n of pool) { if (picks.length >= 10) break; if (!picks.includes(n)) picks.push(n); }
@@ -842,13 +930,15 @@ function runAnalysis() {
     lastSimilarList = [];
     _splitInfo = { tier1: [], tier2: [], tier3: [], tier4: [], splitApplied: false };
     _freqRankInfo = [];
+    _poolInfo = null;
+    _f10Formula = 'T1×3+T2×2+T3×2+T4×3';
     const excludeBonus = isBonusExcluded();
     const sortMode = document.getElementById('similarSort')?.value || 'high';
     const offsets = Array.from(document.querySelectorAll('.refOffset:checked')).map(el => parseInt(el.value));
     if (offsets.length === 0) offsets = [-1];
-    const base = checkFutureData(parseInt(document.getElementById('baseRound').value) || 1248);
+    const base = checkFutureData(parseInt(document.getElementById('baseRound').value) || 1247);
     currentSeed = base; document.getElementById('seedDisplay').textContent = currentSeed;
-    const start = parseInt(document.getElementById('startRound').value) || 1148;
+    const start = parseInt(document.getElementById('startRound').value) || 1147;
     const minMatch = parseInt(document.getElementById('minMatch').value) || 1;
     const topN = parseInt(document.getElementById('topCount').value) || 5;
     document.getElementById('topCountDisplay').textContent = topN;
@@ -880,23 +970,23 @@ function runAnalysis() {
     const sortedByFreq = computeWeightedFreqMap(effectiveSimilar, base);
     _freqRankInfo = sortedByFreq.slice(0, 30);
 
-    // ═══ 1단계: 임시 강력수 (v57.3 방식) → 4티어 → final10 ═══
+    const _savedUniqueLimitEl = document.getElementById('uniqueLimit');
+    const _savedUniqueLimitValue = _savedUniqueLimitEl.value;
+    _savedUniqueLimitEl.value = '0';
+
     const decided0 = decideStrongV568({ actualCarryovers, carryCandidates, sortedByFreq, winBonus, seed: currentSeed });
     let strong1 = decided0.strong1, strong2 = decided0.strong2, strong2Source = decided0.source;
     lastStrong1Cands = decided0.strong1Cands; lastStrong2Cands = decided0.strong2Cands;
     const tier1Candidates = sortedByFreq.slice(0, 15).map(x => x.num).filter(n => n !== strong1 && n !== strong2);
     lastStrong2Alt = tier1Candidates.length > 0 ? tier1Candidates[0] : strong2;
 
-    let tierResult = buildTierCombos(sortedByFreq, strong1, strong2, lastStrong2Alt, currentSeed);
-    let baseStrategies = tierResult.combos;
-    _splitInfo = { tier1: tierResult.tier1, tier2: tierResult.tier2, tier3: tierResult.tier3, tier4: tierResult.tier4, splitApplied: true };
-    let final10 = computeBalancedFinal10(baseStrategies, tierResult.tier1, tierResult.tier2, tierResult.tier3, tierResult.tier4);
+    let tierResultFull = buildTierCombos(sortedByFreq, strong1, strong2, lastStrong2Alt, currentSeed);
+    let final10Full = computeBalancedFinal10(tierResultFull.combos, tierResultFull.tier1, tierResultFull.tier2, tierResultFull.tier3, tierResultFull.tier4, strong1, strong2);
 
-    // ═══ 2단계: 최종 강력수 재선정 (Case1/2/3) ═══
     const decidedFinal = decideStrongFinal({
-        actualCarryovers, carryCandidates, final10,
-        tier1: tierResult.tier1, tier2: tierResult.tier2,
-        tier3: tierResult.tier3, tier4: tierResult.tier4,
+        actualCarryovers, carryCandidates, final10: final10Full,
+        tier1: tierResultFull.tier1, tier2: tierResultFull.tier2,
+        tier3: tierResultFull.tier3, tier4: tierResultFull.tier4,
         sortedByFreq, winBonus
     });
     strong1 = decidedFinal.strong1;
@@ -904,17 +994,23 @@ function runAnalysis() {
     strong2Source = decidedFinal.source;
     lastStrong1 = strong1; lastStrong2 = strong2; lastStrong2Source = strong2Source;
 
-    // ═══ 3단계: 새 강력수로 4티어·final10 재계산 (1회만) ═══
-    tierResult = buildTierCombos(sortedByFreq, strong1, strong2, lastStrong2Alt, currentSeed);
-    baseStrategies = tierResult.combos;
-    _splitInfo = { tier1: tierResult.tier1, tier2: tierResult.tier2, tier3: tierResult.tier3, tier4: tierResult.tier4, splitApplied: true };
+    tierResultFull = buildTierCombos(sortedByFreq, strong1, strong2, lastStrong2Alt, currentSeed);
+    final10Full = computeBalancedFinal10(tierResultFull.combos, tierResultFull.tier1, tierResultFull.tier2, tierResultFull.tier3, tierResultFull.tier4, strong1, strong2);
+
+    const final9Full = [...new Set([...tierResultFull.tier1.slice(0, 8), ...tierResultFull.tier2.slice(0, 1)])].slice(0, 9).sort((a,b)=>a-b);
+    const v23ResultFull = [...new Set([...tierResultFull.tier1.slice(0, 8), ...tierResultFull.tier2.slice(0, 2)])].slice(0, 10).sort((a,b)=>a-b);
+
+    lastTop9 = final9Full;
+    lastV23Result = v23ResultFull;
+    lastFinal10 = final10Full;
+    _splitInfo = { tier1: tierResultFull.tier1, tier2: tierResultFull.tier2, tier3: tierResultFull.tier3, tier4: tierResultFull.tier4, splitApplied: true };
+
+    _savedUniqueLimitEl.value = _savedUniqueLimitValue;
+
+    const tierResult = buildTierCombos(sortedByFreq, strong1, strong2, lastStrong2Alt, currentSeed);
+    const baseStrategies = tierResult.combos;
     lastBaseStrategies = baseStrategies;
-    final10 = computeBalancedFinal10(baseStrategies, tierResult.tier1, tierResult.tier2, tierResult.tier3, tierResult.tier4);
 
-    const final9 = [...new Set([...tierResult.tier1.slice(0, 8), ...tierResult.tier2.slice(0, 1)])].slice(0, 9).sort((a,b)=>a-b);
-    const v23Result = [...new Set([...tierResult.tier1.slice(0, 8), ...tierResult.tier2.slice(0, 2)])].slice(0, 10).sort((a,b)=>a-b);
-
-    lastTop9 = final9; lastV23Result = v23Result; lastFinal10 = final10;
     lastActualCarryovers = actualCarryovers;
 
     _lockActive = false;
@@ -937,9 +1033,9 @@ function runAnalysis() {
 
     let hit9 = [], hit9Bonus = [], hitV23 = [], hitFinal10 = [];
     if (winData) {
-        final9.forEach(n => { if (winMain.includes(n)) hit9.push(n); else if (n === displayBonus) hit9Bonus.push(n); });
-        v23Result.forEach(n => { if (winMain.includes(n)) hitV23.push(n); });
-        final10.forEach(n => { if (winMain.includes(n)) hitFinal10.push(n); });
+        final9Full.forEach(n => { if (winMain.includes(n)) hit9.push(n); else if (n === displayBonus) hit9Bonus.push(n); });
+        v23ResultFull.forEach(n => { if (winMain.includes(n)) hitV23.push(n); });
+        final10Full.forEach(n => { if (winMain.includes(n)) hitFinal10.push(n); });
     }
     const total9Hit = hit9.length + (hit9Bonus.length ? 1 : 0);
     const totalFinalHit = hitFinal10.length;
@@ -947,9 +1043,9 @@ function runAnalysis() {
     const sortLabel = sortMode === 'high' ? '추세' : '역발상';
 
     let html = '';
-    if (_peekMode) html += `<div class="mode-banner-verify">✅ <strong>검증모드</strong> — base=<b>${base}</b>회 | 🎯 v57.6 Case공식 | ${sortLabel}</div>`;
-    else if (_lastModeExecutedType === 'analysis') html += `<div class="mode-banner-analysis">🔍 <strong>분석 전용</strong> — base=<b>${base}</b>회 | 🎯 v57.6 Case공식 | ${sortLabel}</div>`;
-    else html += `<div class="mode-banner-predict">🔮 <strong>예측모드</strong> — base=<b>${base}</b>회 | 🎯 v57.6 Case공식 | ${sortLabel}</div>`;
+    if (_peekMode) html += `<div class="mode-banner-verify">✅ <strong>검증모드</strong> — base=<b>${base}</b>회 | 🎯 v57.6.3 | ${sortLabel}</div>`;
+    else if (_lastModeExecutedType === 'analysis') html += `<div class="mode-banner-analysis">🔍 <strong>분석 전용</strong> — base=<b>${base}</b>회 | 🎯 v57.6.3 | ${sortLabel}</div>`;
+    else html += `<div class="mode-banner-predict">🔮 <strong>예측모드</strong> — base=<b>${base}</b>회 | 🎯 v57.6.3 | ${sortLabel}</div>`;
 
     if (!_peekMode) {
         html += `<div class="winning-info" style="font-size:13px;padding:4px 10px;border-color:#3498db;">🎯 기준(오프셋 ${offsetStr}): <span style="color:#f1c40f;">${baseNums.join(', ')}</span></div>`;
@@ -961,6 +1057,20 @@ function runAnalysis() {
         </div>`;
     } else {
         html += `<div class="winning-info" style="font-size:13px;padding:6px 12px;border-color:#e74c3c;">⚠️ ${targetRound}회 당첨번호 없음</div>`;
+    }
+
+    if (_poolInfo && _poolInfo.limitedByUnique) {
+        const shortage = [];
+        if (_poolInfo.t3Len === 0) shortage.push('T3');
+        if (_poolInfo.t4Len === 0) shortage.push('T4');
+        const note = shortage.length > 0 ? ` <span style="color:#f39c12;">⚠️ ${shortage.join('/')} 비어있음 (폴백 사용)</span>` : '';
+        html += `<div class="pool-limit-box">
+            🎯 <b style="color:#ffd700;">20조합 유니크 상한 ${_poolInfo.requestedLimit}개 적용</b> → 조합 풀 <b>${_poolInfo.poolSize}개</b>
+            (T1:<b>${_poolInfo.t1Len}</b> · T2:<b>${_poolInfo.t2Len}</b> · T3:<b>${_poolInfo.t3Len}</b> · T4:<b>${_poolInfo.t4Len}</b>)${note}
+        </div>`;
+        html += `<div class="fixed-note">
+            ✅ <b>강력1·2수 / 5수 / 9MAX / v23 / 최종10수</b>는 <b>FULL POOL (45개)</b> 기준으로 계산됨 (유니크 상한 무관) | 최종10수 공식: <b>${_f10Formula}</b>
+        </div>`;
     }
 
     const caseBadge = lastDecidedCase ? `<span class="case-badge">${lastDecidedCase}</span>` : '';
@@ -1012,36 +1122,34 @@ function runAnalysis() {
     if (_splitInfo.splitApplied) {
         const t4Hits = _peekMode ? _splitInfo.tier4.filter(n => winMain.includes(n) || n === displayBonus) : [];
         html += `<div class="split-info">
-            <div class="si-title">🔀 4티어 계층 10조합 (v57.6 Case공식 강력수 반영)</div>
+            <div class="si-title">🔀 4티어 계층 (FULL POOL 기준 — 강력수/5수 기준)</div>
             <div class="si-tier1">🔴 <b>T1 (강력+freq 상위, ${_splitInfo.tier1.length}개)</b>: [${_splitInfo.tier1.join(', ')}]</div>
             <div class="si-tier2">🟠 <b>T2 (11~20위, ${_splitInfo.tier2.length}개)</b>: [${_splitInfo.tier2.join(', ')}]</div>
             <div class="si-tier3">🟣 <b>T3 (21~30위, ${_splitInfo.tier3.length}개)</b>: [${_splitInfo.tier3.join(', ')}]</div>
             <div class="si-tier4">🔵 <b>T4 (31~45위, ${_splitInfo.tier4.length}개)</b>: [${_splitInfo.tier4.join(', ')}]${_peekMode && t4Hits.length > 0 ? ` <b style="color:#2ecc71;">★T4적중: ${t4Hits.join(', ')}</b>` : ''}</div>
-            <div style="margin-top:4px;color:#aaa;font-size:11px;">💡 Case1: 이월확정 2개 | Case2: sweet 이월 | Case3: T4→T3 | 최종10수 = T1×3 + T2×2 + T3×2 + T4×3</div>
+            <div style="margin-top:4px;color:#f39c12;font-size:11px;">⚠️ 위 티어는 <b>FULL POOL 기준</b> (강력수/5수 계산용). 20조합은 위 유니크 상한 적용. 최종10수 = <b>${_f10Formula}</b></div>
         </div>`;
     }
 
     const comboHits = {};
     Object.entries(baseStrategies).forEach(([name, nums]) => { if (winData) { const hits = nums.filter(n => winMain.includes(n)); const bonusHit = displayBonus && nums.includes(displayBonus) ? 1 : 0; comboHits[name] = hits.length + bonusHit; } else comboHits[name] = -1; });
     const maxComboHit = winData ? Math.max(...Object.values(comboHits), 0) : -1;
-    const bothStrongNames = ['①', '②', '③', '④'].filter(p => {
-        const name = Object.keys(baseStrategies).find(k => k.startsWith(p));
-        if (!name) return false;
-        const nums = baseStrategies[name];
+    const bothStrongNames = Object.keys(baseStrategies).filter(p => {
+        const nums = baseStrategies[p];
         return strong1 && strong2 && nums.includes(strong1) && nums.includes(strong2);
     });
 
     html += `<div style="background:#0a0a0a;border:3px solid #ffd700;border-radius:10px;padding:8px 12px;margin:8px 0;">
         <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;">
-            <span style="color:#ffd700;font-weight:bold;font-size:14px;">📋 10개 조합 (각 6개) ${_peekMode && winData ? `→ 최고 ${maxComboHit}개` : '🔮 예측'}${dupNames.length > 0 ? ` <span class="badge-dup">중복 ${dupNames.length}개!</span>` : ''}${bothStrongNames.length > 0 ? ` <span style="color:#2ecc71;font-size:12px;">[강력1+2 동시: ${bothStrongNames.length}개]</span>` : ''}</span>
+            <span style="color:#ffd700;font-weight:bold;font-size:14px;">📋 20개 조합 (각 6개) ${_peekMode && winData ? `→ 최고 ${maxComboHit}개` : '🔮 예측'}${dupNames.length > 0 ? ` <span class="badge-dup">중복 ${dupNames.length}개!</span>` : ''}${bothStrongNames.length > 0 ? ` <span style="color:#2ecc71;font-size:12px;">[강력1+2 동시: ${bothStrongNames.length}개]</span>` : ''}</span>
             <button onclick="copyOnlyNumbers()" class="copy-btn" style="padding:2px 12px;font-size:11px;">📋 복사</button>
         </div>
         <div class="combo-grid">${Object.entries(baseStrategies).map(([name, nums], idx) => {
             const hitCount = comboHits[name] || 0;
             const isHit5 = _peekMode && hitCount >= 3;
             const isDup = dupNames.includes(name);
-            const tierClass = idx < 4 ? 'tierA' : (idx < 6 ? 'tierB' : (idx < 8 ? 'tierC' : 'tierD'));
-            const borderColor = isDup ? '#ff0055' : (isHit5 ? '#2ecc71' : (idx < 4 ? '#e74c3c' : (idx < 6 ? '#f39c12' : (idx < 8 ? '#9b59b6' : '#3498db'))));
+            const tierClass = idx < 4 ? 'tierA' : (idx < 8 ? 'tierB' : (idx < 14 ? 'tierC' : 'tierD'));
+            const borderColor = isDup ? '#ff0055' : (isHit5 ? '#2ecc71' : (idx < 4 ? '#e74c3c' : (idx < 8 ? '#f39c12' : (idx < 14 ? '#9b59b6' : '#3498db'))));
             const sum = nums.reduce((a,b)=>a+b,0);
             const low = nums.filter(n=>n<=15).length, mid = nums.filter(n=>n>=16&&n<=30).length, high = nums.filter(n=>n>=31).length;
             const hasStrong1 = strong1 && nums.includes(strong1);
@@ -1052,49 +1160,97 @@ function runAnalysis() {
             const hasT4 = nums.some(n => _splitInfo.tier4.includes(n));
             return `<div class="combo-item ${tierClass} ${isHit5 ? 'highlight' : ''}" style="border-left-color:${borderColor};"><span class="cname">${name}${hasStrong1 ? ' <span class="badge-fix1">1수</span>' : ''}${hasStrong2 ? ' <span class="badge-fix2">2수</span>' : ''}${hasBoth ? ' <span style="background:#2ecc71;color:#000;padding:1px 6px;border-radius:10px;font-size:9px;margin-left:2px;font-weight:bold;">동시</span>' : ''}${hasAlt2 ? ' <span class="badge-alt2">대체2</span>' : ''}${hasBonus ? ' <span class="badge-bonus">보너스!</span>' : ''}${isDup ? ' <span class="badge-dup">중복</span>' : ''}</span>${_peekMode && winData ? `<span style="float:right;color:${isHit5?'#2ecc71':(hitCount>=2?'#f39c12':'#e74c3c')};font-weight:bold;font-size:12px;">${hitCount}개</span>` : ''}<span class="cnums">${nums.map(n => _peekMode ? colorNumSimple(n, winMain, displayBonus) : `<span style="color:#fff;">${n}</span>`).join(' ')}</span><div class="combo-meta">합${sum} | ${low}:${mid}:${high}${hasT4?' | T4':''}</div></div>`;
         }).join('')}</div>
-        <div style="display:flex;flex-wrap:wrap;gap:10px;font-size:13px;margin-top:4px;padding-top:4px;border-top:1px solid #333;"><div><span style="color:#ffd700;">9MAX:</span> ${final9.map(n => _peekMode ? colorNumSimple(n, winMain, displayBonus) : `<span style="color:#fff;">${n}</span>`).join(' ')}</div><div><span style="color:#ffd700;">최종10수:</span> ${final10.map(n => _peekMode ? colorNumSimple(n, winMain, displayBonus) : `<span style="color:#fff;">${n}</span>`).join(' ')}</div></div>
+        <div style="display:flex;flex-wrap:wrap;gap:10px;font-size:13px;margin-top:4px;padding-top:4px;border-top:1px solid #333;"><div><span style="color:#ffd700;">9MAX:</span> ${final9Full.map(n => _peekMode ? colorNumSimple(n, winMain, displayBonus) : `<span style="color:#fff;">${n}</span>`).join(' ')}</div><div><span style="color:#ffd700;">최종10수:</span> ${final10Full.map(n => _peekMode ? colorNumSimple(n, winMain, displayBonus) : `<span style="color:#fff;">${n}</span>`).join(' ')}</div></div>
         ${_peekMode && winData ? `<div style="margin-top:6px;padding-top:6px;border-top:1px solid #333;font-size:14px;font-weight:bold;text-align:center;color:${maxComboHit>=3?'#2ecc71':'#e74c3c'};">${maxComboHit>=3 ? `✅ 5등 달성! (최고 ${maxComboHit}개)` : `❌ 5등 미달 (최고 ${maxComboHit}개)`}</div>` : ''}
 
         <div class="union-pool-box">
-            <div class="up-title">📊 10조합 사용번호 통계 — 총 <b style="color:#ffd700;">${comboUnionSorted.length}개</b> 유니크</div>
-            <div>
-                ${comboUnionSorted.map(({num, count}) => {
-                    const isTier1 = _splitInfo.tier1.includes(num);
-                    const isTier2 = _splitInfo.tier2.includes(num);
-                    const isTier3 = _splitInfo.tier3.includes(num);
-                    const isTier4 = _splitInfo.tier4.includes(num);
-                    const isHit = _peekMode && winMain.includes(num);
-                    const isBonus = _peekMode && num === displayBonus;
-                    let bg, color;
-                    if (isHit) { bg = '#2ecc71'; color = '#000'; }
-                    else if (isBonus) { bg = '#ff6b6b'; color = '#fff'; }
-                    else if (isTier1) { bg = '#e74c3c'; color = '#fff'; }
-                    else if (isTier2) { bg = '#f39c12'; color = '#fff'; }
-                    else if (isTier3) { bg = '#9b59b6'; color = '#fff'; }
-                    else if (isTier4) { bg = '#3498db'; color = '#fff'; }
-                    else { bg = '#2a2a2a'; color = '#ccc'; }
-                    const mark = isHit ? '★' : (isBonus ? '☆' : '');
-                    return `<span class="up-chip" style="background:${bg};color:${color};">${num}${mark}<span class="freq">×${count}</span></span>`;
-                }).join('')}
+            <div class="up-title">📊 20조합 사용번호 통계 — 총 <b style="color:#ffd700;">${comboUnionSorted.length}개</b> 유니크${_poolInfo && _poolInfo.limitedByUnique ? ` <span style="color:#00e6b8;font-size:11px;">(상한 ${_poolInfo.requestedLimit}개 적용)</span>` : ''}</div>
+
+            ${_peekMode && winData ? (() => {
+                const hitNums = winMain.filter(n => comboUnionFreq[n]).sort((a,b)=>a-b);
+                const missNums = winMain.filter(n => !comboUnionFreq[n]).sort((a,b)=>a-b);
+                const hitRate = ((hitNums.length / winMain.length) * 100).toFixed(0);
+                const hitColor = hitNums.length >= 4 ? '#2ecc71' : hitNums.length >= 3 ? '#f39c12' : '#e74c3c';
+                return `<div style="background:#0a2a1a;border:2px solid ${hitColor};border-radius:6px;padding:8px 12px;margin-bottom:8px;font-size:13px;">
+                    🎯 <b style="color:${hitColor};">당번 커버 ${hitNums.length}/6 (${hitRate}%)</b>
+                    ${hitNums.length > 0 ? `<br><b style="color:#2ecc71;">✅ 포함:</b> ${hitNums.map(n => `<span style="color:#2ecc71;font-weight:bold;font-size:14px;">${n}</span>`).join(', ')}` : ''}
+                    ${missNums.length > 0 ? `<br><b style="color:#e74c3c;">❌ 미포함:</b> ${missNums.map(n => `<span style="color:#e74c3c;font-weight:bold;font-size:14px;">${n}</span>`).join(', ')}` : ''}
+                    ${displayBonus ? (comboUnionFreq[displayBonus] ? `<br><b style="color:#ff6b6b;">☆ 보너스 포함:</b> ${displayBonus}` : `<br><b style="color:#888;">☆ 보너스 미포함:</b> ${displayBonus}`) : ''}
+                </div>`;
+            })() : ''}
+
+            ${(() => {
+                const tierGroups = [
+                    { name: '🔴 T1', color: '#e74c3c', bg: 'rgba(231,76,60,0.10)', nums: _splitInfo.tier1 },
+                    { name: '🟠 T2', color: '#f39c12', bg: 'rgba(243,156,18,0.10)', nums: _splitInfo.tier2 },
+                    { name: '🟣 T3', color: '#9b59b6', bg: 'rgba(155,89,182,0.10)', nums: _splitInfo.tier3 },
+                    { name: '🔵 T4', color: '#3498db', bg: 'rgba(52,152,219,0.10)', nums: _splitInfo.tier4 }
+                ];
+                return tierGroups.map(tg => {
+                    const usedInTier = tg.nums.filter(n => comboUnionFreq[n]).sort((a, b) => (comboUnionFreq[b] || 0) - (comboUnionFreq[a] || 0) || a - b);
+                    if (usedInTier.length === 0) {
+                        return `<div style="margin-top:6px;padding:6px 8px;background:${tg.bg};border-left:3px solid ${tg.color};border-radius:4px;opacity:0.5;">
+                            <div style="font-size:11px;color:${tg.color};font-weight:bold;">${tg.name} · 0/${tg.nums.length}개 사용 (없음)</div>
+                        </div>`;
+                    }
+                    const chips = usedInTier.map(num => {
+                        const count = comboUnionFreq[num];
+                        const isHit = _peekMode && winMain.includes(num);
+                        const isBonus = _peekMode && num === displayBonus;
+                        const bg = isHit ? '#2ecc71' : (isBonus ? '#ff6b6b' : tg.color);
+                        const color = isHit ? '#000' : '#fff';
+                        const mark = isHit ? '★' : (isBonus ? '☆' : '');
+                        const size = count >= 10 ? 'font-size:14px;padding:3px 10px;'
+                                   : count >= 5  ? 'font-size:13px;padding:2px 9px;'
+                                   : 'font-size:12px;padding:2px 7px;';
+                        return `<span style="display:inline-block;background:${bg};color:${color};border-radius:5px;margin:2px;font-family:'Consolas',monospace;font-weight:bold;${size}">${num}${mark}<span style="font-size:10px;opacity:.85;margin-left:3px;">×${count}</span></span>`;
+                    }).join('');
+                    const useRate = ((usedInTier.length/tg.nums.length)*100).toFixed(0);
+                    return `<div style="margin-top:6px;padding:6px 8px;background:${tg.bg};border-left:3px solid ${tg.color};border-radius:4px;">
+                        <div style="font-size:11px;color:${tg.color};font-weight:bold;margin-bottom:4px;">${tg.name} · <b>${usedInTier.length}/${tg.nums.length}개</b> 사용 (${useRate}%)</div>
+                        <div>${chips}</div>
+                    </div>`;
+                }).join('');
+            })()}
+
+            <div style="margin-top:8px;padding-top:6px;border-top:1px solid #333;">
+                <div style="font-size:11px;color:#3498db;font-weight:bold;margin-bottom:4px;">📈 빈도 분포</div>
+                <div style="display:flex;flex-wrap:wrap;gap:4px;font-size:11px;">
+                    ${(() => {
+                        const freqGroups = {};
+                        comboUnionSorted.forEach(({num, count}) => {
+                            if (!freqGroups[count]) freqGroups[count] = [];
+                            freqGroups[count].push(num);
+                        });
+                        return Object.entries(freqGroups).sort((a, b) => parseInt(b[0]) - parseInt(a[0])).map(([cnt, nums]) => {
+                            const c = parseInt(cnt);
+                            const color = c >= 10 ? '#ffd700' : c >= 5 ? '#00e6b8' : c >= 3 ? '#3498db' : '#666';
+                            const sorted = nums.slice().sort((a,b)=>a-b);
+                            return `<span style="background:${color}22;border:1px solid ${color};border-radius:4px;padding:2px 8px;font-family:'Consolas',monospace;">
+                                <b style="color:${color};">×${cnt}</b> <span style="color:#fff;font-size:10px;">(${sorted.length}개)</span> <span style="color:#ddd;font-size:11px;">${sorted.join(',')}</span>
+                            </span>`;
+                        }).join('');
+                    })()}
+                </div>
             </div>
-            <div class="up-legend">
-                💡 <b style="color:#e74c3c;">빨강</b>=T1 | <b style="color:#f39c12;">주황</b>=T2 | <b style="color:#9b59b6;">보라</b>=T3 | <b style="color:#3498db;">파랑</b>=T4 | ★=당번
+
+            <div class="up-legend" style="margin-top:6px;">
+                💡 <b style="color:#2ecc71;">★=당번</b> | <b style="color:#ff6b6b;">☆=보너스</b> | Tier별 그룹화 · 빈도순 정렬 · 크기로 강조
             </div>
         </div>
     </div>`;
 
-    html += `<div class="optimize-result" style="padding:8px 12px;"><div class="label" style="font-size:15px;">🎯 9MAX (T1 8 + T2 상위1)</div><div class="numbers" style="font-size:22px;">${final9.map(n => _peekMode ? colorNum(n, winMain, displayBonus, true, actualCarryovers) : colorNum(n, [], null, true, actualCarryovers)).join(' ')}</div>${_peekMode && winData ? `<div style="font-size:13px;">📊 본: ${hit9.length}개${hit9Bonus.length ? ` | 보너스: ${hit9Bonus.join(', ')}` : ''}</div><div style="font-size:18px;font-weight:bold;color:${total9Hit>=3?'#2ecc71':'#f1c40f'};">✅ 총 ${total9Hit}개</div>` : '<div style="font-size:13px;color:#3498db;">🔮 예측</div>'}</div>`;
-    html += `<div class="v23-box" style="padding:8px 12px;"><div class="title" style="font-size:15px;">🧬 v23.0</div><div class="numbers" style="font-size:22px;">${v23Result.map(n => _peekMode ? colorNum(n, winMain, displayBonus, true, actualCarryovers) : colorNum(n, [], null, true, actualCarryovers)).join(' ')}</div>${_peekMode && winData ? `<div class="stats">📊 본: ${hitV23.length}개</div>` : ''}</div>`;
-    html += `<div class="optimize-result" style="padding:8px 12px;border-color:${_peekMode && totalFinalHit>=3?'#2ecc71':'#ff6b6b'};background:${_peekMode && totalFinalHit>=3?'#0a2a1a':'#1a1a2a'};"><div class="label" style="font-size:15px;color:${_peekMode && totalFinalHit>=3?'#2ecc71':'#ff6b6b'};">🏆 최종 10수 (T1×3+T2×2+T3×2+T4×3) ${_peekMode && winData ? `(${hitFinal10.length}개/3)` : '(예측)'}</div><div class="numbers" style="font-size:22px;">${final10.map(n => _peekMode ? colorNum(n, winMain, displayBonus, true, actualCarryovers) : colorNum(n, [], null, true, actualCarryovers)).join(' ')}</div>${_peekMode && winData ? `<div style="font-size:18px;font-weight:bold;color:${totalFinalHit>=3?'#2ecc71':'#f1c40f'};">${totalFinalHit>=3 ? `✅ ${totalFinalHit}개 포함` : `❌ ${hitFinal10.length}개`}</div>` : '<div style="font-size:13px;color:#3498db;">🔮 예측</div>'}</div>`;
+    html += `<div class="optimize-result" style="padding:8px 12px;"><div class="label" style="font-size:15px;">🎯 9MAX (T1 8 + T2 상위1) <span style="font-size:10px;color:#00e6b8;">[FULL POOL]</span></div><div class="numbers" style="font-size:22px;">${final9Full.map(n => _peekMode ? colorNum(n, winMain, displayBonus, true, actualCarryovers) : colorNum(n, [], null, true, actualCarryovers)).join(' ')}</div>${_peekMode && winData ? `<div style="font-size:13px;">📊 본: ${hit9.length}개${hit9Bonus.length ? ` | 보너스: ${hit9Bonus.join(', ')}` : ''}</div><div style="font-size:18px;font-weight:bold;color:${total9Hit>=3?'#2ecc71':'#f1c40f'};">✅ 총 ${total9Hit}개</div>` : '<div style="font-size:13px;color:#3498db;">🔮 예측</div>'}</div>`;
+    html += `<div class="v23-box" style="padding:8px 12px;"><div class="title" style="font-size:15px;">🧬 v23.0 <span style="font-size:10px;color:#00e6b8;">[FULL POOL]</span></div><div class="numbers" style="font-size:22px;">${v23ResultFull.map(n => _peekMode ? colorNum(n, winMain, displayBonus, true, actualCarryovers) : colorNum(n, [], null, true, actualCarryovers)).join(' ')}</div>${_peekMode && winData ? `<div class="stats">📊 본: ${hitV23.length}개</div>` : ''}</div>`;
+    html += `<div class="optimize-result" style="padding:8px 12px;border-color:${_peekMode && totalFinalHit>=3?'#2ecc71':'#ff6b6b'};background:${_peekMode && totalFinalHit>=3?'#0a2a1a':'#1a1a2a'};"><div class="label" style="font-size:15px;color:${_peekMode && totalFinalHit>=3?'#2ecc71':'#ff6b6b'};">🏆 최종 10수 (${_f10Formula}) <span style="font-size:10px;color:#00e6b8;">[FULL POOL]</span> ${_peekMode && winData ? `(${hitFinal10.length}개/3)` : '(예측)'}</div><div class="numbers" style="font-size:22px;">${final10Full.map(n => _peekMode ? colorNum(n, winMain, displayBonus, true, actualCarryovers) : colorNum(n, [], null, true, actualCarryovers)).join(' ')}</div>${_peekMode && winData ? `<div style="font-size:18px;font-weight:bold;color:${totalFinalHit>=3?'#2ecc71':'#f1c40f'};">${totalFinalHit>=3 ? `✅ ${totalFinalHit}개 포함` : `❌ ${hitFinal10.length}개`}</div>` : '<div style="font-size:13px;color:#3498db;">🔮 예측</div>'}</div>`;
 
     document.getElementById('resultArea').innerHTML = html;
 }
 
 function copyOnlyNumbers() { if (!lastBaseStrategies || Object.keys(lastBaseStrategies).length === 0) { alert('⚠️ 먼저 분석!'); return; } const allNumbers = []; for (const nums of Object.values(lastBaseStrategies)) allNumbers.push(...nums); const text = [...new Set(allNumbers)].sort((a, b) => a - b).join(', '); navigator.clipboard.writeText(text).then(() => alert('✅ 복사!\n' + text)).catch(() => { const ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); alert('✅ 복사!\n' + text); }); }
-function recommendStrong1() { if (!lastTop9 || lastTop9.length === 0) { alert('⚠️ 먼저 분석'); return; } const pick = lastStrong1 || lastTop9[0]; const winMain = winData ? winData.main : []; const displayBonus = winData ? winData.bonus : null; let color = '#e74c3c', label = '미당첨'; if (winMain.includes(pick)) { color = '#2ecc71'; label = '🎉 본번호!'; } else if (pick === displayBonus) { color = '#ff6b6b'; label = '🎉 보너스!'; } if (!winData) label = '예측값'; document.getElementById('resultArea').innerHTML += `<div class="strong-result" style="padding:10px 15px;"><div class="label">💪 강력 1수 ${lastDecidedCase}</div><div class="number" style="color:${color};">${pick}</div><div class="desc">${label} — ${lastStrong2Source}</div></div>`; }
-function recommendStrong2() { if (!lastTop9 || lastTop9.length === 0) { alert('⚠️ 먼저 분석'); return; } const pick = lastStrong2 || lastTop9[0]; const winMain = winData ? winData.main : []; const displayBonus = winData ? winData.bonus : null; let color = '#e74c3c', label = '미당첨'; if (winMain.includes(pick)) { color = '#2ecc71'; label = '🎉 본번호!'; } else if (pick === displayBonus) { color = '#ff6b6b'; label = '🎉 보너스!'; } if (!winData) label = '예측값'; document.getElementById('resultArea').innerHTML += `<div class="strong-result" style="padding:10px 15px;border-color:#ff6b6b;"><div class="label">💪 강력 2수 ${lastDecidedCase}</div><div class="number" style="color:${color};">${pick}</div><div class="desc">${label}</div></div>`; }
+function recommendStrong1() { if (!lastTop9 || lastTop9.length === 0) { alert('⚠️ 먼저 분석'); return; } const pick = lastStrong1 || lastTop9[0]; const winMain = winData ? winData.main : []; const displayBonus = winData ? winData.bonus : null; let color = '#e74c3c', label = '미당첨'; if (winMain.includes(pick)) { color = '#2ecc71'; label = '🎉 본번호!'; } else if (pick === displayBonus) { color = '#ff6b6b'; label = '🎉 보너스!'; } if (!winData) label = '예측값'; document.getElementById('resultArea').innerHTML += `<div class="strong-result" style="padding:10px 15px;"><div class="label">💪 강력 1수 ${lastDecidedCase} <span style="font-size:10px;color:#00e6b8;">[FULL POOL]</span></div><div class="number" style="color:${color};">${pick}</div><div class="desc">${label} — ${lastStrong2Source}</div></div>`; }
+function recommendStrong2() { if (!lastTop9 || lastTop9.length === 0) { alert('⚠️ 먼저 분석'); return; } const pick = lastStrong2 || lastTop9[0]; const winMain = winData ? winData.main : []; const displayBonus = winData ? winData.bonus : null; let color = '#e74c3c', label = '미당첨'; if (winMain.includes(pick)) { color = '#2ecc71'; label = '🎉 본번호!'; } else if (pick === displayBonus) { color = '#ff6b6b'; label = '🎉 보너스!'; } if (!winData) label = '예측값'; document.getElementById('resultArea').innerHTML += `<div class="strong-result" style="padding:10px 15px;border-color:#ff6b6b;"><div class="label">💪 강력 2수 ${lastDecidedCase} <span style="font-size:10px;color:#00e6b8;">[FULL POOL]</span></div><div class="number" style="color:${color};">${pick}</div><div class="desc">${label}</div></div>`; }
 
-// ★ v57.5K 5수 (T4 최대2 + T3 최대2) ★
 function recommendStrong5() {
     if (!lastTop9 || lastTop9.length === 0) { alert('⚠️ 먼저 분석'); return; }
     const winMain = winData ? winData.main : [];
@@ -1102,33 +1258,27 @@ function recommendStrong5() {
     const actualCarryovers = lastActualCarryovers;
     const seen = new Set(), top5 = [];
     const push = (n) => { if (n == null || seen.has(n) || top5.length >= 5) return; seen.add(n); top5.push(n); };
-
     if (lastStrong1) push(lastStrong1);
     if (lastStrong2) push(lastStrong2);
-
     const t1Arr = _splitInfo.tier1 || [];
     const t2Arr = _splitInfo.tier2 || [];
     const t3Arr = _splitInfo.tier3 || [];
     const t4Arr = _splitInfo.tier4 || [];
     const f10 = lastFinal10 || [];
-
     const f10T4 = f10.filter(n => t4Arr.includes(n) && !seen.has(n));
     f10T4.slice(0, 2).forEach(push);
     const f10T3 = f10.filter(n => t3Arr.includes(n) && !seen.has(n));
     f10T3.slice(0, 2).forEach(push);
-
     const f10T1 = f10.filter(n => t1Arr.includes(n) && !seen.has(n));
     const f10T2 = f10.filter(n => t2Arr.includes(n) && !seen.has(n));
     f10T1.forEach(push);
     f10T2.forEach(push);
-
     if (top5.length < 5) {
         if (lastStrong2Alt) push(lastStrong2Alt);
         lastTop9.forEach(push);
         lastV23Result.forEach(push);
         if (top5.length < 5 && t4Arr.length > 0) t4Arr.forEach(push);
     }
-
     const resultHtml = top5.map((n, idx) => {
         const isHit = winData && winMain.includes(n);
         const isBonus = winData && n === displayBonus;
@@ -1142,16 +1292,16 @@ function recommendStrong5() {
     }).join(' ');
     const hitCount = top5.filter(n => winData && winMain.includes(n)).length;
     const hitBonusCount = top5.filter(n => winData && n === displayBonus).length;
-    document.getElementById('resultArea').innerHTML += `<div class="strong5-result" style="padding:12px 15px;"><div class="label" style="font-size:15px;color:#ffd700;">💪 강력 5수 (T4 최대2 + T3 최대2)${winData ? ` — 적중 ${hitCount}/5${hitBonusCount ? ` + 보너스 ${hitBonusCount}` : ''}` : ''}</div><div style="margin-top:6px;">${resultHtml}</div></div>`;
+    document.getElementById('resultArea').innerHTML += `<div class="strong5-result" style="padding:12px 15px;"><div class="label" style="font-size:15px;color:#ffd700;">💪 강력 5수 (T4 최대2 + T3 최대2) <span style="font-size:10px;color:#00e6b8;">[FULL POOL]</span>${winData ? ` — 적중 ${hitCount}/5${hitBonusCount ? ` + 보너스 ${hitBonusCount}` : ''}` : ''}</div><div style="margin-top:6px;">${resultHtml}</div></div>`;
 }
 
 function openBacktestModal() { document.getElementById('backtestModal').classList.add('active'); }
 function openRecombineModal() { document.getElementById('recombineModal').classList.add('active'); const maxRound = DATA.reduce((max, row) => Math.max(max, row[0]), 0); document.getElementById('rcStartRound').value = Math.max(1001, maxRound - 40); document.getElementById('rcEndRound').value = maxRound; }
-function resetAll() { document.getElementById('resultArea').innerHTML = '<div class="loading">🟢 초기화! v57.6 Case공식</div>'; document.getElementById('lockCodeDisplay').style.display = 'none'; _lastLockCode = null; _lastPredictionBase = null; _lastPredictionCombos = null; _lastModeExecutedBase = null; updateTwoModeStatus('📌 상태: 초기화됨', '#aaa', null); }
+function resetAll() { document.getElementById('resultArea').innerHTML = '<div class="loading">🟢 초기화! v57.6.3 · 20조합 · 유니크 상한 · 강력수 고정 · 커스텀 10/20조합 · 통계 대시보드</div>'; document.getElementById('lockCodeDisplay').style.display = 'none'; _lastLockCode = null; _lastPredictionBase = null; _lastPredictionCombos = null; _lastModeExecutedBase = null; updateTwoModeStatus('📌 상태: 초기화됨', '#aaa', null); }
 
 function runBacktest() {
     const startRound = parseInt(document.getElementById('btStartRound').value) || 1206;
-    const endRound = parseInt(document.getElementById('btEndRound').value) || 1248;
+    const endRound = parseInt(document.getElementById('btEndRound').value) || 1249;
     const progress = document.getElementById('btProgress'), resultDiv = document.getElementById('backtestResult');
     progress.textContent = '⏳ 분석 중...';
     resultDiv.innerHTML = '<div style="color:#ffd700;padding:20px;">⏳ 백테스트 실행 중...</div>';
@@ -1159,7 +1309,7 @@ function runBacktest() {
         const sortMode = document.getElementById('similarSort')?.value || 'high', excludeBonus = document.getElementById('excludeBonus')?.checked || false;
         const minMatch = parseInt(document.getElementById('minMatch')?.value) || 1, offsets = [-1, -2, -3];
         const btTopCount = parseInt(document.getElementById('topCount')?.value) || 5;
-        const btStart = parseInt(document.getElementById('startRound')?.value) || 1148;
+        const btStart = parseInt(document.getElementById('startRound')?.value) || 1147;
         let total = 0, sumHit10 = 0, bestComboHitSum = 0, filterValidCount = 0, dupCount = 0, fivePlusCount = 0, tenPlusCount = 0, bothStrongHits = 0;
         let s1HitCount = 0, s2HitCount = 0, s5HitSum = 0;
         let case1Cnt = 0, case2Cnt = 0, case3Cnt = 0, case1Hit = 0, case2Hit = 0, case3Hit = 0;
@@ -1207,20 +1357,20 @@ function runBacktest() {
             const prevW = getWinning(r - 1), carryCands = prevW ? [...prevW.main] : [];
             const actualBonus = win.bonus;
 
-            // 1단계: 임시 강력수 → 4티어 → final10
+            const _btSaveUL = document.getElementById('uniqueLimit').value;
+            document.getElementById('uniqueLimit').value = '0';
+
             const decided0 = decideStrongV568({ actualCarryovers: carryCands.slice(0, 2), carryCandidates: carryCands, sortedByFreq, winBonus: null, seed: r });
             let s1 = decided0.strong1, s2 = decided0.strong2;
             const tier1Candidates = sortedFreq.slice(0, 15).map(x => x.num).filter(n => n !== s1 && n !== s2);
             const s2Alt = tier1Candidates.length > 0 ? tier1Candidates[0] : s2;
-            let tierResult = buildTierCombos(sortedFreq, s1, s2, s2Alt, r);
-            let combos = tierResult.combos;
-            let final10 = computeBalancedFinal10(combos, tierResult.tier1, tierResult.tier2, tierResult.tier3, tierResult.tier4);
+            let tierResultFull = buildTierCombos(sortedFreq, s1, s2, s2Alt, r);
+            let final10Full = computeBalancedFinal10(tierResultFull.combos, tierResultFull.tier1, tierResultFull.tier2, tierResultFull.tier3, tierResultFull.tier4, s1, s2);
 
-            // 2단계: v57.6 Case공식으로 재선정
             const decidedFinal = decideStrongFinal({
                 actualCarryovers: carryCands.slice(0, 2), carryCandidates: carryCands,
-                final10, tier1: tierResult.tier1, tier2: tierResult.tier2,
-                tier3: tierResult.tier3, tier4: tierResult.tier4,
+                final10: final10Full, tier1: tierResultFull.tier1, tier2: tierResultFull.tier2,
+                tier3: tierResultFull.tier3, tier4: tierResultFull.tier4,
                 sortedByFreq, winBonus: null
             });
             s1 = decidedFinal.strong1;
@@ -1230,41 +1380,38 @@ function runBacktest() {
             else case3Cnt++;
             const caseType = decidedFinal.caseType;
 
-            // 3단계: 새 강력수로 재계산
-            tierResult = buildTierCombos(sortedFreq, s1, s2, s2Alt, r);
-            combos = tierResult.combos;
-            final10 = computeBalancedFinal10(combos, tierResult.tier1, tierResult.tier2, tierResult.tier3, tierResult.tier4);
+            tierResultFull = buildTierCombos(sortedFreq, s1, s2, s2Alt, r);
+            final10Full = computeBalancedFinal10(tierResultFull.combos, tierResultFull.tier1, tierResultFull.tier2, tierResultFull.tier3, tierResultFull.tier4, s1, s2);
 
-            const validCount = Object.values(combos).filter(c => isValidLottoCombo(c, null)).length;
-            if (validCount === 10) filterValidCount++;
+            document.getElementById('uniqueLimit').value = _btSaveUL;
+            const tierResultLimited = buildTierCombos(sortedFreq, s1, s2, s2Alt, r);
+            const combosLimited = tierResultLimited.combos;
+
+            const validCount = Object.values(combosLimited).filter(c => isValidLottoCombo(c, null)).length;
+            if (validCount === 20) filterValidCount++;
             const seen = new Set();
             let hasDup = false;
-            for (const c of Object.values(combos)) { const key = [...c].sort((a,b)=>a-b).join(','); if (seen.has(key)) { hasDup = true; break; } seen.add(key); }
+            for (const c of Object.values(combosLimited)) { const key = [...c].sort((a,b)=>a-b).join(','); if (seen.has(key)) { hasDup = true; break; } seen.add(key); }
             if (hasDup) dupCount++;
-            const hit10 = final10.filter(n => win.main.includes(n)).length;
+            const hit10 = final10Full.filter(n => win.main.includes(n)).length;
             sumHit10 += hit10;
             if (hit10 >= 3) tenPlusCount++;
             let bestCombo = 0;
-            for (const nums of Object.values(combos)) { const h = nums.filter(n => win.main.includes(n)).length + (actualBonus && nums.includes(actualBonus) ? 1 : 0); if (h > bestCombo) bestCombo = h; }
+            for (const nums of Object.values(combosLimited)) { const h = nums.filter(n => win.main.includes(n)).length + (actualBonus && nums.includes(actualBonus) ? 1 : 0); if (h > bestCombo) bestCombo = h; }
             bestComboHitSum += bestCombo;
             if (bestCombo >= 3) fivePlusCount++;
 
-            // 5수 시뮬
-            const t4Arr = tierResult.tier4 || [], t3Arr = tierResult.tier3 || [], t1Arr = tierResult.tier1 || [], t2Arr = tierResult.tier2 || [];
+            const t4Arr = tierResultFull.tier4 || [], t3Arr = tierResultFull.tier3 || [], t1Arr = tierResultFull.tier1 || [], t2Arr = tierResultFull.tier2 || [];
             const seen5 = new Set(), top5 = [];
             const push5 = (n) => { if (n == null || seen5.has(n) || top5.length >= 5) return; seen5.add(n); top5.push(n); };
             push5(s1); push5(s2);
-            const f10T4 = final10.filter(n => t4Arr.includes(n) && !seen5.has(n));
-            f10T4.slice(0, 2).forEach(push5);
-            const f10T3 = final10.filter(n => t3Arr.includes(n) && !seen5.has(n));
-            f10T3.slice(0, 2).forEach(push5);
-            const f10T1 = final10.filter(n => t1Arr.includes(n) && !seen5.has(n));
-            const f10T2 = final10.filter(n => t2Arr.includes(n) && !seen5.has(n));
-            f10T1.forEach(push5);
-            f10T2.forEach(push5);
+            final10Full.filter(n => t4Arr.includes(n) && !seen5.has(n)).slice(0, 2).forEach(push5);
+            final10Full.filter(n => t3Arr.includes(n) && !seen5.has(n)).slice(0, 2).forEach(push5);
+            final10Full.filter(n => t1Arr.includes(n) && !seen5.has(n)).forEach(push5);
+            final10Full.filter(n => t2Arr.includes(n) && !seen5.has(n)).forEach(push5);
             if (top5.length < 5) {
                 push5(s2Alt);
-                final10.forEach(push5);
+                final10Full.forEach(push5);
                 if (top5.length < 5 && t4Arr.length > 0) t4Arr.forEach(push5);
             }
             const hit5 = top5.filter(n => win.main.includes(n)).length;
@@ -1277,7 +1424,7 @@ function runBacktest() {
             if (caseType === 1) case1Hit += (s1Hit ? 1 : 0) + (s2Hit ? 1 : 0);
             if (caseType === 2) case2Hit += (s1Hit ? 1 : 0) + (s2Hit ? 1 : 0);
             if (caseType === 3) case3Hit += (s1Hit ? 1 : 0) + (s2Hit ? 1 : 0);
-            rows.push({ r, win: win.main.join(','), bonus: actualBonus, s1, s2, s1Hit, s2Hit, caseType, top5: top5.join(','), hit5, final10: final10.join(','), hit10, bestCombo, validCount, hasDup });
+            rows.push({ r, win: win.main.join(','), bonus: actualBonus, s1, s2, s1Hit, s2Hit, caseType, top5: top5.join(','), hit5, final10: final10Full.join(','), hit10, bestCombo, validCount, hasDup });
             _lockActive = false;
             progress.textContent = `⏳ ${r}회 (${rows.length}건)`;
         }
@@ -1292,11 +1439,11 @@ function runBacktest() {
         const c1Pct = case1Cnt > 0 ? ((case1Hit / (case1Cnt*2)) * 100).toFixed(1) : 0;
         const c2Pct = case2Cnt > 0 ? ((case2Hit / (case2Cnt*2)) * 100).toFixed(1) : 0;
         const c3Pct = case3Cnt > 0 ? ((case3Hit / (case3Cnt*2)) * 100).toFixed(1) : 0;
-        let html = `<h3 style="color:#ffd700;text-align:center;">📊 백테스트 (v57.6 Case공식) ${startRound}~${endRound} (${total}회차)</h3>`;
-        html += `<div style="background:#0a1a0a;border:2px solid #00e6b8;border-radius:8px;padding:8px 12px;margin:8px 0;text-align:center;color:#00e6b8;font-size:12px;">✅ 필터 ${filterValidCount}/${total} | 🔴 중복 ${dupCount}/${total} | Case1:${case1Cnt} Case2:${case2Cnt} Case3:${case3Cnt}</div>`;
-        html += `<div style="background:#1a1a2a;border:2px solid #ffd700;border-radius:10px;padding:14px;margin:12px 0;text-align:center;"><div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;"><div><div style="font-size:11px;color:#aaa;">강력1수</div><div style="font-size:26px;font-weight:900;color:${parseFloat(s1Pct)>=35?'#2ecc71':'#f39c12'};">${s1Pct}%</div></div><div><div style="font-size:11px;color:#aaa;">강력2수</div><div style="font-size:26px;font-weight:900;color:${parseFloat(s2Pct)>=35?'#2ecc71':'#f39c12'};">${s2Pct}%</div></div><div><div style="font-size:11px;color:#aaa;">1+2 동시</div><div style="font-size:26px;font-weight:900;color:${parseFloat(bothStrongPct)>=15?'#2ecc71':'#f39c12'};">${bothStrongPct}%</div></div><div><div style="font-size:11px;color:#aaa;">5수 평균</div><div style="font-size:26px;font-weight:900;color:${parseFloat(s5Avg)>=1.5?'#2ecc71':'#f39c12'};">${s5Avg}</div></div><div><div style="font-size:11px;color:#aaa;">최종10수</div><div style="font-size:26px;font-weight:900;color:${parseFloat(avgHit10)>=2.5?'#2ecc71':'#f39c12'};">${avgHit10}</div></div><div><div style="font-size:11px;color:#aaa;">10조합최고</div><div style="font-size:26px;font-weight:900;color:${parseFloat(avgBest)>=2.5?'#2ecc71':'#f39c12'};">${avgBest}</div></div></div></div>`;
+        let html = `<h3 style="color:#ffd700;text-align:center;">📊 백테스트 (v57.6.3 · 20조합 · 유니크 상한 · 강력수 FULL) ${startRound}~${endRound} (${total}회차)</h3>`;
+        html += `<div style="background:#0a1a0a;border:2px solid #00e6b8;border-radius:8px;padding:8px 12px;margin:8px 0;text-align:center;color:#00e6b8;font-size:12px;">✅ 20/20 필터 ${filterValidCount}/${total} | 🔴 중복 ${dupCount}/${total} | Case1:${case1Cnt} Case2:${case2Cnt} Case3:${case3Cnt} | 강력/5수/F10=FULL POOL</div>`;
+        html += `<div style="background:#1a1a2a;border:2px solid #ffd700;border-radius:10px;padding:14px;margin:12px 0;text-align:center;"><div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;"><div><div style="font-size:11px;color:#aaa;">강력1수</div><div style="font-size:26px;font-weight:900;color:${parseFloat(s1Pct)>=35?'#2ecc71':'#f39c12'};">${s1Pct}%</div></div><div><div style="font-size:11px;color:#aaa;">강력2수</div><div style="font-size:26px;font-weight:900;color:${parseFloat(s2Pct)>=35?'#2ecc71':'#f39c12'};">${s2Pct}%</div></div><div><div style="font-size:11px;color:#aaa;">1+2 동시</div><div style="font-size:26px;font-weight:900;color:${parseFloat(bothStrongPct)>=15?'#2ecc71':'#f39c12'};">${bothStrongPct}%</div></div><div><div style="font-size:11px;color:#aaa;">5수 평균</div><div style="font-size:26px;font-weight:900;color:${parseFloat(s5Avg)>=1.5?'#2ecc71':'#f39c12'};">${s5Avg}</div></div><div><div style="font-size:11px;color:#aaa;">최종10수</div><div style="font-size:26px;font-weight:900;color:${parseFloat(avgHit10)>=2.5?'#2ecc71':'#f39c12'};">${avgHit10}</div></div><div><div style="font-size:11px;color:#aaa;">20조합최고</div><div style="font-size:26px;font-weight:900;color:${parseFloat(avgBest)>=2.5?'#2ecc71':'#f39c12'};">${avgBest}</div></div><div><div style="font-size:11px;color:#aaa;">5등+</div><div style="font-size:26px;font-weight:900;color:${parseFloat(fivePlusPct)>=30?'#2ecc71':'#f39c12'};">${fivePlusPct}%</div></div></div></div>`;
         html += `<div style="background:#0a1a0a;border:2px solid #2ecc71;border-radius:8px;padding:8px 12px;margin:8px 0;text-align:center;color:#2ecc71;font-size:12px;">🎯 Case별 적중률 — Case1: ${c1Pct}% (${case1Hit}/${case1Cnt*2}) | Case2: ${c2Pct}% (${case2Hit}/${case2Cnt*2}) | Case3: ${c3Pct}% (${case3Hit}/${case3Cnt*2})</div>`;
-        html += `<div class="bt-table-wrap" style="margin-top:12px;"><table style="width:100%;border-collapse:collapse;font-size:11px;"><thead><tr style="color:#ffd700;border-bottom:1px solid #555;"><th>회차</th><th>Case</th><th>1수</th><th>2수</th><th>당첨</th><th>5수</th><th>5수적중</th><th>최종10수</th><th>10수적중</th><th>10조합최고</th></tr></thead><tbody>`;
+        html += `<div class="bt-table-wrap" style="margin-top:12px;"><table style="width:100%;border-collapse:collapse;font-size:11px;"><thead><tr style="color:#ffd700;border-bottom:1px solid #555;"><th>회차</th><th>Case</th><th>1수</th><th>2수</th><th>당첨</th><th>5수(FULL)</th><th>5수적중</th><th>최종10수(FULL)</th><th>10수적중</th><th>20조합최고</th></tr></thead><tbody>`;
         rows.forEach(row => { const s1Color = row.s1Hit ? '#2ecc71' : '#e74c3c'; const s2Color = row.s2Hit ? '#2ecc71' : '#e74c3c'; const hit5Color = row.hit5 >= 3 ? '#2ecc71' : row.hit5 >= 2 ? '#f39c12' : '#e74c3c'; const hit10Color = row.hit10 >= 3 ? '#2ecc71' : row.hit10 >= 2 ? '#f39c12' : '#e74c3c'; const bColor = row.bestCombo >= 3 ? '#2ecc71' : row.bestCombo >= 2 ? '#f39c12' : '#e74c3c'; const caseColor = row.caseType === 1 ? '#2ecc71' : (row.caseType === 2 ? '#f39c12' : '#3498db'); html += `<tr style="border-bottom:1px solid #222;"><td>${row.r}</td><td style="color:${caseColor};font-weight:bold;">C${row.caseType}</td><td style="color:${s1Color};font-weight:bold;">${row.s1}${row.s1Hit?'★':''}</td><td style="color:${s2Color};font-weight:bold;">${row.s2}${row.s2Hit?'★':''}</td><td style="color:#3498db;">${row.win}+${row.bonus}</td><td style="color:#e67e22;">${row.top5}</td><td style="color:${hit5Color};font-weight:bold;">${row.hit5}개</td><td style="color:#f39c12;">${row.final10}</td><td style="color:${hit10Color};font-weight:bold;">${row.hit10}개</td><td style="color:${bColor};font-weight:bold;">${row.bestCombo}개</td></tr>`; });
         html += `</tbody></table></div>`;
         resultDiv.innerHTML = html;
@@ -1308,11 +1455,11 @@ function recombineCombos() {
     const offsetSet = document.getElementById('offsetSetSelect').value;
     const resultDiv = document.getElementById('recombineResult');
     const rcStart = parseInt(document.getElementById('rcStartRound').value), rcEnd = parseInt(document.getElementById('rcEndRound').value);
-    const start = parseInt(document.getElementById('startRound').value) || 1148, minMatch = parseInt(document.getElementById('minMatch').value) || 1;
+    const start = parseInt(document.getElementById('startRound').value) || 1147, minMatch = parseInt(document.getElementById('minMatch').value) || 1;
     const excludeBonus = document.getElementById('excludeBonus')?.checked || false;
-    const roundList = (rcStart && rcEnd && rcStart <= rcEnd) ? Array.from({length: rcEnd - rcStart + 1}, (_,i) => rcStart + i) : [parseInt(document.getElementById('baseRound').value) || 1248];
+    const roundList = (rcStart && rcEnd && rcStart <= rcEnd) ? Array.from({length: rcEnd - rcStart + 1}, (_,i) => rcStart + i) : [parseInt(document.getElementById('baseRound').value) || 1247];
     const offsets = offsetSet === 'all' ? [-1,-2,-3] : offsetSet.split(',').map(s => parseInt(s.trim()));
-    let displayHtml = `<div style="background:#1a1a2a;border:2px solid #9b59b6;border-radius:8px;padding:10px 14px;margin-bottom:12px;"><div style="color:#9b59b6;font-weight:bold;">🔀 재생성 (v57.6 Case공식)</div></div>`;
+    let displayHtml = `<div style="background:#1a1a2a;border:2px solid #9b59b6;border-radius:8px;padding:10px 14px;margin-bottom:12px;"><div style="color:#9b59b6;font-weight:bold;">🔀 재생성 (v57.6.3 · 20조합 · 유니크 상한 · 강력수 FULL)</div></div>`;
     for (const currentRound of roundList) {
         const targetWin = getWinningForDisplay(currentRound);
         const winMain = targetWin ? targetWin.main : [], displayBonus = targetWin ? targetWin.bonus : null;
@@ -1339,35 +1486,45 @@ function recombineCombos() {
             const sortedFreq = Object.entries(sFM).map(([n, c]) => ({ num: parseInt(n), count: Math.round(c * 10) / 10 })).sort((a, b) => b.count - a.count || a.num - b.num);
             const prevWin = getWinningForDisplay(currentRound - 1);
             const carryCands = prevWin ? [...prevWin.main] : [];
+
+            const _rcSaveUL = document.getElementById('uniqueLimit').value;
+            document.getElementById('uniqueLimit').value = '0';
+
             const decided0 = decideStrongV568({ actualCarryovers: carryCands.slice(0, 2), carryCandidates: carryCands, sortedByFreq, winBonus: null, seed: currentRound });
             let s1 = decided0.strong1, s2 = decided0.strong2;
             const tier1Candidates = sortedFreq.slice(0, 15).map(x => x.num).filter(n => n !== s1 && n !== s2);
             const s2Alt = tier1Candidates.length > 0 ? tier1Candidates[0] : s2;
-            let tierResult = buildTierCombos(sortedFreq, s1, s2, s2Alt, currentRound);
-            let final10 = computeBalancedFinal10(tierResult.combos, tierResult.tier1, tierResult.tier2, tierResult.tier3, tierResult.tier4);
+            let tierResultFull = buildTierCombos(sortedFreq, s1, s2, s2Alt, currentRound);
+            let final10Full = computeBalancedFinal10(tierResultFull.combos, tierResultFull.tier1, tierResultFull.tier2, tierResultFull.tier3, tierResultFull.tier4, s1, s2);
+
             const decidedFinal = decideStrongFinal({
                 actualCarryovers: carryCands.slice(0, 2), carryCandidates: carryCands,
-                final10, tier1: tierResult.tier1, tier2: tierResult.tier2,
-                tier3: tierResult.tier3, tier4: tierResult.tier4,
+                final10: final10Full, tier1: tierResultFull.tier1, tier2: tierResultFull.tier2,
+                tier3: tierResultFull.tier3, tier4: tierResultFull.tier4,
                 sortedByFreq, winBonus: null
             });
             s1 = decidedFinal.strong1;
             s2 = decidedFinal.strong2;
             const caseType = decidedFinal.caseType;
-            tierResult = buildTierCombos(sortedFreq, s1, s2, s2Alt, currentRound);
-            final10 = computeBalancedFinal10(tierResult.combos, tierResult.tier1, tierResult.tier2, tierResult.tier3, tierResult.tier4);
-            const final10Hits = targetWin ? final10.filter(n => winMain.includes(n) || n === displayBonus) : [];
+            tierResultFull = buildTierCombos(sortedFreq, s1, s2, s2Alt, currentRound);
+            final10Full = computeBalancedFinal10(tierResultFull.combos, tierResultFull.tier1, tierResultFull.tier2, tierResultFull.tier3, tierResultFull.tier4, s1, s2);
+
+            document.getElementById('uniqueLimit').value = _rcSaveUL;
+            const tierResultLimited = buildTierCombos(sortedFreq, s1, s2, s2Alt, currentRound);
+            const combosLimited = tierResultLimited.combos;
+
+            const final10Hits = targetWin ? final10Full.filter(n => winMain.includes(n) || n === displayBonus) : [];
             const s1Hit = targetWin && (winMain.includes(s1) || s1 === displayBonus);
             const s2Hit = targetWin && (winMain.includes(s2) || s2 === displayBonus);
             const caseColor = caseType === 1 ? '#2ecc71' : (caseType === 2 ? '#f39c12' : '#3498db');
-            displayHtml += `<div style="color:#ffd700;font-weight:bold;margin-top:6px;font-size:12px;">📌 오프셋 ${off} | <span style="color:${caseColor};">Case${caseType}</span> | 1수: <span style="color:${s1Hit?'#2ecc71':'#e74c3c'};">${s1}${s1Hit?'★':''}</span> | 2수: <span style="color:${s2Hit?'#2ecc71':'#e74c3c'};">${s2}${s2Hit?'★':''}</span> | 최종10수: ${final10.join(',')} ${targetWin ? `[${final10Hits.length}개]` : ''}</div>`;
+            displayHtml += `<div style="color:#ffd700;font-weight:bold;margin-top:6px;font-size:12px;">📌 오프셋 ${off} | <span style="color:${caseColor};">Case${caseType}</span> | 1수: <span style="color:${s1Hit?'#2ecc71':'#e74c3c'};">${s1}${s1Hit?'★':''}</span> | 2수: <span style="color:${s2Hit?'#2ecc71':'#e74c3c'};">${s2}${s2Hit?'★':''}</span> | 최종10수(FULL): ${final10Full.join(',')} ${targetWin ? `[${final10Hits.length}개]` : ''}</div>`;
             let idx = 0;
-            for (const [name, nums] of Object.entries(tierResult.combos)) {
+            for (const [name, nums] of Object.entries(combosLimited)) {
                 const hit = targetWin ? nums.filter(n => winMain.includes(n)) : [];
                 const hitBonus = targetWin && displayBonus && nums.includes(displayBonus) ? 1 : 0;
                 const totalH = hit.length + hitBonus;
                 const color = totalH >= 3 ? '#2ecc71' : totalH >= 2 ? '#f39c12' : totalH >= 1 ? '#3498db' : '#666';
-                const zone = idx < 4 ? '🔴' : (idx < 6 ? '🟠' : (idx < 8 ? '🟣' : '🔵'));
+                const zone = idx < 4 ? '🔴' : (idx < 8 ? '🟠' : (idx < 14 ? '🟣' : '🔵'));
                 displayHtml += `<div class="rr-combo-line" style="border-left-color:${color};">${zone} ${name}: <span style="color:#fff;">${nums.join(',')}</span> <span style="color:${color};font-weight:bold;">[${totalH}개]</span></div>`;
                 idx++;
             }
@@ -1393,22 +1550,135 @@ function calcIntersection() { const {A,B}=getSets(); updateResultDisplay([...A,.
 function calcDiffAB() { const {A,B}=getSets(); updateResultDisplay([...A,...B], A.filter(n=>B.includes(n)), A.filter(n=>!B.includes(n)), B.filter(n=>!A.includes(n))); }
 function calcDiffBA() { const {A,B}=getSets(); updateResultDisplay([...A,...B], A.filter(n=>B.includes(n)), A.filter(n=>!B.includes(n)), B.filter(n=>!A.includes(n))); }
 function calcSymmetricDiff() { const {A,B}=getSets(); const dA=A.filter(n=>!B.includes(n)), dB=B.filter(n=>!A.includes(n)); updateResultDisplay([...A,...B], A.filter(n=>B.includes(n)), dA, dB); }
-function clearSets() { document.getElementById('setAInput').value=''; document.getElementById('setBInput').value=''; document.getElementById('customComboInput').value=''; document.getElementById('compressInput').value=''; ['srUnion','srIntersect','srDiffAB','srDiffBA'].forEach(id=>document.getElementById(id).innerHTML='-'); ['srUnionCount','srIntersectCount','srDiffABCount','srDiffBACount'].forEach(id=>document.getElementById(id).textContent='0개'); document.getElementById('customComboResult').innerHTML='없음'; document.getElementById('compressResult').innerHTML='없음'; }
+function clearSets() { document.getElementById('setAInput').value=''; document.getElementById('setBInput').value=''; document.getElementById('customComboInput').value=''; document.getElementById('compressInput').value=''; ['srUnion','srIntersect','srDiffAB','srDiffBA'].forEach(id=>document.getElementById(id).innerHTML='-'); ['srUnionCount','srIntersectCount','srDiffABCount','srDiffBACount'].forEach(id=>document.getElementById(id).textContent='0개'); document.getElementById('customComboResult').innerHTML='없음'; document.getElementById('customCombo10Result').innerHTML='<span class="cc-combo-empty">없음</span>'; document.getElementById('customCombo20Result').innerHTML='<span class="cc-combo-empty">없음</span>'; document.getElementById('compressResult').innerHTML='없음'; }
 function getCombinations(arr, k) { if (k === 0) return [[]]; if (arr.length === 0) return []; const [first, ...rest] = arr; return [...getCombinations(rest, k - 1).map(c => [first, ...c]), ...getCombinations(rest, k)]; }
+
 function generateCustomCombos() {
     const nums = parseSet(document.getElementById('customComboInput').value);
     if (nums.length < 6) { alert('⚠️ 최소 6개'); return; }
     const allCombos = getCombinations(nums, 6);
-    if (allCombos.length === 0) { document.getElementById('customComboResult').innerHTML = '없음'; return; }
+    if (allCombos.length === 0) {
+        document.getElementById('customCombo10Result').innerHTML = '<span class="cc-combo-empty">없음</span>';
+        document.getElementById('customCombo20Result').innerHTML = '<span class="cc-combo-empty">없음</span>';
+        document.getElementById('customComboResult').innerHTML = '없음';
+        return;
+    }
     const filtered = allCombos.filter(c => isValidLottoCombo(c, null));
     const sortCombos = (arr) => { arr.sort((a, b) => { for (let i = 0; i < 6; i++) if (a[i] !== b[i]) return a[i] - b[i]; return 0; }); return arr; };
-    const src = filtered.length >= 10 ? sortCombos([...filtered]) : sortCombos([...allCombos]);
-    const cnt = Math.min(10, src.length);
-    const disp = src.length <= 10 ? src : (() => { const step = src.length/cnt, res = []; for (let i=0;i<cnt;i++) res.push(src[Math.floor(i*step)]); return res; })();
+    const src = (filtered.length >= 20) ? sortCombos([...filtered]) : (filtered.length >= 10 ? sortCombos([...filtered]) : sortCombos([...allCombos]));
+
+    const sampleN = (arr, n) => {
+        if (arr.length <= n) return [...arr];
+        const step = arr.length / n;
+        const res = [];
+        for (let i = 0; i < n; i++) res.push(arr[Math.floor(i * step)]);
+        return res;
+    };
+
+    const disp10 = sampleN(src, 10);
+    const disp20 = sampleN(src, 20);
     const winMain = winData ? winData.main : [], displayBonus = winData ? winData.bonus : null;
-    document.getElementById('customComboResult').innerHTML = disp.map(c => `<span style="display:inline-block;background:#1a2a1a;padding:1px 8px;border-radius:4px;margin:2px;border:1px solid #2ecc71;">${c.map(n => colorNumSimple(n, winMain, displayBonus)).join(' ')}</span>`).join(' ') + ` <span style="color:#888;font-size:11px;">(필터 ${filtered.length}/${src.length})</span>`;
+
+    const renderCombos = (combos, targetId, baseColor) => {
+        const grid = combos.map((c, i) => {
+            const hits = winData ? c.filter(n => winMain.includes(n)) : [];
+            const hitBonus = winData && displayBonus && c.includes(displayBonus);
+            const totalH = hits.length + (hitBonus ? 1 : 0);
+            const isHit3 = winData && totalH >= 3;
+            const color = isHit3 ? '#2ecc71' : (totalH >= 2 ? '#f39c12' : (totalH >= 1 ? '#3498db' : baseColor));
+            const numHtml = c.map(n => colorNumSimple(n, winMain, displayBonus)).join(' ');
+            return `<div class="cc-combo-item" style="border-left-color:${color};"><span class="cc-combo-idx">${i+1}.</span><span class="cc-combo-nums">${numHtml}</span>${winData ? `<span style="color:${color};font-weight:bold;font-size:10px;">${totalH}개</span>` : ''}</div>`;
+        }).join('');
+        const note = `<div style="grid-column:1/-1;color:#888;font-size:10px;margin-top:4px;text-align:center;">소스 ${src.length}개 → ${combos.length}개 균등샘플 (필터 ${filtered.length}/${allCombos.length})</div>`;
+        document.getElementById(targetId).innerHTML = grid + note;
+    };
+
+    renderCombos(disp10, 'customCombo10Result', '#3498db');
+    renderCombos(disp20, 'customCombo20Result', '#9b59b6');
+    document.getElementById('customComboResult').innerHTML = '없음';
 }
-function clearCustomCombo() { document.getElementById('customComboInput').value = ''; document.getElementById('customComboResult').innerHTML = '없음'; }
+function clearCustomCombo() {
+    document.getElementById('customComboInput').value = '';
+    document.getElementById('customComboResult').innerHTML = '없음';
+    document.getElementById('customCombo10Result').innerHTML = '<span class="cc-combo-empty">없음</span>';
+    document.getElementById('customCombo20Result').innerHTML = '<span class="cc-combo-empty">없음</span>';
+}
+
+function compressCustom(n) {
+    const nums = parseSet(document.getElementById('customComboInput').value);
+    if (nums.length === 0) { alert('⚠️ 유효 숫자 없음'); return; }
+    const winMain = winData ? winData.main : [], displayBonus = winData ? winData.bonus : null;
+    if (nums.length <= n) {
+        const sortedAll = [...nums].sort((a,b)=>a-b);
+        document.getElementById('customComboResult').innerHTML = sortedAll.map(num => {
+            const mark = winMain.includes(num) ? '★' : (displayBonus === num ? '☆' : '');
+            return `<span style="background:#3498db;color:#fff;padding:0 6px;border-radius:4px;margin:1px;display:inline-block;">${num}${mark}</span>`;
+        }).join(' ') + ` <span style="color:#888;font-size:11px;">(${nums.length}개 / 압축불필요)</span>`;
+        return;
+    }
+    const numsSet = new Set(nums);
+    const resultSet = new Set();
+    const tagMap = {};
+    const addWithTag = (num, tag) => {
+        if (num == null || !numsSet.has(num) || resultSet.has(num) || resultSet.size >= n) return false;
+        resultSet.add(num);
+        tagMap[num] = tag;
+        return true;
+    };
+    if (lastStrong1 != null) addWithTag(lastStrong1, '1수');
+    if (lastStrong2 != null) addWithTag(lastStrong2, '2수');
+    const t1Arr = _splitInfo.tier1 || [];
+    const t2Arr = _splitInfo.tier2 || [];
+    const t3Arr = _splitInfo.tier3 || [];
+    const t4Arr = _splitInfo.tier4 || [];
+    const f10   = lastFinal10 || [];
+    const seen5 = new Set(), top5 = [];
+    const push5 = (x) => { if (x == null || seen5.has(x) || top5.length >= 5) return; seen5.add(x); top5.push(x); };
+    if (lastStrong1) push5(lastStrong1);
+    if (lastStrong2) push5(lastStrong2);
+    f10.filter(x => t4Arr.includes(x) && !seen5.has(x)).slice(0, 2).forEach(push5);
+    f10.filter(x => t3Arr.includes(x) && !seen5.has(x)).slice(0, 2).forEach(push5);
+    f10.filter(x => t1Arr.includes(x) && !seen5.has(x)).forEach(push5);
+    f10.filter(x => t2Arr.includes(x) && !seen5.has(x)).forEach(push5);
+    if (top5.length < 5) {
+        if (lastStrong2Alt) push5(lastStrong2Alt);
+        (lastTop9 || []).forEach(push5);
+        (lastV23Result || []).forEach(push5);
+        if (top5.length < 5 && t4Arr.length > 0) t4Arr.forEach(push5);
+    }
+    top5.forEach(num => {
+        if (num !== lastStrong1 && num !== lastStrong2) addWithTag(num, '5수');
+    });
+    const freq = {};
+    if (lastBaseStrategies && Object.keys(lastBaseStrategies).length > 0) {
+        for (const combo of Object.values(lastBaseStrategies)) {
+            combo.forEach(num => freq[num] = (freq[num] || 0) + 1);
+        }
+    }
+    const scored = nums
+        .filter(num => !resultSet.has(num))
+        .map(num => {
+            let score = freq[num] || 0;
+            [num-1, num+1].forEach(m => { if (freq[m]) score += 0.3; });
+            return { num, score };
+        })
+        .sort((a, b) => b.score - a.score || a.num - b.num);
+    for (const x of scored) {
+        if (resultSet.size >= n) break;
+        addWithTag(x.num, '');
+    }
+    const finalNums = [...resultSet].sort((a,b)=>a-b);
+    const tagColors = { '1수':'#ffd700', '2수':'#ff6b6b', '5수':'#e67e22' };
+    const bg = n <= 10 ? '#3498db' : '#9b59b6';
+    document.getElementById('customComboResult').innerHTML = finalNums.map(num => {
+        const mark = winMain.includes(num) ? '★' : (displayBonus === num ? '☆' : '');
+        const tag = tagMap[num];
+        const borderStyle = tag ? `border:2px solid ${tagColors[tag]};` : '';
+        const tagLabel = tag ? `<span style="font-size:9px;color:${tagColors[tag]};font-weight:900;margin-left:3px;">${tag}</span>` : '';
+        return `<span style="background:${bg};color:#fff;padding:0 6px;border-radius:4px;margin:1px;display:inline-block;${borderStyle}">${num}${mark}${tagLabel}</span>`;
+    }).join(' ') + ` <span style="color:#888;font-size:11px;">(${nums.length}개 → ${finalNums.length}개 | 강력1/2/5수 강제포함)</span>`;
+}
+
 function compressTop20() { if (!lastBaseStrategies || Object.keys(lastBaseStrategies).length === 0) { alert('⚠️ 먼저 분석!'); return; } const freqMap = {}; for (const nums of Object.values(lastBaseStrategies)) nums.forEach(n => freqMap[n] = (freqMap[n] || 0) + 1); const sorted = Object.entries(freqMap).sort((a, b) => b[1] - a[1] || parseInt(a[0]) - parseInt(b[0])).map(([num]) => parseInt(num)).slice(0, 20); const winMain = winData ? winData.main : [], displayBonus = winData ? winData.bonus : null; document.getElementById('compressResult').innerHTML = `<div>${sorted.map(n => { const mark = winMain.includes(n) ? '★' : (displayBonus === n ? '☆' : ''); return `<span style="color:#fff;">${n}${mark}</span>`; }).join(', ')}</div><div style="font-size:11px;color:#888;margin-top:4px;">📊 ${sorted.map(n => `${n}(${freqMap[n]||0}회)`).join(', ')}</div>`; }
 function compressV2() { const nums = parseSet(document.getElementById('compressInput').value); if (nums.length === 0) { alert('⚠️ 유효 숫자 없음'); return; } const freq = {}; nums.forEach(n => freq[n] = (freq[n] || 0) + 1); const scored = Object.entries(freq).map(([num, count]) => { const n = parseInt(num); let score = count; [n-1, n+1].forEach(m => { if (freq[m]) score += 0.3; }); return { num: n, score }; }); const top20 = scored.sort((a, b) => b.score - a.score || a.num - b.num).slice(0, 20).map(i => i.num).sort((a, b) => a - b); const winMain = winData ? winData.main : [], displayBonus = winData ? winData.bonus : null; document.getElementById('compressResult').innerHTML = top20.map(n => { const mark = winMain.includes(n) ? '★' : (displayBonus === n ? '☆' : ''); return `<span style="background:#9b59b6;color:#fff;padding:0 6px;border-radius:4px;margin:1px;display:inline-block;">${n}${mark}</span>`; }).join(' '); }
 function clearCompress() { document.getElementById('compressInput').value = ''; document.getElementById('compressResult').innerHTML = '없음'; }
@@ -1419,28 +1689,38 @@ window.onload = function() {
     document.getElementById('customComboInput').value = '1,2,3,4,5,6,7';
     document.getElementById('compressInput').value = '1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20';
 
-    document.getElementById('baseRound').value = 1248;
-    document.getElementById('manualRound').value = 1248;
-    document.getElementById('startRound').value = 1148;
+    document.getElementById('baseRound').value = 1247;
+    document.getElementById('manualRound').value = 1247;
+    document.getElementById('startRound').value = 1147;
     document.getElementById('topCount').value = 5;
     document.getElementById('topCountDisplay').textContent = '5';
-    document.getElementById('uniqueLimit').value = '20';
+    document.getElementById('uniqueLimit').value = '0';
 
     document.querySelectorAll('.refOffset').forEach(el => el.checked = true);
     document.getElementById('minMatch').value = '1';
     document.getElementById('similarSort').value = 'high';
     document.getElementById('excludeBonus').checked = true;
 
-    lastBaseRound = 1248;
-    lastStartRound = 1148;
-    currentSeed = 1248;
+    lastBaseRound = 1247;
+    lastStartRound = 1147;
+    currentSeed = 1247;
     document.getElementById('seedDisplay').textContent = currentSeed;
 
-    document.getElementById('btStartRound').value = 1206;
-    document.getElementById('btEndRound').value = 1248;
+    document.getElementById('uniqueLimit').addEventListener('change', function() {
+        if (lastBaseRound) {
+            const prevPeek = _peekMode;
+            _lockActive = true; _lockBase = lastBaseRound;
+            _lockStats.futureAccessAttempts = []; _lockStats.blocks = 0;
+            runAnalysis();
+            _peekMode = prevPeek;
+        }
+    });
 
-    document.getElementById('resultArea').innerHTML = '<div class="loading">🟢 v57.6K 준비 완료!<br>📅 예상=<b>1248</b> | 🔢 시작=<b>1148</b> | 📊 개수=<b>5</b> | 🎯 유니크=<b>20</b> | 🎲 시드=<b>1248</b><br>🔴 <b style="color:#2ecc71;">Case1</b> 이월확정×2 → 그 둘<br>🟠 <b style="color:#f39c12;">Case2</b> sweet 이월 → sweet 이월 + sweet 다른번호<br>🔵 <b style="color:#3498db;">Case3</b> 그 외 → T4최상위 + T3최상위<br>🎯 9회차 교차검정 <b>67%</b></div>';
-    console.log('🟢 v57.6K 로드 (Case1/2/3 최종 공식).');
+    document.getElementById('btStartRound').value = 1206;
+    document.getElementById('btEndRound').value = 1249;
+
+    document.getElementById('resultArea').innerHTML = '<div class="loading">🟢 v57.6.3 준비 완료!<br>📅 예상=<b>1247</b> | 🔢 시작=<b>1147</b> | 📊 개수=<b>5</b> | 🎯 유니크=<b>무제한</b> | 🎲 시드=<b>1247</b><br><b style="color:#2ecc71;">1249회 당첨: 2 · 11 · 16 · 25 · 34 · 35 + 14</b><br><b style="color:#ffd700;">🛡️ Case2 강화 + Case2 폴백 + T4 비중 확대 + f10 동적 T4 가중</b><br><b style="color:#e67e22;">✨ 커스텀 영역에서 10조합 + 20조합 동시 표시</b><br><b style="color:#00e6b8;">🎨 20조합 통계 — 당번 커버리지 + Tier별 그룹화 + 빈도 분포 히트맵</b></div>';
+    console.log('🟢 v57.6.3 로드 (Case2 강화 · T4 확대 · f10 동적 가중 · 커스텀 10/20조합 · 통계 대시보드 · 기본 1247/1147/무제한/보너스제거).');
 };
 </script>
 </body>
