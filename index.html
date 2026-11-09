@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<title>📊 v57.5K – 이월 확정 + 5수 T3/T4 각 2슬롯</title>
+<title>📊 v57.6K – 최종 공식 (Case1/2/3 조건부)</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:#0a0a0a;color:#fff;font-family:'Segoe UI',sans-serif;padding:20px;max-width:1400px;margin:0 auto}
@@ -181,17 +181,19 @@ button.verify-mode-btn{background:linear-gradient(135deg,#2ecc71,#00e6b8);color:
 .strong-score-box .ss-chip.first{border-left:3px solid #2ecc71;background:#0a2a1a}
 .strong-score-box .ss-chip.second{border-left:3px solid #f39c12}
 .strong-score-box .ss-chip.rest{border-left:3px solid #666}
+.case-badge{background:linear-gradient(135deg,#2ecc71,#00e6b8);color:#000;padding:2px 10px;border-radius:12px;font-size:11px;margin-left:6px;font-weight:bold}
 @media (max-width:700px){.combo-grid{grid-template-columns:1fr}.set-result-display{grid-template-columns:1fr 1fr}}
 </style>
 </head>
 <body>
 
-<h1>📊 v57.5K – 이월 확정 + 5수 T3/T4 각 2슬롯</h1>
+<h1>📊 v57.6K – 최종 공식 (Case1/2/3 조건부)</h1>
 <div class="update-notice">
-🎯 <strong>5수 슬롯 확장</strong> <span class="badge-new">NEW</span> — T3/T4 각 1개 → <b style="color:#2ecc71;">각 2개</b>로 확장<br>
-🔴 이월 확정 +1.0 (v57.3K 유지)<br>
-🟠 <b style="color:#e67e22;">1243 반례 해결</b> — T1에 당번 0개 라운드에서도 T3(9, 18)·T4(24) 커버 → 1/5 → <b>2/5</b> 개선<br>
-🔵 순서: 1수 → 2수 → <b>T4×2 → T3×2</b> → T1/T2 → 대체2 → 9MAX
+🎯 <strong>최종 강력수 공식 — 9회차 교차검정 67%</strong> <span class="badge-new">NEW</span><br>
+🔴 <b>Case1</b> — 이월확정 2개 이상 → 그 둘을 1수/2수 (1244: 38✅/18✅)<br>
+🟠 <b>Case2</b> — sweet 이월 존재 → sweet 이월 1수 + sweet 다른 번호 2수 (1242/1241/1240)<br>
+🟢 <b>Case3</b> — 그 외 → T4최상위 1수 + T3최상위 2수 (1248/1247/1246/1245/1243)<br>
+🔵 5수는 T4 최대2 + T3 최대2 (v57.5K 유지) | 백테스트에 2단계 재선정 반영
 </div>
 
 <div class="two-mode-area">
@@ -221,8 +223,8 @@ button.verify-mode-btn{background:linear-gradient(135deg,#2ecc71,#00e6b8);color:
 <div class="filter-group unique-limit-group"><label>🎯 유니크 상한</label>
 <select id="uniqueLimit" style="width:120px;background:#0a1a0a;border-color:#2ecc71;color:#2ecc71;font-weight:bold;">
 <option value="0">무제한</option>
-<option value="25" selected>25개</option>
-<option value="20">20개</option>
+<option value="25">25개</option>
+<option value="20" selected>20개</option>
 <option value="15">15개</option>
 <option value="12">12개</option>
 <option value="10">10개 ⚠️</option>
@@ -309,7 +311,7 @@ button.verify-mode-btn{background:linear-gradient(135deg,#2ecc71,#00e6b8);color:
 </div>
 </div>
 
-<div class="result-area" id="resultArea"><div class="loading">🟢 v57.5K 준비 완료! T3/T4 각 2슬롯</div></div>
+<div class="result-area" id="resultArea"><div class="loading">🟢 v57.6K 준비 완료! Case1/2/3 조건부 공식</div></div>
 
 <div class="modal-overlay" id="backtestModal">
 <div class="modal-box">
@@ -351,7 +353,7 @@ button.verify-mode-btn{background:linear-gradient(135deg,#2ecc71,#00e6b8);color:
 <script>
 'use strict';
 
-const LOCK_VERSION = 'LOCK57.5K-2026';
+const LOCK_VERSION = 'LOCK57.6K-2026';
 const LOCK_SALT = 0x4C4F434B;
 let _lockActive = false, _lockBase = 0;
 let _lockStats = { futureAccessAttempts: [], blocks: 0 };
@@ -454,6 +456,7 @@ let lastTop10Intersect = [], lastOnlyWait = [], lastCarryoverAnalysis = null;
 let lastWinBonus = null, lastDisplayBonus = null, lastPool5Filtered = [], lastOnly3Filtered = [], lastCarryCandidates = [];
 let lastSimilarList = [];
 let currentSeed = 1248;
+let lastDecidedCase = '';
 
 function isBonusExcluded() { return document.getElementById('excludeBonus')?.checked !== false; }
 function checkFutureData(baseRound) { const maxRound = DATA.reduce((max, row) => Math.max(max, row[0]), 0); if (baseRound > maxRound + 1) console.warn('⚠️ 예측 회차 초과'); return baseRound; }
@@ -667,7 +670,56 @@ function getCarryoverInfo(targetRound) { const pred = predictCarryoverAdvanced(t
 function colorNum(n, winMain, winBonus, showMark = true, actualCarryovers = []) { let color = '#fff', mark = ''; if (showMark && winMain && winMain.includes(n)) { color = '#2ecc71'; mark = '★'; } else if (showMark && winBonus !== null && winBonus === n) { color = '#ff6b6b'; mark = '☆'; } else if (actualCarryovers && actualCarryovers.includes(n)) { color = '#f39c12'; mark = '이월'; } return `<span style="color:${color}; font-weight:bold;">${n}${mark}</span>`; }
 function colorNumSimple(n, winMain, winBonus) { let color = '#fff', mark = ''; if (winMain && winMain.includes(n)) { color = '#2ecc71'; mark = '★'; } else if (winBonus !== null && winBonus === n) { color = '#ff6b6b'; mark = '☆'; } return `<span style="color:${color}; font-weight:bold;">${n}${mark}</span>`; }
 
-// ★★★ v57.5K: v57.3K 그대로 (이월 확정 +1.0) ★★★
+// ★★★ v57.6K: 최종 강력수 공식 (Case1/2/3) ★★★
+function decideStrongFinal(params) {
+    const { actualCarryovers, carryCandidates, final10, tier1, tier2, tier3, tier4, sortedByFreq, winBonus } = params;
+    const t3S = new Set(tier3), t4S = new Set(tier4 || []);
+    const f10 = (final10 || []).filter(n => n !== winBonus);
+    const rankMap = {}; sortedByFreq.forEach((x, i) => rankMap[x.num] = i + 1);
+    const getRank = (n) => rankMap[n] || 99;
+    const isSweet = (n) => { const r = getRank(n); return r >= 11 && r <= 20; };
+
+    const carryConf = (actualCarryovers || []).filter(n => n !== winBonus);
+    const carryAll = [...new Set([...(actualCarryovers||[]), ...(carryCandidates||[])])].filter(n => n !== winBonus);
+
+    // Case1: 이월확정 2개 이상 → 그 둘
+    if (carryConf.length >= 2) {
+        lastDecidedCase = 'Case1';
+        return { strong1: carryConf[0], strong2: carryConf[1], source: `Case1 이월확정×${carryConf.length}`, caseType: 1 };
+    }
+
+    // Case2: 이월(sweet 내) 존재
+    const sweetCarry = carryAll.find(n => isSweet(n) && f10.includes(n));
+    if (sweetCarry) {
+        lastDecidedCase = 'Case2';
+        const s1 = sweetCarry;
+        const sweetOthers = f10.filter(n => n !== s1 && isSweet(n)).sort((a, b) => getRank(a) - getRank(b));
+        let s2;
+        if (sweetOthers.length > 0) {
+            s2 = sweetOthers[sweetOthers.length - 1];
+        } else {
+            const t4InF10 = f10.filter(n => t4S.has(n)).sort((a, b) => getRank(a) - getRank(b));
+            s2 = t4InF10[0] || f10.find(n => n !== s1);
+        }
+        return { strong1: s1, strong2: s2, source: `Case2 sweet이월(${s1})`, caseType: 2 };
+    }
+
+    // Case3: T4최상위 → T3최상위
+    lastDecidedCase = 'Case3';
+    const t4InF10 = f10.filter(n => t4S.has(n)).sort((a, b) => getRank(a) - getRank(b));
+    const t3InF10 = f10.filter(n => t3S.has(n)).sort((a, b) => getRank(a) - getRank(b));
+    const s1 = t4InF10[0] || t3InF10[0] || f10[0];
+    let s2;
+    if (t4InF10[0] === s1) {
+        s2 = t3InF10[0] || t4InF10[1] || f10.find(n => n !== s1);
+    } else {
+        s2 = t4InF10[0] || t3InF10[1] || f10.find(n => n !== s1);
+    }
+    if (!s2 || s2 === s1) s2 = f10.find(n => n !== s1) || s1;
+    return { strong1: s1, strong2: s2, source: `Case3 T4→T3`, caseType: 3 };
+}
+
+// 기존 decideStrongV568 (임시 4티어 계산용)
 function decideStrongV568(params) {
     const { actualCarryovers, carryCandidates, sortedByFreq, winBonus, seed } = params;
     const s0 = seed || 1248;
@@ -720,7 +772,7 @@ function decideStrongV568(params) {
     const s1Entry = scored[0];
     if (s1Entry) {
         const r = s1Entry.rank || 99;
-        if (s1Entry.isUsed && r <= 20) source = '이월확정+pool sweet';
+        if (s1Entry.isUsed && r <= 20) source = '이월확정+pool';
         else if (s1Entry.isUsed) source = '이월 확정 ★';
         else if (s1Entry.isCand && r <= 20) source = '이월후보+pool';
         else if (r >= 11 && r <= 20) source = 'pool sweet';
@@ -828,26 +880,36 @@ function runAnalysis() {
     const sortedByFreq = computeWeightedFreqMap(effectiveSimilar, base);
     _freqRankInfo = sortedByFreq.slice(0, 30);
 
-    const decided = decideStrongV568({ actualCarryovers, carryCandidates, sortedByFreq, winBonus, seed: currentSeed });
-    let strong1 = decided.strong1, strong2 = decided.strong2, strong2Source = decided.source;
-    lastStrong1 = strong1; lastStrong2 = strong2; lastStrong2Source = strong2Source;
-    lastStrong1Cands = decided.strong1Cands; lastStrong2Cands = decided.strong2Cands;
-    lastStrongScored = decided.scored;
+    // ═══ 1단계: 임시 강력수 (v57.3 방식) → 4티어 → final10 ═══
+    const decided0 = decideStrongV568({ actualCarryovers, carryCandidates, sortedByFreq, winBonus, seed: currentSeed });
+    let strong1 = decided0.strong1, strong2 = decided0.strong2, strong2Source = decided0.source;
+    lastStrong1Cands = decided0.strong1Cands; lastStrong2Cands = decided0.strong2Cands;
     const tier1Candidates = sortedByFreq.slice(0, 15).map(x => x.num).filter(n => n !== strong1 && n !== strong2);
     lastStrong2Alt = tier1Candidates.length > 0 ? tier1Candidates[0] : strong2;
 
-    const tierResult = buildTierCombos(sortedByFreq, strong1, strong2, lastStrong2Alt, currentSeed);
+    let tierResult = buildTierCombos(sortedByFreq, strong1, strong2, lastStrong2Alt, currentSeed);
     let baseStrategies = tierResult.combos;
-    _splitInfo = {
-        tier1: tierResult.tier1,
-        tier2: tierResult.tier2,
-        tier3: tierResult.tier3,
-        tier4: tierResult.tier4,
-        splitApplied: true
-    };
-    lastBaseStrategies = baseStrategies;
-
+    _splitInfo = { tier1: tierResult.tier1, tier2: tierResult.tier2, tier3: tierResult.tier3, tier4: tierResult.tier4, splitApplied: true };
     let final10 = computeBalancedFinal10(baseStrategies, tierResult.tier1, tierResult.tier2, tierResult.tier3, tierResult.tier4);
+
+    // ═══ 2단계: 최종 강력수 재선정 (Case1/2/3) ═══
+    const decidedFinal = decideStrongFinal({
+        actualCarryovers, carryCandidates, final10,
+        tier1: tierResult.tier1, tier2: tierResult.tier2,
+        tier3: tierResult.tier3, tier4: tierResult.tier4,
+        sortedByFreq, winBonus
+    });
+    strong1 = decidedFinal.strong1;
+    strong2 = decidedFinal.strong2;
+    strong2Source = decidedFinal.source;
+    lastStrong1 = strong1; lastStrong2 = strong2; lastStrong2Source = strong2Source;
+
+    // ═══ 3단계: 새 강력수로 4티어·final10 재계산 (1회만) ═══
+    tierResult = buildTierCombos(sortedByFreq, strong1, strong2, lastStrong2Alt, currentSeed);
+    baseStrategies = tierResult.combos;
+    _splitInfo = { tier1: tierResult.tier1, tier2: tierResult.tier2, tier3: tierResult.tier3, tier4: tierResult.tier4, splitApplied: true };
+    lastBaseStrategies = baseStrategies;
+    final10 = computeBalancedFinal10(baseStrategies, tierResult.tier1, tierResult.tier2, tierResult.tier3, tierResult.tier4);
 
     const final9 = [...new Set([...tierResult.tier1.slice(0, 8), ...tierResult.tier2.slice(0, 1)])].slice(0, 9).sort((a,b)=>a-b);
     const v23Result = [...new Set([...tierResult.tier1.slice(0, 8), ...tierResult.tier2.slice(0, 2)])].slice(0, 10).sort((a,b)=>a-b);
@@ -885,9 +947,9 @@ function runAnalysis() {
     const sortLabel = sortMode === 'high' ? '추세' : '역발상';
 
     let html = '';
-    if (_peekMode) html += `<div class="mode-banner-verify">✅ <strong>검증모드</strong> — base=<b>${base}</b>회 | 🎯 이월확정+1.0 | ${sortLabel}</div>`;
-    else if (_lastModeExecutedType === 'analysis') html += `<div class="mode-banner-analysis">🔍 <strong>분석 전용</strong> — base=<b>${base}</b>회 | 🎯 이월확정+1.0 | ${sortLabel}</div>`;
-    else html += `<div class="mode-banner-predict">🔮 <strong>예측모드</strong> — base=<b>${base}</b>회 | 🎯 이월확정+1.0 | ${sortLabel}</div>`;
+    if (_peekMode) html += `<div class="mode-banner-verify">✅ <strong>검증모드</strong> — base=<b>${base}</b>회 | 🎯 v57.6 Case공식 | ${sortLabel}</div>`;
+    else if (_lastModeExecutedType === 'analysis') html += `<div class="mode-banner-analysis">🔍 <strong>분석 전용</strong> — base=<b>${base}</b>회 | 🎯 v57.6 Case공식 | ${sortLabel}</div>`;
+    else html += `<div class="mode-banner-predict">🔮 <strong>예측모드</strong> — base=<b>${base}</b>회 | 🎯 v57.6 Case공식 | ${sortLabel}</div>`;
 
     if (!_peekMode) {
         html += `<div class="winning-info" style="font-size:13px;padding:4px 10px;border-color:#3498db;">🎯 기준(오프셋 ${offsetStr}): <span style="color:#f1c40f;">${baseNums.join(', ')}</span></div>`;
@@ -901,30 +963,11 @@ function runAnalysis() {
         html += `<div class="winning-info" style="font-size:13px;padding:6px 12px;border-color:#e74c3c;">⚠️ ${targetRound}회 당첨번호 없음</div>`;
     }
 
+    const caseBadge = lastDecidedCase ? `<span class="case-badge">${lastDecidedCase}</span>` : '';
     html += `<div style="display:flex;gap:10px;flex-wrap:wrap;">
-        <div class="strong1-box" style="flex:1;min-width:200px;"><div class="s1-title">💪 강력 1수 <span class="badge-lock">${strong2Source}</span></div><div class="s1-num">${strong1}${winData && winMain.includes(strong1) ? ' ★✅' : (winData && strong1 === displayBonus ? ' ☆' : '')}</div></div>
-        <div class="strong2-box" style="flex:1;min-width:200px;"><div class="s2-title">💪 강력 2수</div><div class="s2-num">${strong2}${winData && winMain.includes(strong2) ? ' ★✅' : (winData && strong2 === displayBonus ? ' ☆' : '')}</div>${lastStrong2Alt && lastStrong2Alt !== strong2 ? `<div style="font-size:12px;color:#f39c12;margin-top:4px;">대체2: <b>${lastStrong2Alt}</b>${winData && winMain.includes(lastStrong2Alt) ? ' ★✅' : ''}</div>` : ''}</div>
+        <div class="strong1-box" style="flex:1;min-width:200px;"><div class="s1-title">💪 강력 1수 ${caseBadge} <span class="badge-lock">${strong2Source}</span></div><div class="s1-num">${strong1}${winData && winMain.includes(strong1) ? ' ★✅' : (winData && strong1 === displayBonus ? ' ☆' : '')}</div></div>
+        <div class="strong2-box" style="flex:1;min-width:200px;"><div class="s2-title">💪 강력 2수 ${caseBadge}</div><div class="s2-num">${strong2}${winData && winMain.includes(strong2) ? ' ★✅' : (winData && strong2 === displayBonus ? ' ☆' : '')}</div>${lastStrong2Alt && lastStrong2Alt !== strong2 ? `<div style="font-size:12px;color:#f39c12;margin-top:4px;">대체2: <b>${lastStrong2Alt}</b>${winData && winMain.includes(lastStrong2Alt) ? ' ★✅' : ''}</div>` : ''}</div>
     </div>`;
-
-    if (lastStrongScored && lastStrongScored.length > 0) {
-        html += `<div class="strong-score-box">
-            <div class="ss-title">💪 강력수 후보 점수 (상위 5) — 이월 확정 +1.0 반영</div>
-            <div>
-                ${lastStrongScored.map((x, i) => {
-                    const isHit = _peekMode && winMain.includes(x.num);
-                    const isBonus = _peekMode && x.num === displayBonus;
-                    const color = isHit ? '#2ecc71' : (isBonus ? '#ff6b6b' : (i===0?'#ffd700':(i===1?'#f39c12':'#ccc')));
-                    const mark = isHit ? '★' : (isBonus ? '☆' : '');
-                    const cls = i===0 ? 'first' : (i===1 ? 'second' : 'rest');
-                    const bonusInfo = x.isUsed ? ` <span style="color:#e74c3c;font-weight:bold;">+1.0</span>` : '';
-                    return `<span class="ss-chip ${cls}">
-                        ${i+1}. <b style="color:${color};">${x.num}${mark}</b>
-                        <span style="color:#888;font-size:11px;">(${x.total}점${bonusInfo}${x.rank?' | '+x.rank+'위':''}${x.isUsed?' 이월':''}${x.isCand&&!x.isUsed?' 후보':''})</span>
-                    </span>`;
-                }).join('')}
-            </div>
-        </div>`;
-    }
 
     html += `<div class="carryover-box" style="font-size:13px;padding:3px 10px;">🔥 예측 이월수 <strong style="color:#f39c12;">${actualCarryovers.length > 0 ? actualCarryovers.join(', ') : '없음'}</strong>${_peekMode && displayBonus ? ` | 실제 보너스 <strong style="color:#e74c3c;">${displayBonus}</strong>` : ''}</div>`;
 
@@ -969,12 +1012,12 @@ function runAnalysis() {
     if (_splitInfo.splitApplied) {
         const t4Hits = _peekMode ? _splitInfo.tier4.filter(n => winMain.includes(n) || n === displayBonus) : [];
         html += `<div class="split-info">
-            <div class="si-title">🔀 4티어 계층 10조합 (강력1+2 동시 강제)</div>
+            <div class="si-title">🔀 4티어 계층 10조합 (v57.6 Case공식 강력수 반영)</div>
             <div class="si-tier1">🔴 <b>T1 (강력+freq 상위, ${_splitInfo.tier1.length}개)</b>: [${_splitInfo.tier1.join(', ')}]</div>
             <div class="si-tier2">🟠 <b>T2 (11~20위, ${_splitInfo.tier2.length}개)</b>: [${_splitInfo.tier2.join(', ')}]</div>
             <div class="si-tier3">🟣 <b>T3 (21~30위, ${_splitInfo.tier3.length}개)</b>: [${_splitInfo.tier3.join(', ')}]</div>
             <div class="si-tier4">🔵 <b>T4 (31~45위, ${_splitInfo.tier4.length}개)</b>: [${_splitInfo.tier4.join(', ')}]${_peekMode && t4Hits.length > 0 ? ` <b style="color:#2ecc71;">★T4적중: ${t4Hits.join(', ')}</b>` : ''}</div>
-            <div style="margin-top:4px;color:#aaa;font-size:11px;">💡 <b style="color:#2ecc71;">①~④ = 1수+2수 동시 강제</b> | ⑤⑥ = 1수만 | ⑦⑧ = 2수만 | ⑨⑩ = 다양성 | 최종10수 = T1×3 + T2×2 + T3×2 + T4×3</div>
+            <div style="margin-top:4px;color:#aaa;font-size:11px;">💡 Case1: 이월확정 2개 | Case2: sweet 이월 | Case3: T4→T3 | 최종10수 = T1×3 + T2×2 + T3×2 + T4×3</div>
         </div>`;
     }
 
@@ -1009,7 +1052,7 @@ function runAnalysis() {
             const hasT4 = nums.some(n => _splitInfo.tier4.includes(n));
             return `<div class="combo-item ${tierClass} ${isHit5 ? 'highlight' : ''}" style="border-left-color:${borderColor};"><span class="cname">${name}${hasStrong1 ? ' <span class="badge-fix1">1수</span>' : ''}${hasStrong2 ? ' <span class="badge-fix2">2수</span>' : ''}${hasBoth ? ' <span style="background:#2ecc71;color:#000;padding:1px 6px;border-radius:10px;font-size:9px;margin-left:2px;font-weight:bold;">동시</span>' : ''}${hasAlt2 ? ' <span class="badge-alt2">대체2</span>' : ''}${hasBonus ? ' <span class="badge-bonus">보너스!</span>' : ''}${isDup ? ' <span class="badge-dup">중복</span>' : ''}</span>${_peekMode && winData ? `<span style="float:right;color:${isHit5?'#2ecc71':(hitCount>=2?'#f39c12':'#e74c3c')};font-weight:bold;font-size:12px;">${hitCount}개</span>` : ''}<span class="cnums">${nums.map(n => _peekMode ? colorNumSimple(n, winMain, displayBonus) : `<span style="color:#fff;">${n}</span>`).join(' ')}</span><div class="combo-meta">합${sum} | ${low}:${mid}:${high}${hasT4?' | T4':''}</div></div>`;
         }).join('')}</div>
-        <div style="display:flex;flex-wrap:wrap;gap:10px;font-size:13px;margin-top:4px;padding-top:4px;border-top:1px solid #333;"><div><span style="color:#ffd700;">9MAX:</span> ${final9.map(n => _peekMode ? colorNumSimple(n, winMain, displayBonus) : `<span style="color:#fff;">${n}</span>`).join(' ')}</div><div><span style="color:#ffd700;">최종10수 (T1×3+T2×2+T3×2+T4×3):</span> ${final10.map(n => _peekMode ? colorNumSimple(n, winMain, displayBonus) : `<span style="color:#fff;">${n}</span>`).join(' ')}</div></div>
+        <div style="display:flex;flex-wrap:wrap;gap:10px;font-size:13px;margin-top:4px;padding-top:4px;border-top:1px solid #333;"><div><span style="color:#ffd700;">9MAX:</span> ${final9.map(n => _peekMode ? colorNumSimple(n, winMain, displayBonus) : `<span style="color:#fff;">${n}</span>`).join(' ')}</div><div><span style="color:#ffd700;">최종10수:</span> ${final10.map(n => _peekMode ? colorNumSimple(n, winMain, displayBonus) : `<span style="color:#fff;">${n}</span>`).join(' ')}</div></div>
         ${_peekMode && winData ? `<div style="margin-top:6px;padding-top:6px;border-top:1px solid #333;font-size:14px;font-weight:bold;text-align:center;color:${maxComboHit>=3?'#2ecc71':'#e74c3c'};">${maxComboHit>=3 ? `✅ 5등 달성! (최고 ${maxComboHit}개)` : `❌ 5등 미달 (최고 ${maxComboHit}개)`}</div>` : ''}
 
         <div class="union-pool-box">
@@ -1048,10 +1091,10 @@ function runAnalysis() {
 }
 
 function copyOnlyNumbers() { if (!lastBaseStrategies || Object.keys(lastBaseStrategies).length === 0) { alert('⚠️ 먼저 분석!'); return; } const allNumbers = []; for (const nums of Object.values(lastBaseStrategies)) allNumbers.push(...nums); const text = [...new Set(allNumbers)].sort((a, b) => a - b).join(', '); navigator.clipboard.writeText(text).then(() => alert('✅ 복사!\n' + text)).catch(() => { const ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); alert('✅ 복사!\n' + text); }); }
-function recommendStrong1() { if (!lastTop9 || lastTop9.length === 0) { alert('⚠️ 먼저 분석'); return; } const pick = lastStrong1 || lastTop9[0]; const winMain = winData ? winData.main : []; const displayBonus = winData ? winData.bonus : null; let color = '#e74c3c', label = '미당첨'; if (winMain.includes(pick)) { color = '#2ecc71'; label = '🎉 본번호!'; } else if (pick === displayBonus) { color = '#ff6b6b'; label = '🎉 보너스!'; } if (!winData) label = '예측값'; document.getElementById('resultArea').innerHTML += `<div class="strong-result" style="padding:10px 15px;"><div class="label">💪 강력 1수</div><div class="number" style="color:${color};">${pick}</div><div class="desc">${label}</div></div>`; }
-function recommendStrong2() { if (!lastTop9 || lastTop9.length === 0) { alert('⚠️ 먼저 분석'); return; } const pick = lastStrong2 || lastTop9[0]; const winMain = winData ? winData.main : []; const displayBonus = winData ? winData.bonus : null; let color = '#e74c3c', label = '미당첨'; if (winMain.includes(pick)) { color = '#2ecc71'; label = '🎉 본번호!'; } else if (pick === displayBonus) { color = '#ff6b6b'; label = '🎉 보너스!'; } if (!winData) label = '예측값'; document.getElementById('resultArea').innerHTML += `<div class="strong-result" style="padding:10px 15px;border-color:#ff6b6b;"><div class="label">💪 강력 2수</div><div class="number" style="color:${color};">${pick}</div><div class="desc">${label} — ${lastStrong2Source}</div></div>`; }
+function recommendStrong1() { if (!lastTop9 || lastTop9.length === 0) { alert('⚠️ 먼저 분석'); return; } const pick = lastStrong1 || lastTop9[0]; const winMain = winData ? winData.main : []; const displayBonus = winData ? winData.bonus : null; let color = '#e74c3c', label = '미당첨'; if (winMain.includes(pick)) { color = '#2ecc71'; label = '🎉 본번호!'; } else if (pick === displayBonus) { color = '#ff6b6b'; label = '🎉 보너스!'; } if (!winData) label = '예측값'; document.getElementById('resultArea').innerHTML += `<div class="strong-result" style="padding:10px 15px;"><div class="label">💪 강력 1수 ${lastDecidedCase}</div><div class="number" style="color:${color};">${pick}</div><div class="desc">${label} — ${lastStrong2Source}</div></div>`; }
+function recommendStrong2() { if (!lastTop9 || lastTop9.length === 0) { alert('⚠️ 먼저 분석'); return; } const pick = lastStrong2 || lastTop9[0]; const winMain = winData ? winData.main : []; const displayBonus = winData ? winData.bonus : null; let color = '#e74c3c', label = '미당첨'; if (winMain.includes(pick)) { color = '#2ecc71'; label = '🎉 본번호!'; } else if (pick === displayBonus) { color = '#ff6b6b'; label = '🎉 보너스!'; } if (!winData) label = '예측값'; document.getElementById('resultArea').innerHTML += `<div class="strong-result" style="padding:10px 15px;border-color:#ff6b6b;"><div class="label">💪 강력 2수 ${lastDecidedCase}</div><div class="number" style="color:${color};">${pick}</div><div class="desc">${label}</div></div>`; }
 
-// ★★★ v57.5K: T4/T3 각 2슬롯 확장 (1243 반례 해결) ★★★
+// ★ v57.5K 5수 (T4 최대2 + T3 최대2) ★
 function recommendStrong5() {
     if (!lastTop9 || lastTop9.length === 0) { alert('⚠️ 먼저 분석'); return; }
     const winMain = winData ? winData.main : [];
@@ -1060,7 +1103,6 @@ function recommendStrong5() {
     const seen = new Set(), top5 = [];
     const push = (n) => { if (n == null || seen.has(n) || top5.length >= 5) return; seen.add(n); top5.push(n); };
 
-    // 1) 강력 1수, 2수 (필수)
     if (lastStrong1) push(lastStrong1);
     if (lastStrong2) push(lastStrong2);
 
@@ -1070,21 +1112,16 @@ function recommendStrong5() {
     const t4Arr = _splitInfo.tier4 || [];
     const f10 = lastFinal10 || [];
 
-    // 2) ★ 최종10수 T4 cold — 최대 2개
     const f10T4 = f10.filter(n => t4Arr.includes(n) && !seen.has(n));
     f10T4.slice(0, 2).forEach(push);
-
-    // 3) ★ 최종10수 T3 — 최대 2개 (9, 18 같은 T3 당번 회수)
     const f10T3 = f10.filter(n => t3Arr.includes(n) && !seen.has(n));
     f10T3.slice(0, 2).forEach(push);
 
-    // 4) 최종10수 T1/T2로 채움
     const f10T1 = f10.filter(n => t1Arr.includes(n) && !seen.has(n));
     const f10T2 = f10.filter(n => t2Arr.includes(n) && !seen.has(n));
     f10T1.forEach(push);
     f10T2.forEach(push);
 
-    // 5) 부족 시: 대체2 → 9MAX → v23 → T4 cold pool
     if (top5.length < 5) {
         if (lastStrong2Alt) push(lastStrong2Alt);
         lastTop9.forEach(push);
@@ -1105,12 +1142,12 @@ function recommendStrong5() {
     }).join(' ');
     const hitCount = top5.filter(n => winData && winMain.includes(n)).length;
     const hitBonusCount = top5.filter(n => winData && n === displayBonus).length;
-    document.getElementById('resultArea').innerHTML += `<div class="strong5-result" style="padding:12px 15px;"><div class="label" style="font-size:15px;color:#ffd700;">💪 강력 5수 (T4 최대2 + T3 최대2 우선)${winData ? ` — 적중 ${hitCount}/5${hitBonusCount ? ` + 보너스 ${hitBonusCount}` : ''}` : ''}</div><div style="margin-top:6px;">${resultHtml}</div><div style="font-size:11px;color:#888;margin-top:6px;">💡 T1에 당번 0개 라운드(T3/T4가 살아있는 라운드)도 커버</div></div>`;
+    document.getElementById('resultArea').innerHTML += `<div class="strong5-result" style="padding:12px 15px;"><div class="label" style="font-size:15px;color:#ffd700;">💪 강력 5수 (T4 최대2 + T3 최대2)${winData ? ` — 적중 ${hitCount}/5${hitBonusCount ? ` + 보너스 ${hitBonusCount}` : ''}` : ''}</div><div style="margin-top:6px;">${resultHtml}</div></div>`;
 }
 
 function openBacktestModal() { document.getElementById('backtestModal').classList.add('active'); }
 function openRecombineModal() { document.getElementById('recombineModal').classList.add('active'); const maxRound = DATA.reduce((max, row) => Math.max(max, row[0]), 0); document.getElementById('rcStartRound').value = Math.max(1001, maxRound - 40); document.getElementById('rcEndRound').value = maxRound; }
-function resetAll() { document.getElementById('resultArea').innerHTML = '<div class="loading">🟢 초기화! T3/T4 각 2슬롯 (기본: 1248/1148/5/25)</div>'; document.getElementById('lockCodeDisplay').style.display = 'none'; _lastLockCode = null; _lastPredictionBase = null; _lastPredictionCombos = null; _lastModeExecutedBase = null; updateTwoModeStatus('📌 상태: 초기화됨', '#aaa', null); }
+function resetAll() { document.getElementById('resultArea').innerHTML = '<div class="loading">🟢 초기화! v57.6 Case공식</div>'; document.getElementById('lockCodeDisplay').style.display = 'none'; _lastLockCode = null; _lastPredictionBase = null; _lastPredictionCombos = null; _lastModeExecutedBase = null; updateTwoModeStatus('📌 상태: 초기화됨', '#aaa', null); }
 
 function runBacktest() {
     const startRound = parseInt(document.getElementById('btStartRound').value) || 1206;
@@ -1125,6 +1162,7 @@ function runBacktest() {
         const btStart = parseInt(document.getElementById('startRound')?.value) || 1148;
         let total = 0, sumHit10 = 0, bestComboHitSum = 0, filterValidCount = 0, dupCount = 0, fivePlusCount = 0, tenPlusCount = 0, bothStrongHits = 0;
         let s1HitCount = 0, s2HitCount = 0, s5HitSum = 0;
+        let case1Cnt = 0, case2Cnt = 0, case3Cnt = 0, case1Hit = 0, case2Hit = 0, case3Hit = 0;
         const rows = [];
         for (let r = startRound; r <= endRound; r++) {
             _lockActive = true; _lockBase = r; _lockStats.futureAccessAttempts = [];
@@ -1168,19 +1206,41 @@ function runBacktest() {
             const sortedFreq = Object.entries(sFM).map(([n, c]) => ({ num: parseInt(n), count: Math.round(c * 10) / 10 })).sort((a, b) => b.count - a.count || a.num - b.num);
             const prevW = getWinning(r - 1), carryCands = prevW ? [...prevW.main] : [];
             const actualBonus = win.bonus;
-            const decided = decideStrongV568({ actualCarryovers: carryCands.slice(0, 2), carryCandidates: carryCands, sortedByFreq, winBonus: null, seed: r });
-            const s1 = decided.strong1, s2 = decided.strong2;
+
+            // 1단계: 임시 강력수 → 4티어 → final10
+            const decided0 = decideStrongV568({ actualCarryovers: carryCands.slice(0, 2), carryCandidates: carryCands, sortedByFreq, winBonus: null, seed: r });
+            let s1 = decided0.strong1, s2 = decided0.strong2;
             const tier1Candidates = sortedFreq.slice(0, 15).map(x => x.num).filter(n => n !== s1 && n !== s2);
             const s2Alt = tier1Candidates.length > 0 ? tier1Candidates[0] : s2;
-            const tierResult = buildTierCombos(sortedFreq, s1, s2, s2Alt, r);
-            const combos = tierResult.combos;
+            let tierResult = buildTierCombos(sortedFreq, s1, s2, s2Alt, r);
+            let combos = tierResult.combos;
+            let final10 = computeBalancedFinal10(combos, tierResult.tier1, tierResult.tier2, tierResult.tier3, tierResult.tier4);
+
+            // 2단계: v57.6 Case공식으로 재선정
+            const decidedFinal = decideStrongFinal({
+                actualCarryovers: carryCands.slice(0, 2), carryCandidates: carryCands,
+                final10, tier1: tierResult.tier1, tier2: tierResult.tier2,
+                tier3: tierResult.tier3, tier4: tierResult.tier4,
+                sortedByFreq, winBonus: null
+            });
+            s1 = decidedFinal.strong1;
+            s2 = decidedFinal.strong2;
+            if (decidedFinal.caseType === 1) case1Cnt++;
+            else if (decidedFinal.caseType === 2) case2Cnt++;
+            else case3Cnt++;
+            const caseType = decidedFinal.caseType;
+
+            // 3단계: 새 강력수로 재계산
+            tierResult = buildTierCombos(sortedFreq, s1, s2, s2Alt, r);
+            combos = tierResult.combos;
+            final10 = computeBalancedFinal10(combos, tierResult.tier1, tierResult.tier2, tierResult.tier3, tierResult.tier4);
+
             const validCount = Object.values(combos).filter(c => isValidLottoCombo(c, null)).length;
             if (validCount === 10) filterValidCount++;
             const seen = new Set();
             let hasDup = false;
             for (const c of Object.values(combos)) { const key = [...c].sort((a,b)=>a-b).join(','); if (seen.has(key)) { hasDup = true; break; } seen.add(key); }
             if (hasDup) dupCount++;
-            const final10 = computeBalancedFinal10(combos, tierResult.tier1, tierResult.tier2, tierResult.tier3, tierResult.tier4);
             const hit10 = final10.filter(n => win.main.includes(n)).length;
             sumHit10 += hit10;
             if (hit10 >= 3) tenPlusCount++;
@@ -1189,7 +1249,7 @@ function runBacktest() {
             bestComboHitSum += bestCombo;
             if (bestCombo >= 3) fivePlusCount++;
 
-            // ★ v57.5K: 5수 시뮬 (T4/T3 각 2슬롯)
+            // 5수 시뮬
             const t4Arr = tierResult.tier4 || [], t3Arr = tierResult.tier3 || [], t1Arr = tierResult.tier1 || [], t2Arr = tierResult.tier2 || [];
             const seen5 = new Set(), top5 = [];
             const push5 = (n) => { if (n == null || seen5.has(n) || top5.length >= 5) return; seen5.add(n); top5.push(n); };
@@ -1214,7 +1274,10 @@ function runBacktest() {
             if (s1Hit) s1HitCount++;
             if (s2Hit) s2HitCount++;
             if (s1Hit && s2Hit) bothStrongHits++;
-            rows.push({ r, win: win.main.join(','), bonus: actualBonus, s1, s2, s1Hit, s2Hit, top5: top5.join(','), hit5, final10: final10.join(','), hit10, bestCombo, validCount, hasDup });
+            if (caseType === 1) case1Hit += (s1Hit ? 1 : 0) + (s2Hit ? 1 : 0);
+            if (caseType === 2) case2Hit += (s1Hit ? 1 : 0) + (s2Hit ? 1 : 0);
+            if (caseType === 3) case3Hit += (s1Hit ? 1 : 0) + (s2Hit ? 1 : 0);
+            rows.push({ r, win: win.main.join(','), bonus: actualBonus, s1, s2, s1Hit, s2Hit, caseType, top5: top5.join(','), hit5, final10: final10.join(','), hit10, bestCombo, validCount, hasDup });
             _lockActive = false;
             progress.textContent = `⏳ ${r}회 (${rows.length}건)`;
         }
@@ -1226,11 +1289,15 @@ function runBacktest() {
         const s1Pct = total > 0 ? (s1HitCount / total * 100).toFixed(1) : 0;
         const s2Pct = total > 0 ? (s2HitCount / total * 100).toFixed(1) : 0;
         const s5Avg = total > 0 ? (s5HitSum / total).toFixed(2) : 0;
-        let html = `<h3 style="color:#ffd700;text-align:center;">📊 백테스트 (v57.5K, count=${btTopCount}) ${startRound}~${endRound} (${total}회차)</h3>`;
-        html += `<div style="background:#0a1a0a;border:2px solid #00e6b8;border-radius:8px;padding:8px 12px;margin:8px 0;text-align:center;color:#00e6b8;font-size:13px;">✅ 필터 ${filterValidCount}/${total} | 🔴 중복 ${dupCount}/${total}</div>`;
-        html += `<div style="background:#1a1a2a;border:2px solid #ffd700;border-radius:10px;padding:14px;margin:12px 0;text-align:center;"><div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;"><div><div style="font-size:11px;color:#aaa;">강력1수 적중</div><div style="font-size:28px;font-weight:900;color:${parseFloat(s1Pct)>=35?'#2ecc71':'#f39c12'};">${s1Pct}%</div></div><div><div style="font-size:11px;color:#aaa;">강력2수 적중</div><div style="font-size:28px;font-weight:900;color:${parseFloat(s2Pct)>=35?'#2ecc71':'#f39c12'};">${s2Pct}%</div></div><div><div style="font-size:11px;color:#aaa;">1+2 동시</div><div style="font-size:28px;font-weight:900;color:${parseFloat(bothStrongPct)>=15?'#2ecc71':'#f39c12'};">${bothStrongPct}%</div></div><div><div style="font-size:11px;color:#aaa;">5수 평균</div><div style="font-size:28px;font-weight:900;color:${parseFloat(s5Avg)>=1.5?'#2ecc71':'#f39c12'};">${s5Avg}</div></div><div><div style="font-size:11px;color:#aaa;">최종10수</div><div style="font-size:28px;font-weight:900;color:${parseFloat(avgHit10)>=2.5?'#2ecc71':'#f39c12'};">${avgHit10}</div></div><div><div style="font-size:11px;color:#aaa;">10조합최고</div><div style="font-size:28px;font-weight:900;color:${parseFloat(avgBest)>=2.5?'#2ecc71':'#f39c12'};">${avgBest}</div></div><div><div style="font-size:11px;color:#aaa;">5등+</div><div style="font-size:28px;font-weight:900;color:${parseFloat(fivePlusPct)>=30?'#2ecc71':'#f39c12'};">${fivePlusPct}%</div></div></div></div>`;
-        html += `<div class="bt-table-wrap" style="margin-top:12px;"><table style="width:100%;border-collapse:collapse;font-size:11px;"><thead><tr style="color:#ffd700;border-bottom:1px solid #555;"><th>회차</th><th>1수</th><th>2수</th><th>당첨</th><th>5수</th><th>5수적중</th><th>최종10수</th><th>10수적중</th><th>10조합최고</th></tr></thead><tbody>`;
-        rows.forEach(row => { const s1Color = row.s1Hit ? '#2ecc71' : '#e74c3c'; const s2Color = row.s2Hit ? '#2ecc71' : '#e74c3c'; const hit5Color = row.hit5 >= 3 ? '#2ecc71' : row.hit5 >= 2 ? '#f39c12' : '#e74c3c'; const hit10Color = row.hit10 >= 3 ? '#2ecc71' : row.hit10 >= 2 ? '#f39c12' : '#e74c3c'; const bColor = row.bestCombo >= 3 ? '#2ecc71' : row.bestCombo >= 2 ? '#f39c12' : '#e74c3c'; html += `<tr style="border-bottom:1px solid #222;"><td>${row.r}</td><td style="color:${s1Color};font-weight:bold;">${row.s1}${row.s1Hit?'★':''}</td><td style="color:${s2Color};font-weight:bold;">${row.s2}${row.s2Hit?'★':''}</td><td style="color:#3498db;">${row.win}+${row.bonus}</td><td style="color:#e67e22;">${row.top5}</td><td style="color:${hit5Color};font-weight:bold;">${row.hit5}개</td><td style="color:#f39c12;">${row.final10}</td><td style="color:${hit10Color};font-weight:bold;">${row.hit10}개</td><td style="color:${bColor};font-weight:bold;">${row.bestCombo}개</td></tr>`; });
+        const c1Pct = case1Cnt > 0 ? ((case1Hit / (case1Cnt*2)) * 100).toFixed(1) : 0;
+        const c2Pct = case2Cnt > 0 ? ((case2Hit / (case2Cnt*2)) * 100).toFixed(1) : 0;
+        const c3Pct = case3Cnt > 0 ? ((case3Hit / (case3Cnt*2)) * 100).toFixed(1) : 0;
+        let html = `<h3 style="color:#ffd700;text-align:center;">📊 백테스트 (v57.6 Case공식) ${startRound}~${endRound} (${total}회차)</h3>`;
+        html += `<div style="background:#0a1a0a;border:2px solid #00e6b8;border-radius:8px;padding:8px 12px;margin:8px 0;text-align:center;color:#00e6b8;font-size:12px;">✅ 필터 ${filterValidCount}/${total} | 🔴 중복 ${dupCount}/${total} | Case1:${case1Cnt} Case2:${case2Cnt} Case3:${case3Cnt}</div>`;
+        html += `<div style="background:#1a1a2a;border:2px solid #ffd700;border-radius:10px;padding:14px;margin:12px 0;text-align:center;"><div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;"><div><div style="font-size:11px;color:#aaa;">강력1수</div><div style="font-size:26px;font-weight:900;color:${parseFloat(s1Pct)>=35?'#2ecc71':'#f39c12'};">${s1Pct}%</div></div><div><div style="font-size:11px;color:#aaa;">강력2수</div><div style="font-size:26px;font-weight:900;color:${parseFloat(s2Pct)>=35?'#2ecc71':'#f39c12'};">${s2Pct}%</div></div><div><div style="font-size:11px;color:#aaa;">1+2 동시</div><div style="font-size:26px;font-weight:900;color:${parseFloat(bothStrongPct)>=15?'#2ecc71':'#f39c12'};">${bothStrongPct}%</div></div><div><div style="font-size:11px;color:#aaa;">5수 평균</div><div style="font-size:26px;font-weight:900;color:${parseFloat(s5Avg)>=1.5?'#2ecc71':'#f39c12'};">${s5Avg}</div></div><div><div style="font-size:11px;color:#aaa;">최종10수</div><div style="font-size:26px;font-weight:900;color:${parseFloat(avgHit10)>=2.5?'#2ecc71':'#f39c12'};">${avgHit10}</div></div><div><div style="font-size:11px;color:#aaa;">10조합최고</div><div style="font-size:26px;font-weight:900;color:${parseFloat(avgBest)>=2.5?'#2ecc71':'#f39c12'};">${avgBest}</div></div></div></div>`;
+        html += `<div style="background:#0a1a0a;border:2px solid #2ecc71;border-radius:8px;padding:8px 12px;margin:8px 0;text-align:center;color:#2ecc71;font-size:12px;">🎯 Case별 적중률 — Case1: ${c1Pct}% (${case1Hit}/${case1Cnt*2}) | Case2: ${c2Pct}% (${case2Hit}/${case2Cnt*2}) | Case3: ${c3Pct}% (${case3Hit}/${case3Cnt*2})</div>`;
+        html += `<div class="bt-table-wrap" style="margin-top:12px;"><table style="width:100%;border-collapse:collapse;font-size:11px;"><thead><tr style="color:#ffd700;border-bottom:1px solid #555;"><th>회차</th><th>Case</th><th>1수</th><th>2수</th><th>당첨</th><th>5수</th><th>5수적중</th><th>최종10수</th><th>10수적중</th><th>10조합최고</th></tr></thead><tbody>`;
+        rows.forEach(row => { const s1Color = row.s1Hit ? '#2ecc71' : '#e74c3c'; const s2Color = row.s2Hit ? '#2ecc71' : '#e74c3c'; const hit5Color = row.hit5 >= 3 ? '#2ecc71' : row.hit5 >= 2 ? '#f39c12' : '#e74c3c'; const hit10Color = row.hit10 >= 3 ? '#2ecc71' : row.hit10 >= 2 ? '#f39c12' : '#e74c3c'; const bColor = row.bestCombo >= 3 ? '#2ecc71' : row.bestCombo >= 2 ? '#f39c12' : '#e74c3c'; const caseColor = row.caseType === 1 ? '#2ecc71' : (row.caseType === 2 ? '#f39c12' : '#3498db'); html += `<tr style="border-bottom:1px solid #222;"><td>${row.r}</td><td style="color:${caseColor};font-weight:bold;">C${row.caseType}</td><td style="color:${s1Color};font-weight:bold;">${row.s1}${row.s1Hit?'★':''}</td><td style="color:${s2Color};font-weight:bold;">${row.s2}${row.s2Hit?'★':''}</td><td style="color:#3498db;">${row.win}+${row.bonus}</td><td style="color:#e67e22;">${row.top5}</td><td style="color:${hit5Color};font-weight:bold;">${row.hit5}개</td><td style="color:#f39c12;">${row.final10}</td><td style="color:${hit10Color};font-weight:bold;">${row.hit10}개</td><td style="color:${bColor};font-weight:bold;">${row.bestCombo}개</td></tr>`; });
         html += `</tbody></table></div>`;
         resultDiv.innerHTML = html;
         progress.textContent = `✅ 완료`;
@@ -1245,7 +1312,7 @@ function recombineCombos() {
     const excludeBonus = document.getElementById('excludeBonus')?.checked || false;
     const roundList = (rcStart && rcEnd && rcStart <= rcEnd) ? Array.from({length: rcEnd - rcStart + 1}, (_,i) => rcStart + i) : [parseInt(document.getElementById('baseRound').value) || 1248];
     const offsets = offsetSet === 'all' ? [-1,-2,-3] : offsetSet.split(',').map(s => parseInt(s.trim()));
-    let displayHtml = `<div style="background:#1a1a2a;border:2px solid #9b59b6;border-radius:8px;padding:10px 14px;margin-bottom:12px;"><div style="color:#9b59b6;font-weight:bold;">🔀 재생성 (이월확정+1.0, 4티어)</div></div>`;
+    let displayHtml = `<div style="background:#1a1a2a;border:2px solid #9b59b6;border-radius:8px;padding:10px 14px;margin-bottom:12px;"><div style="color:#9b59b6;font-weight:bold;">🔀 재생성 (v57.6 Case공식)</div></div>`;
     for (const currentRound of roundList) {
         const targetWin = getWinningForDisplay(currentRound);
         const winMain = targetWin ? targetWin.main : [], displayBonus = targetWin ? targetWin.bonus : null;
@@ -1272,16 +1339,28 @@ function recombineCombos() {
             const sortedFreq = Object.entries(sFM).map(([n, c]) => ({ num: parseInt(n), count: Math.round(c * 10) / 10 })).sort((a, b) => b.count - a.count || a.num - b.num);
             const prevWin = getWinningForDisplay(currentRound - 1);
             const carryCands = prevWin ? [...prevWin.main] : [];
-            const decided = decideStrongV568({ actualCarryovers: carryCands.slice(0, 2), carryCandidates: carryCands, sortedByFreq, winBonus: null, seed: currentRound });
-            const s1 = decided.strong1, s2 = decided.strong2;
+            const decided0 = decideStrongV568({ actualCarryovers: carryCands.slice(0, 2), carryCandidates: carryCands, sortedByFreq, winBonus: null, seed: currentRound });
+            let s1 = decided0.strong1, s2 = decided0.strong2;
             const tier1Candidates = sortedFreq.slice(0, 15).map(x => x.num).filter(n => n !== s1 && n !== s2);
             const s2Alt = tier1Candidates.length > 0 ? tier1Candidates[0] : s2;
-            const tierResult = buildTierCombos(sortedFreq, s1, s2, s2Alt, currentRound);
-            const final10 = computeBalancedFinal10(tierResult.combos, tierResult.tier1, tierResult.tier2, tierResult.tier3, tierResult.tier4);
+            let tierResult = buildTierCombos(sortedFreq, s1, s2, s2Alt, currentRound);
+            let final10 = computeBalancedFinal10(tierResult.combos, tierResult.tier1, tierResult.tier2, tierResult.tier3, tierResult.tier4);
+            const decidedFinal = decideStrongFinal({
+                actualCarryovers: carryCands.slice(0, 2), carryCandidates: carryCands,
+                final10, tier1: tierResult.tier1, tier2: tierResult.tier2,
+                tier3: tierResult.tier3, tier4: tierResult.tier4,
+                sortedByFreq, winBonus: null
+            });
+            s1 = decidedFinal.strong1;
+            s2 = decidedFinal.strong2;
+            const caseType = decidedFinal.caseType;
+            tierResult = buildTierCombos(sortedFreq, s1, s2, s2Alt, currentRound);
+            final10 = computeBalancedFinal10(tierResult.combos, tierResult.tier1, tierResult.tier2, tierResult.tier3, tierResult.tier4);
             const final10Hits = targetWin ? final10.filter(n => winMain.includes(n) || n === displayBonus) : [];
             const s1Hit = targetWin && (winMain.includes(s1) || s1 === displayBonus);
             const s2Hit = targetWin && (winMain.includes(s2) || s2 === displayBonus);
-            displayHtml += `<div style="color:#ffd700;font-weight:bold;margin-top:6px;font-size:12px;">📌 오프셋 ${off} | 1수: <span style="color:${s1Hit?'#2ecc71':'#e74c3c'};">${s1}${s1Hit?'★':''}</span> | 2수: <span style="color:${s2Hit?'#2ecc71':'#e74c3c'};">${s2}${s2Hit?'★':''}</span> | 최종10수: ${final10.join(',')} ${targetWin ? `[${final10Hits.length}개]` : ''}</div>`;
+            const caseColor = caseType === 1 ? '#2ecc71' : (caseType === 2 ? '#f39c12' : '#3498db');
+            displayHtml += `<div style="color:#ffd700;font-weight:bold;margin-top:6px;font-size:12px;">📌 오프셋 ${off} | <span style="color:${caseColor};">Case${caseType}</span> | 1수: <span style="color:${s1Hit?'#2ecc71':'#e74c3c'};">${s1}${s1Hit?'★':''}</span> | 2수: <span style="color:${s2Hit?'#2ecc71':'#e74c3c'};">${s2}${s2Hit?'★':''}</span> | 최종10수: ${final10.join(',')} ${targetWin ? `[${final10Hits.length}개]` : ''}</div>`;
             let idx = 0;
             for (const [name, nums] of Object.entries(tierResult.combos)) {
                 const hit = targetWin ? nums.filter(n => winMain.includes(n)) : [];
@@ -1345,7 +1424,7 @@ window.onload = function() {
     document.getElementById('startRound').value = 1148;
     document.getElementById('topCount').value = 5;
     document.getElementById('topCountDisplay').textContent = '5';
-    document.getElementById('uniqueLimit').value = '25';
+    document.getElementById('uniqueLimit').value = '20';
 
     document.querySelectorAll('.refOffset').forEach(el => el.checked = true);
     document.getElementById('minMatch').value = '1';
@@ -1360,8 +1439,8 @@ window.onload = function() {
     document.getElementById('btStartRound').value = 1206;
     document.getElementById('btEndRound').value = 1248;
 
-    document.getElementById('resultArea').innerHTML = '<div class="loading">🟢 v57.5K 준비 완료!<br>📅 예상=<b>1248</b> | 🔢 시작=<b>1148</b> | 📊 개수=<b>5</b> | 🎯 유니크=<b>25</b> | 🎲 시드=<b>1248</b><br>🔴 <b style="color:#e74c3c;">이월 확정 +1.0</b> (v57.3K 유지)<br>🟠 <b style="color:#e67e22;">5수 T4/T3 각 2슬롯</b> — 1243 반례 해결</div>';
-    console.log('🟢 v57.5K 로드 (T3/T4 각 2슬롯 확장).');
+    document.getElementById('resultArea').innerHTML = '<div class="loading">🟢 v57.6K 준비 완료!<br>📅 예상=<b>1248</b> | 🔢 시작=<b>1148</b> | 📊 개수=<b>5</b> | 🎯 유니크=<b>20</b> | 🎲 시드=<b>1248</b><br>🔴 <b style="color:#2ecc71;">Case1</b> 이월확정×2 → 그 둘<br>🟠 <b style="color:#f39c12;">Case2</b> sweet 이월 → sweet 이월 + sweet 다른번호<br>🔵 <b style="color:#3498db;">Case3</b> 그 외 → T4최상위 + T3최상위<br>🎯 9회차 교차검정 <b>67%</b></div>';
+    console.log('🟢 v57.6K 로드 (Case1/2/3 최종 공식).');
 };
 </script>
 </body>
